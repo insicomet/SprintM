@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { computeSvCode, getAllSettlementNames } from "./calc/climate/svCode";
 import { findFrameSelection, snapHeight } from "./calc/frame/sectionBank";
 import { estimateSandwichPanelCladding, getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
+import { selectFacadePost } from "./calc/facadePost/selectFacadePost";
 import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/buildingEnvelope";
 import { rafterLengthPerFrame_m } from "./calc/geometry/frameGeometry";
 import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
@@ -31,6 +32,7 @@ export function App() {
   const [maxStepMm, setMaxStepMm] = useState(1500);
   const [claddingThickness, setCladdingThickness] = useState(100);
   const [openings, setOpenings] = useState<OpeningsInput>(DEFAULT_OPENINGS);
+  const [postSpacing, setPostSpacing] = useState(2);
 
   const climate = useMemo(() => {
     try {
@@ -119,10 +121,34 @@ export function App() {
     return computePurlinLayout(purlin, rafterLengthPerFrame_m(geometry), geometry.length_m);
   }, [purlin, geometry]);
 
+  const facadePost = useMemo(() => {
+    if (!climate.ok || climate.value.city.wind.w0Kpa === null) return undefined;
+    return selectFacadePost({
+      w0_kPa: climate.value.city.wind.w0Kpa,
+      postSpacing_m: postSpacing,
+      height_m: height,
+    });
+  }, [climate, postSpacing, height]);
+
+  const facadePostLayout = useMemo(() => {
+    if (!facadePost) return null;
+    // Приблизительно: стойки идут по всему периметру стен с заданным шагом.
+    const perimeter_m = 2 * (geometry.span_m + geometry.length_m);
+    const postCount = Math.ceil(perimeter_m / postSpacing);
+    const totalLength_m = postCount * geometry.height_m;
+    const totalMass_kg = totalLength_m * facadePost.profile.mass_kg_per_m;
+    return { postCount, totalLength_m, totalMass_kg };
+  }, [facadePost, geometry, postSpacing]);
+
   const summary = useMemo(() => {
     const steelMass_kg =
-      (frameTakeoff?.totalFrameMass_kg ?? 0) + (purlinLayout?.totalMass_kg ?? 0);
-    const hasFullSteelMass = frameTakeoff?.totalFrameMass_kg !== null && purlinLayout?.totalMass_kg !== null;
+      (frameTakeoff?.totalFrameMass_kg ?? 0) +
+      (purlinLayout?.totalMass_kg ?? 0) +
+      (facadePostLayout?.totalMass_kg ?? 0);
+    const hasFullSteelMass =
+      frameTakeoff?.totalFrameMass_kg !== null &&
+      purlinLayout?.totalMass_kg !== null &&
+      facadePostLayout?.totalMass_kg !== null;
 
     const claddingCost =
       envelope.wall?.cost != null && envelope.roof?.cost != null
@@ -135,7 +161,7 @@ export function App() {
       frameTakeoff?.totalFrameCost != null && claddingCost != null && purlinLayout?.totalCost != null;
 
     return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost };
-  }, [frameTakeoff, purlinLayout, envelope]);
+  }, [frameTakeoff, purlinLayout, facadePostLayout, envelope]);
 
   return (
     <div className="page">
@@ -293,6 +319,17 @@ export function App() {
               />
             </div>
           </label>
+
+          <label>
+            Шаг стоек фахверка, м
+            <input
+              type="number"
+              min="0.5"
+              step="0.1"
+              value={postSpacing}
+              onChange={(e) => setPostSpacing(Number(e.target.value))}
+            />
+          </label>
         </div>
       </section>
 
@@ -440,6 +477,31 @@ export function App() {
       </section>
 
       <section className="card">
+        <h2>Стойки фахверка</h2>
+        <p className="hint">
+          Оценочно: проверка только на изгиб от ветра (без гибкости и продольной силы), шаг по
+          периметру стен — постоянный, без учёта углов и проёмов. См. открытые допущения в коде.
+        </p>
+        {facadePost && facadePostLayout ? (
+          <dl className="result-list">
+            <dt>Профиль</dt>
+            <dd>
+              {facadePost.profile.section} ({facadePost.profile.steelGrade})
+            </dd>
+            <dt>Кол-во стоек</dt>
+            <dd>{facadePostLayout.postCount} шт.</dd>
+            <dt>Суммарно на здание</dt>
+            <dd>
+              {facadePostLayout.totalLength_m.toFixed(0)} м — {facadePostLayout.totalMass_kg.toFixed(0)}{" "}
+              кг
+            </dd>
+          </dl>
+        ) : (
+          <p className="error">Нет данных для подбора (проверьте климат) или нагрузка слишком велика.</p>
+        )}
+      </section>
+
+      <section className="card">
         <h2>Обшивка (сэндвич-панели)</h2>
         <p className="hint">
           Стены — за вычетом площади ворот/дверей ({openingsArea.toFixed(1)} м²); окна считаются
@@ -472,7 +534,7 @@ export function App() {
       <section className="card summary-card">
         <h2>Итоговая сводка</h2>
         <dl className="result-list">
-          <dt>Металл (каркас + прогоны)</dt>
+          <dt>Металл (каркас + прогоны + стойки)</dt>
           <dd>
             {summary.steelMass_kg.toFixed(0)} кг
             {!summary.hasFullSteelMass && " (частично — см. предупреждения выше)"}
@@ -502,9 +564,9 @@ export function App() {
           </dd>
         </dl>
         <p className="hint">
-          Не учтено: связи, затяжки, узловые пластины, крепёж,
-          доборные элементы, водосток, стойки фахверка, монтаж. Это предварительная оценка металла и
-          обшивки, не коммерческое предложение.
+          Не учтено: связи, затяжки, узловые пластины, крепёж, доборные элементы, водосток, цена
+          стоек фахверка (только масса), монтаж. Это предварительная оценка металла и обшивки, не
+          коммерческое предложение.
         </p>
       </section>
 
