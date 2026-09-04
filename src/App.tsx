@@ -460,6 +460,11 @@ export function App() {
                     {Math.round(frameFasteners.fc12Count)} шт — {frameFasteners.fc12Mass_kg.toFixed(0)} кг (цена
                     неизвестна)
                   </dd>
+                  <dt>Саморез 5,5x25</dt>
+                  <dd>
+                    {Math.round(frameFasteners.screw525Count)} шт — {frameFasteners.screw525Mass_kg.toFixed(1)} кг
+                    (цена неизвестна){frameFasteners.screw525RateIsEstimated ? ", ставка оценочная" : ""}
+                  </dd>
                 </>
               )}
               <dt>Итого металл каркаса</dt>
