@@ -5,6 +5,7 @@ import { estimateSandwichPanelCladding, getSandwichPanelThicknesses } from "./ca
 import { facadePostCount } from "./calc/facadePost/postCount";
 import { selectFacadePost } from "./calc/facadePost/selectFacadePost";
 import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/buildingEnvelope";
+import { computeFrameFasteners } from "./calc/geometry/frameFasteners";
 import { rafterLengthPerFrame_m } from "./calc/geometry/frameGeometry";
 import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
 import { computeOpeningsArea_m2, DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
@@ -92,6 +93,11 @@ export function App() {
     return computeFrameTakeoff(geometry, frame.value);
   }, [frame, geometry, heightBucket]);
 
+  const frameFasteners = useMemo(() => {
+    if (!frameTakeoff) return null;
+    return computeFrameFasteners(geometry, frameTakeoff.frameCount);
+  }, [frameTakeoff, geometry]);
+
   const openingsArea = useMemo(() => computeOpeningsArea_m2(openings), [openings]);
 
   const envelope = useMemo(() => {
@@ -148,11 +154,13 @@ export function App() {
     const steelMass_kg =
       (frameTakeoff?.totalFrameMass_kg ?? 0) +
       (frameTakeoff?.gussetPlatesMass_kg ?? 0) +
+      (frameFasteners?.totalMass_kg ?? 0) +
       (purlinLayout?.totalMass_kg ?? 0) +
       (facadePostLayout?.totalMass_kg ?? 0);
     const hasFullSteelMass =
       frameTakeoff?.totalFrameMass_kg !== null &&
       frameTakeoff?.gussetPlatesMass_kg !== null &&
+      frameFasteners !== null &&
       purlinLayout?.totalMass_kg !== null &&
       facadePostLayout?.totalMass_kg !== null;
 
@@ -179,7 +187,7 @@ export function App() {
     };
 
     return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost, shares };
-  }, [frameTakeoff, purlinLayout, facadePostLayout, envelope]);
+  }, [frameTakeoff, frameFasteners, purlinLayout, facadePostLayout, envelope]);
 
   return (
     <div className="page">
@@ -440,10 +448,28 @@ export function App() {
                   ? `${frameTakeoff.gussetPlatesMass_kg.toFixed(0)} кг (оценка ИНСИ, состав не расшифрован)`
                   : "нет данных для этой комбинации"}
               </dd>
+              {frameFasteners && (
+                <>
+                  <dt>Крепёж Фс11/Фс14</dt>
+                  <dd>
+                    {Math.round(frameFasteners.fc11_14Count)} шт — {frameFasteners.fc11_14Mass_kg.toFixed(0)} кг
+                    (цена неизвестна)
+                  </dd>
+                  <dt>Крепёж Фс12</dt>
+                  <dd>
+                    {Math.round(frameFasteners.fc12Count)} шт — {frameFasteners.fc12Mass_kg.toFixed(0)} кг (цена
+                    неизвестна)
+                  </dd>
+                </>
+              )}
               <dt>Итого металл каркаса</dt>
               <dd>
                 {frameTakeoff.totalFrameMass_kg !== null
-                  ? `${(frameTakeoff.totalFrameMass_kg + (frameTakeoff.gussetPlatesMass_kg ?? 0)).toFixed(0)} кг`
+                  ? `${(
+                      frameTakeoff.totalFrameMass_kg +
+                      (frameTakeoff.gussetPlatesMass_kg ?? 0) +
+                      (frameFasteners?.totalMass_kg ?? 0)
+                    ).toFixed(0)} кг`
                   : "—"}
               </dd>
             </dl>
@@ -593,9 +619,9 @@ export function App() {
           </dd>
         </dl>
         <p className="hint">
-          Не учтено: связи, затяжки, крепёж, доборные элементы, водосток, цена узловых пластин и
-          стоек фахверка (только масса), монтаж. Это предварительная оценка металла и обшивки, не
-          коммерческое предложение.
+          Не учтено: связи, затяжки, прочий крепёж (кроме Фс11/12/14), доборные элементы, водосток,
+          цена узловых пластин, крепежа Фс11/12/14 и стоек фахверка (только масса), монтаж. Это
+          предварительная оценка металла и обшивки, не коммерческое предложение.
         </p>
       </section>
 
