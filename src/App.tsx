@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { computeSvCode, getAllSettlementNames } from "./calc/climate/svCode";
 import { findFrameSelection, snapHeight } from "./calc/frame/sectionBank";
+import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
 import { computeRoofLoad, defaultRoofSlopeDeg } from "./calc/loads/roofLoad";
 import { selectPurlin } from "./calc/purlin/selectPurlin";
 import roofingTypesRaw from "./data/roofingSelfWeight.json";
@@ -16,6 +17,7 @@ const roofingTypes = roofingTypesRaw as { type: string; selfWeight_kg_m2: number
 export function App() {
   const [city, setCity] = useState("Челябинск");
   const [span, setSpan] = useState<Span>(18);
+  const [length, setLength] = useState(30);
   const [height, setHeight] = useState(5);
   const [responsibility, setResponsibility] = useState<ResponsibilityLevel>(1.0);
   const [roofingType, setRoofingType] = useState(
@@ -64,6 +66,20 @@ export function App() {
     });
   }, [climate, roofingType, span]);
 
+  const frameTakeoff = useMemo(() => {
+    if (!frame?.ok || !frame.value || heightBucket === null) return null;
+    return computeFrameTakeoff(
+      {
+        span_m: span,
+        length_m: length,
+        height_m: height,
+        framePitch_m: frame.value.framePitch_m,
+        roofSlopeDeg: defaultRoofSlopeDeg(span),
+      },
+      frame.value,
+    );
+  }, [frame, span, length, height, heightBucket]);
+
   const purlin = useMemo(() => {
     if (!roofLoad) return undefined;
     return selectPurlin({
@@ -108,6 +124,17 @@ export function App() {
                 </option>
               ))}
             </select>
+          </label>
+
+          <label>
+            Длина, м
+            <input
+              type="number"
+              step="0.5"
+              min="1"
+              value={length}
+              onChange={(e) => setLength(Number(e.target.value))}
+            />
           </label>
 
           <label>
@@ -212,6 +239,43 @@ export function App() {
             Комбинация пролёт={span}м, высота={heightBucket}м, k={responsibility}, с/в=
             {climate.value.standard} не найдена в банке сечений.
           </p>
+        )}
+      </section>
+
+      <section className="card">
+        <h2>Ведомость материалов каркаса</h2>
+        <p className="hint">
+          Только колонны и балки (ригели); прогоны, связи, крепёж и обшивка — в разработке.
+        </p>
+        {frameTakeoff ? (
+          <>
+            <dl className="result-list">
+              <dt>Кол-во рам</dt>
+              <dd>{frameTakeoff.frameCount} шт.</dd>
+              <dt>Колонны</dt>
+              <dd>
+                {frameTakeoff.column.totalLength_m.toFixed(1)} м
+                {frameTakeoff.column.totalMass_kg !== null
+                  ? ` — ${frameTakeoff.column.totalMass_kg.toFixed(0)} кг`
+                  : " — масса неизвестна (нет в прайс-листе)"}
+              </dd>
+              <dt>Балки</dt>
+              <dd>
+                {frameTakeoff.beam.totalLength_m.toFixed(1)} м
+                {frameTakeoff.beam.totalMass_kg !== null
+                  ? ` — ${frameTakeoff.beam.totalMass_kg.toFixed(0)} кг`
+                  : " — масса неизвестна (нет в прайс-листе)"}
+              </dd>
+              <dt>Итого металл каркаса</dt>
+              <dd>
+                {frameTakeoff.totalFrameMass_kg !== null
+                  ? `${frameTakeoff.totalFrameMass_kg.toFixed(0)} кг`
+                  : "—"}
+              </dd>
+            </dl>
+          </>
+        ) : (
+          <p className="error">Нет данных для расчёта ведомости.</p>
         )}
       </section>
 
