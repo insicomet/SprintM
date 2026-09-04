@@ -162,7 +162,19 @@ export function App() {
     const hasFullCost =
       frameTakeoff?.totalFrameCost != null && claddingCost != null && purlinLayout?.totalCost != null;
 
-    return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost };
+    // Доля каждой статьи в известной стоимости — обшивка не зависит от
+    // климата (только от геометрии) и обычно доминирует, из-за чего
+    // при смене города меняется в основном "невидимая на глаз" часть
+    // (каркас+прогоны), а итоговая сумма почти не сдвигается.
+    const shareOf = (cost: number | null | undefined) =>
+      cost != null && knownCost > 0 ? (cost / knownCost) * 100 : null;
+    const shares = {
+      frame: shareOf(frameTakeoff?.totalFrameCost),
+      purlin: shareOf(purlinLayout?.totalCost),
+      cladding: shareOf(claddingCost),
+    };
+
+    return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost, shares };
   }, [frameTakeoff, purlinLayout, facadePostLayout, envelope]);
 
   return (
@@ -552,18 +564,21 @@ export function App() {
             {summary.claddingCost !== null
               ? `${summary.claddingCost.toLocaleString("ru-RU")} ₽`
               : "цена неизвестна"}
+            {summary.shares.cladding !== null && ` (${summary.shares.cladding.toFixed(0)}% — не зависит от климата)`}
           </dd>
           <dt>Каркас (металл)</dt>
           <dd>
             {frameTakeoff?.totalFrameCost != null
               ? `${frameTakeoff.totalFrameCost.toLocaleString("ru-RU")} ₽`
               : "цена неизвестна"}
+            {summary.shares.frame !== null && ` (${summary.shares.frame.toFixed(0)}% — зависит от климата)`}
           </dd>
           <dt>Прогоны</dt>
           <dd>
             {purlinLayout?.totalCost != null
               ? `${purlinLayout.totalCost.toLocaleString("ru-RU")} ₽`
               : "цена неизвестна"}
+            {summary.shares.purlin !== null && ` (${summary.shares.purlin.toFixed(0)}% — зависит от климата)`}
           </dd>
           <dt>Известная стоимость материалов</dt>
           <dd className="summary-total">
