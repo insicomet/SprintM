@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { computeSvCode, getAllSettlementNames } from "./calc/climate/svCode";
 import { findFrameSelection, snapHeight } from "./calc/frame/sectionBank";
 import { estimateSandwichPanelCladding, getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
+import { facadePostCount } from "./calc/facadePost/postCount";
 import { selectFacadePost } from "./calc/facadePost/selectFacadePost";
 import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/buildingEnvelope";
 import { rafterLengthPerFrame_m } from "./calc/geometry/frameGeometry";
@@ -132,13 +133,16 @@ export function App() {
 
   const facadePostLayout = useMemo(() => {
     if (!facadePost) return null;
-    // Приблизительно: стойки идут по всему периметру стен с заданным шагом.
-    const perimeter_m = 2 * (geometry.span_m + geometry.length_m);
-    const postCount = Math.ceil(perimeter_m / postSpacing);
+    // Количество — по практическому правилу (не из формул исходного
+    // файла ИНСИ, см. facadePost/postCount.ts), не по периметру/шагу.
+    // Шаг стоек (postSpacing) используется только для расчёта нагрузки
+    // на одну стойку при подборе сечения (см. selectFacadePost) — с
+    // количеством он намеренно не связан.
+    const postCount = facadePostCount(span);
     const totalLength_m = postCount * geometry.height_m;
     const totalMass_kg = totalLength_m * facadePost.profile.mass_kg_per_m;
     return { postCount, totalLength_m, totalMass_kg };
-  }, [facadePost, geometry, postSpacing]);
+  }, [facadePost, geometry, span]);
 
   const summary = useMemo(() => {
     const steelMass_kg =
@@ -499,8 +503,10 @@ export function App() {
       <section className="card">
         <h2>Стойки фахверка</h2>
         <p className="hint">
-          Оценочно: проверка только на изгиб от ветра (без гибкости и продольной силы), шаг по
-          периметру стен — постоянный, без учёта углов и проёмов. См. открытые допущения в коде.
+          Сечение — оценочно, проверка только на изгиб от ветра (без гибкости и продольной силы).
+          Количество — по практическому правилу (не из формул исходного файла ИНСИ): 4 шт. на
+          здание для пролёта до 18м, 6 шт. для 21–24м. Шаг стоек ниже влияет только на нагрузку при
+          подборе сечения, на количество — нет.
         </p>
         {facadePost && facadePostLayout ? (
           <dl className="result-list">
