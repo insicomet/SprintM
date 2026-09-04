@@ -14,13 +14,14 @@ describe("computeFrameFasteners", () => {
     expect(result.fc12Count).toBeCloseTo(2 * result.fc11_14Count, 9);
   });
 
-  it("total mass is the sum of all three categories at their known unit masses", () => {
+  it("total mass is the sum of all categories at their known unit masses", () => {
     const result = computeFrameFasteners({ span_m: 18, height_m: 5 }, 8);
     expect(result.fc11_14Mass_kg).toBeCloseTo(result.fc11_14Count * 1.4, 6);
     expect(result.fc12Mass_kg).toBeCloseTo(result.fc12Count * 0.5, 6);
     expect(result.screw525Mass_kg).toBeCloseTo(result.screw525Count * 0.0043, 6);
+    expect(result.boltM16Mass_kg).toBeCloseTo(result.boltM16Count * 0.12, 6);
     expect(result.totalMass_kg).toBeCloseTo(
-      result.fc11_14Mass_kg + result.fc12Mass_kg + result.screw525Mass_kg,
+      result.fc11_14Mass_kg + result.fc12Mass_kg + result.screw525Mass_kg + result.boltM16Mass_kg,
       9,
     );
   });
@@ -57,6 +58,26 @@ describe("computeFrameFasteners", () => {
       // C85 = K90*634 = 11*634 = 6974
       const result = computeFrameFasteners({ span_m: 18, height_m: 6 }, 11);
       expect(result.screw525Count).toBe(6974);
+    });
+  });
+
+  describe("Болт М16х50 rate — per user's handwritten note (30 for 9/12/15м, 50 for 18/21м)", () => {
+    it.each([
+      [9, 30],
+      [12, 30],
+      [15, 30],
+      [18, 50],
+      [21, 50],
+    ] as const)("span %im -> rate %i per frame", (span, rate) => {
+      const result = computeFrameFasteners({ span_m: span, height_m: 5 }, 8);
+      expect(result.boltM16Count).toBe(8 * rate);
+      expect(result.boltM16RateIsEstimated).toBe(false);
+    });
+
+    it("falls back to the nearest known rate for 24m, flagged as estimated", () => {
+      const result = computeFrameFasteners({ span_m: 24, height_m: 6 }, 5);
+      expect(result.boltM16Count).toBe(5 * 50);
+      expect(result.boltM16RateIsEstimated).toBe(true);
     });
   });
 });

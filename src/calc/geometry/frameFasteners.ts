@@ -13,6 +13,11 @@ export interface FrameFastenersTakeoff {
   screw525Mass_kg: number;
   /** true, если ставка для этого пролёта не подтверждена примером и взята с ближайшего известного. */
   screw525RateIsEstimated: boolean;
+  /** Кол-во "Болт М16х50" на здание, шт (= кол-во рам × ставка по пролёту). */
+  boltM16Count: number;
+  boltM16Mass_kg: number;
+  /** true, если ставка для этого пролёта не подтверждена и взята с ближайшего известного. */
+  boltM16RateIsEstimated: boolean;
   totalMass_kg: number;
 }
 
@@ -47,6 +52,30 @@ function screw525Rate(span: Span): { rate: number; isEstimated: boolean } {
   return { rate: span < 12 ? 530 : 890, isEstimated: true };
 }
 
+/** Масса одного болта М16х50, кг — литеральное значение из файла "22318" (H83/H93). */
+const BOLT_M16_UNIT_MASS_KG = 0.12;
+
+/**
+ * Ставка "болтов М16х50 на одну раму" по пролёту — предоставлена
+ * пользователем (рукописная заметка) и подтверждена: значение 30 для
+ * группы 9/12/15м совпадает с буквальным коэффициентом в формуле файла
+ * "22318" (лист "12м", ячейка O88 = "=276+30*(K90-2)/K90+...").
+ */
+const BOLT_M16_RATE_BY_SPAN: Partial<Record<Span, number>> = {
+  9: 30,
+  12: 30,
+  15: 30,
+  18: 50,
+  21: 50,
+};
+
+function boltM16Rate(span: Span): { rate: number; isEstimated: boolean } {
+  const known = BOLT_M16_RATE_BY_SPAN[span];
+  if (known !== undefined) return { rate: known, isEstimated: false };
+  // 24м ближе к 21м (50) — не подтверждено примером.
+  return { rate: 50, isEstimated: true };
+}
+
 /**
  * Крепёж каркаса "Фс11/Фс14" и "Фс12" — количество по формуле,
  * подтверждённой на реальном примере из файла "22316" ("12м"!C29/C30):
@@ -78,6 +107,10 @@ export function computeFrameFasteners(
   const screw525Count = frameCount * rate;
   const screw525Mass_kg = screw525Count * SCREW_525_UNIT_MASS_KG;
 
+  const { rate: boltRate, isEstimated: boltIsEstimated } = boltM16Rate(geometry.span_m);
+  const boltM16Count = frameCount * boltRate;
+  const boltM16Mass_kg = boltM16Count * BOLT_M16_UNIT_MASS_KG;
+
   return {
     fc11_14Count,
     fc12Count,
@@ -86,6 +119,9 @@ export function computeFrameFasteners(
     screw525Count,
     screw525Mass_kg,
     screw525RateIsEstimated: isEstimated,
-    totalMass_kg: fc11_14Mass_kg + fc12Mass_kg + screw525Mass_kg,
+    boltM16Count,
+    boltM16Mass_kg,
+    boltM16RateIsEstimated: boltIsEstimated,
+    totalMass_kg: fc11_14Mass_kg + fc12Mass_kg + screw525Mass_kg + boltM16Mass_kg,
   };
 }
