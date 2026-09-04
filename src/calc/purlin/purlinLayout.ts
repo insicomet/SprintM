@@ -1,3 +1,4 @@
+import { findPurlinPrice } from "./purlinPriceCatalog";
 import type { PurlinSelectionResult } from "./types";
 
 export interface PurlinLayout {
@@ -7,6 +8,8 @@ export interface PurlinLayout {
   totalLength_m: number;
   /** Суммарная масса прогонов на здание, кг — null, если масса погонного метра неизвестна. */
   totalMass_kg: number | null;
+  /** Суммарная стоимость прогонов, ₽ — null, если профиль не нашёлся в прайс-листе. */
+  totalCost: number | null;
 }
 
 /**
@@ -27,5 +30,8 @@ export function computePurlinLayout(
   const totalLength_m = lineCount * buildingLength_m;
   const totalMass_kg = totalLength_m * purlin.profile.mass_kg_per_m;
 
-  return { lineCount, totalLength_m, totalMass_kg };
+  const price = findPurlinPrice(purlin.profile.name);
+  const totalCost = price?.priceSale_perM != null ? price.priceSale_perM * totalLength_m : null;
+
+  return { lineCount, totalLength_m, totalMass_kg, totalCost };
 }

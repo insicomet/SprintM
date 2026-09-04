@@ -20,6 +20,8 @@ describe("computePurlinLayout", () => {
     expect(layout.lineCount).toBe(Math.ceil(rafterLength_m / stepM + 1));
     expect(layout.totalLength_m).toBe(layout.lineCount * buildingLength_m);
     expect(layout.totalMass_kg).toBeCloseTo(layout.totalLength_m * purlin!.profile.mass_kg_per_m, 6);
+    expect(layout.totalCost).not.toBeNull();
+    expect(layout.totalCost!).toBeGreaterThan(0);
   });
 
   it("more lines are needed for a smaller step", () => {

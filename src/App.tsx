@@ -129,8 +129,10 @@ export function App() {
         ? envelope.wall.cost + envelope.roof.cost
         : null;
 
-    const knownCost = (frameTakeoff?.totalFrameCost ?? 0) + (claddingCost ?? 0);
-    const hasFullCost = frameTakeoff?.totalFrameCost != null && claddingCost != null;
+    const knownCost =
+      (frameTakeoff?.totalFrameCost ?? 0) + (claddingCost ?? 0) + (purlinLayout?.totalCost ?? 0);
+    const hasFullCost =
+      frameTakeoff?.totalFrameCost != null && claddingCost != null && purlinLayout?.totalCost != null;
 
     return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost };
   }, [frameTakeoff, purlinLayout, envelope]);
@@ -423,6 +425,9 @@ export function App() {
                   {purlinLayout.totalMass_kg !== null
                     ? ` — ${purlinLayout.totalMass_kg.toFixed(0)} кг`
                     : ""}
+                  {purlinLayout.totalCost !== null
+                    ? ` — ${purlinLayout.totalCost.toLocaleString("ru-RU")} ₽`
+                    : " — цена неизвестна"}
                 </dd>
               </>
             )}
@@ -484,6 +489,12 @@ export function App() {
               ? `${frameTakeoff.totalFrameCost.toLocaleString("ru-RU")} ₽`
               : "цена неизвестна"}
           </dd>
+          <dt>Прогоны</dt>
+          <dd>
+            {purlinLayout?.totalCost != null
+              ? `${purlinLayout.totalCost.toLocaleString("ru-RU")} ₽`
+              : "цена неизвестна"}
+          </dd>
           <dt>Известная стоимость материалов</dt>
           <dd className="summary-total">
             {summary.knownCost.toLocaleString("ru-RU")} ₽
@@ -491,7 +502,7 @@ export function App() {
           </dd>
         </dl>
         <p className="hint">
-          Не учтено: прогоны (только масса, без цены), связи, затяжки, узловые пластины, крепёж,
+          Не учтено: связи, затяжки, узловые пластины, крепёж,
           доборные элементы, водосток, стойки фахверка, монтаж. Это предварительная оценка металла и
           обшивки, не коммерческое предложение.
         </p>
