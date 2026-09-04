@@ -8,6 +8,7 @@ import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/building
 import { computeFrameFasteners } from "./calc/geometry/frameFasteners";
 import { rafterLengthPerFrame_m } from "./calc/geometry/frameGeometry";
 import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
+import { computeHorizTiesMass_kg } from "./calc/geometry/horizTies";
 import { computeOpeningsArea_m2, DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
 import { computeRoofLoad, defaultRoofSlopeDeg } from "./calc/loads/roofLoad";
 import { computePurlinLayout } from "./calc/purlin/purlinLayout";
@@ -98,6 +99,11 @@ export function App() {
     return computeFrameFasteners(geometry, frameTakeoff.frameCount);
   }, [frameTakeoff, geometry]);
 
+  const horizTiesMass_kg = useMemo(() => {
+    if (!climate.ok) return null;
+    return computeHorizTiesMass_kg(span, climate.value.standard, length);
+  }, [climate, span, length]);
+
   const openingsArea = useMemo(() => computeOpeningsArea_m2(openings), [openings]);
 
   const envelope = useMemo(() => {
@@ -155,12 +161,14 @@ export function App() {
       (frameTakeoff?.totalFrameMass_kg ?? 0) +
       (frameTakeoff?.gussetPlatesMass_kg ?? 0) +
       (frameFasteners?.totalMass_kg ?? 0) +
+      (horizTiesMass_kg ?? 0) +
       (purlinLayout?.totalMass_kg ?? 0) +
       (facadePostLayout?.totalMass_kg ?? 0);
     const hasFullSteelMass =
       frameTakeoff?.totalFrameMass_kg !== null &&
       frameTakeoff?.gussetPlatesMass_kg !== null &&
       frameFasteners !== null &&
+      horizTiesMass_kg !== null &&
       purlinLayout?.totalMass_kg !== null &&
       facadePostLayout?.totalMass_kg !== null;
 
@@ -187,7 +195,7 @@ export function App() {
     };
 
     return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost, shares };
-  }, [frameTakeoff, frameFasteners, purlinLayout, facadePostLayout, envelope]);
+  }, [frameTakeoff, frameFasteners, horizTiesMass_kg, purlinLayout, facadePostLayout, envelope]);
 
   return (
     <div className="page">
@@ -472,13 +480,20 @@ export function App() {
                   </dd>
                 </>
               )}
+              <dt>Горизонтальные связи/распорки</dt>
+              <dd>
+                {horizTiesMass_kg !== null
+                  ? `${horizTiesMass_kg.toFixed(0)} кг (цена неизвестна, проверено только для высоты 3,6м)`
+                  : "нет данных для этой комбинации"}
+              </dd>
               <dt>Итого металл каркаса</dt>
               <dd>
                 {frameTakeoff.totalFrameMass_kg !== null
                   ? `${(
                       frameTakeoff.totalFrameMass_kg +
                       (frameTakeoff.gussetPlatesMass_kg ?? 0) +
-                      (frameFasteners?.totalMass_kg ?? 0)
+                      (frameFasteners?.totalMass_kg ?? 0) +
+                      (horizTiesMass_kg ?? 0)
                     ).toFixed(0)} кг`
                   : "—"}
               </dd>
@@ -629,10 +644,10 @@ export function App() {
           </dd>
         </dl>
         <p className="hint">
-          Не учтено: связи, затяжки, прочий крепёж (кроме Фс11/12/14, саморезов 5,5x25 и болтов
-          М16х50), доборные элементы, водосток, цена узловых пластин и всего крепежа (только масса)
-          и стоек фахверка (только масса), монтаж. Это предварительная оценка металла и обшивки, не
-          коммерческое предложение.
+          Не учтено: затяжки, вертикальные связи фахверка, прочий крепёж (кроме Фс11/12/14,
+          саморезов 5,5x25 и болтов М16х50), доборные элементы, водосток, цена узловых пластин,
+          всего крепежа и горизонтальных связей (только масса), стоек фахверка (только масса),
+          монтаж. Это предварительная оценка металла и обшивки, не коммерческое предложение.
         </p>
       </section>
 
