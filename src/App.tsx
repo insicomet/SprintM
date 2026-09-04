@@ -143,10 +143,12 @@ export function App() {
   const summary = useMemo(() => {
     const steelMass_kg =
       (frameTakeoff?.totalFrameMass_kg ?? 0) +
+      (frameTakeoff?.gussetPlatesMass_kg ?? 0) +
       (purlinLayout?.totalMass_kg ?? 0) +
       (facadePostLayout?.totalMass_kg ?? 0);
     const hasFullSteelMass =
       frameTakeoff?.totalFrameMass_kg !== null &&
+      frameTakeoff?.gussetPlatesMass_kg !== null &&
       purlinLayout?.totalMass_kg !== null &&
       facadePostLayout?.totalMass_kg !== null;
 
@@ -416,10 +418,16 @@ export function App() {
                   ? ` — ${frameTakeoff.beam.totalMass_kg.toFixed(0)} кг`
                   : " — масса неизвестна (нет в прайс-листе)"}
               </dd>
+              <dt>Узловые пластины</dt>
+              <dd>
+                {frameTakeoff.gussetPlatesMass_kg !== null
+                  ? `${frameTakeoff.gussetPlatesMass_kg.toFixed(0)} кг (оценка ИНСИ, состав не расшифрован)`
+                  : "нет данных для этой комбинации"}
+              </dd>
               <dt>Итого металл каркаса</dt>
               <dd>
                 {frameTakeoff.totalFrameMass_kg !== null
-                  ? `${frameTakeoff.totalFrameMass_kg.toFixed(0)} кг`
+                  ? `${(frameTakeoff.totalFrameMass_kg + (frameTakeoff.gussetPlatesMass_kg ?? 0)).toFixed(0)} кг`
                   : "—"}
               </dd>
             </dl>
@@ -534,7 +542,7 @@ export function App() {
       <section className="card summary-card">
         <h2>Итоговая сводка</h2>
         <dl className="result-list">
-          <dt>Металл (каркас + прогоны + стойки)</dt>
+          <dt>Металл (каркас + пластины + прогоны + стойки)</dt>
           <dd>
             {summary.steelMass_kg.toFixed(0)} кг
             {!summary.hasFullSteelMass && " (частично — см. предупреждения выше)"}
@@ -564,7 +572,7 @@ export function App() {
           </dd>
         </dl>
         <p className="hint">
-          Не учтено: связи, затяжки, узловые пластины, крепёж, доборные элементы, водосток, цена
+          Не учтено: связи, затяжки, крепёж, доборные элементы, водосток, цена узловых пластин и
           стоек фахверка (только масса), монтаж. Это предварительная оценка металла и обшивки, не
           коммерческое предложение.
         </p>

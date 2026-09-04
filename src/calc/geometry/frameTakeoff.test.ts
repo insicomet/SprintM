@@ -36,6 +36,8 @@ describe("computeFrameTakeoff", () => {
     expect(takeoff.column.priceSale_perM).not.toBeNull();
     expect(takeoff.totalFrameCost).not.toBeNull();
     expect(takeoff.totalFrameCost!).toBeGreaterThan(0);
+    // Масса узловых пластин на здание = значение банка (на раму) * кол-во рам.
+    expect(takeoff.gussetPlatesMass_kg).toBeCloseTo(selection!.massGussetPlates_kg! * 6, 6);
   });
 
   it("total mass equals the sum of column and beam mass", () => {

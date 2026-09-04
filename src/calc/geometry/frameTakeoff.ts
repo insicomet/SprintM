@@ -26,6 +26,18 @@ export interface FrameTakeoff {
   totalFrameMass_kg: number | null;
   /** Суммарная стоимость каркаса (колонны + балки), ₽ — null, если хоть одна цена неизвестна. */
   totalFrameCost: number | null;
+  /**
+   * Масса узловых пластин на здание, кг — null, если банк сечений не даёт
+   * значения для этой комбинации.
+   *
+   * ИСТОЧНИК: готовое число из банка сечений ИНСИ (напр. "12м"!Q6 =
+   * "=30+94+70" — нераскрытая сумма без пояснения слагаемых, похоже на
+   * перенос из стороннего расчёта, вероятно SCAD). Берём "как есть" на
+   * ОДНУ раму и умножаем на количество рам — состав слагаемых (узел
+   * конька/карниза/базы и т.д.) не восстановлен, к точной ведомости
+   * КМД не готово, только для оценки массы.
+   */
+  gussetPlatesMass_kg: number | null;
 }
 
 function takeoffMember(profileName: string, totalLength_m: number): FrameMemberTakeoff {
@@ -66,5 +78,8 @@ export function computeFrameTakeoff(geometry: BuildingGeometry, selection: Frame
   const totalFrameCost =
     column.totalCost !== null && beam.totalCost !== null ? column.totalCost + beam.totalCost : null;
 
-  return { frameCount, column, beam, totalFrameMass_kg, totalFrameCost };
+  const gussetPlatesMass_kg =
+    selection.massGussetPlates_kg !== null ? selection.massGussetPlates_kg * frameCount : null;
+
+  return { frameCount, column, beam, totalFrameMass_kg, totalFrameCost, gussetPlatesMass_kg };
 }
