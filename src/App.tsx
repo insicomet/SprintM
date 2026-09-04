@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { computeSvCode, getAllSettlementNames } from "./calc/climate/svCode";
 import { findFrameSelection, snapHeight } from "./calc/frame/sectionBank";
+import { computeRoofLoad, defaultRoofSlopeDeg } from "./calc/loads/roofLoad";
+import { selectPurlin } from "./calc/purlin/selectPurlin";
+import roofingTypesRaw from "./data/roofingSelfWeight.json";
 import { SPANS, type ResponsibilityLevel, type Span } from "./types/common";
 
 // Названия могут повторяться (одноимённые города в разных регионах) —
@@ -8,11 +11,17 @@ import { SPANS, type ResponsibilityLevel, type Span } from "./types/common";
 // на дублирующиеся key и браузер схлопывает повторы в один <option>.
 const settlementNames = Array.from(new Set(getAllSettlementNames()));
 
+const roofingTypes = roofingTypesRaw as { type: string; selfWeight_kg_m2: number }[];
+
 export function App() {
   const [city, setCity] = useState("Челябинск");
   const [span, setSpan] = useState<Span>(18);
   const [height, setHeight] = useState(5);
   const [responsibility, setResponsibility] = useState<ResponsibilityLevel>(1.0);
+  const [roofingType, setRoofingType] = useState(
+    roofingTypes.find((r) => r.type === "С-П 150")!.type,
+  );
+  const [maxStepMm, setMaxStepMm] = useState(1500);
 
   const climate = useMemo(() => {
     try {
@@ -44,6 +53,26 @@ export function App() {
       return null;
     }
   }, [span, height]);
+
+  const roofLoad = useMemo(() => {
+    if (!climate.ok || climate.value.city.snow.sgKpa === null) return null;
+    const selfWeight = roofingTypes.find((r) => r.type === roofingType)?.selfWeight_kg_m2 ?? 0;
+    return computeRoofLoad({
+      sgKpa: climate.value.city.snow.sgKpa,
+      roofSlopeDeg: defaultRoofSlopeDeg(span),
+      selfWeight_kg_m2: selfWeight,
+    });
+  }, [climate, roofingType, span]);
+
+  const purlin = useMemo(() => {
+    if (!roofLoad) return undefined;
+    return selectPurlin({
+      roofLoad_kPa: roofLoad.total_kPa,
+      framePitch_m: frame?.ok && frame.value ? frame.value.framePitch_m : 6,
+      minStep_mm: 500,
+      maxStep_mm: maxStepMm,
+    });
+  }, [roofLoad, frame, maxStepMm]);
 
   return (
     <div className="page">
@@ -101,6 +130,28 @@ export function App() {
               <option value={1.0}>II (k = 1,0)</option>
               <option value={0.8}>III (k = 0,8)</option>
             </select>
+          </label>
+
+          <label>
+            Тип кровли (для веса прогонов)
+            <select value={roofingType} onChange={(e) => setRoofingType(e.target.value)}>
+              {roofingTypes.map((r) => (
+                <option key={r.type} value={r.type}>
+                  {r.type} ({r.selfWeight_kg_m2} кг/м²)
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Макс. шаг прогонов, мм
+            <input
+              type="number"
+              step="50"
+              min="500"
+              value={maxStepMm}
+              onChange={(e) => setMaxStepMm(Number(e.target.value))}
+            />
           </label>
         </div>
       </section>
@@ -160,6 +211,37 @@ export function App() {
           <p className="error">
             Комбинация пролёт={span}м, высота={heightBucket}м, k={responsibility}, с/в=
             {climate.value.standard} не найдена в банке сечений.
+          </p>
+        )}
+      </section>
+
+      <section className="card">
+        <h2>Прогоны — независимый расчёт</h2>
+        <p className="hint">
+          Считается по каталогу сечений напрямую (нагрузка → несущая способность), а не берётся из
+          банка сечений — для сверки с колонкой «Прогоны» выше.
+        </p>
+        {roofLoad && (
+          <p className="hint">
+            Нагрузка на кровлю: {roofLoad.total_kg_m2.toFixed(1)} кг/м² ({roofLoad.total_kPa.toFixed(3)}{" "}
+            кПа) = снег {roofLoad.snow_kg_m2.toFixed(1)} + ветер {roofLoad.wind_kg_m2.toFixed(1)} + вес
+            кровли {roofLoad.dead_kg_m2.toFixed(1)}
+          </p>
+        )}
+        {purlin ? (
+          <dl className="result-list">
+            <dt>Профиль</dt>
+            <dd>
+              {purlin.profile.name} ({purlin.profile.series})
+            </dd>
+            <dt>Принятый шаг</dt>
+            <dd>{purlin.step_mm.toFixed(0)} мм</dd>
+            <dt>Расход стали</dt>
+            <dd>{purlin.massPerRoofArea_kg_m2.toFixed(2)} кг/м² кровли</dd>
+          </dl>
+        ) : (
+          <p className="error">
+            Ни один профиль в каталоге не держит эту нагрузку при минимальном шаге 500мм.
           </p>
         )}
       </section>

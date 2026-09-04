@@ -1,0 +1,82 @@
+[
+  {
+    "type": "наше 100 мм",
+    "selfWeight_kg_m2": 21
+  },
+  {
+    "type": "наше 150 мм",
+    "selfWeight_kg_m2": 22
+  },
+  {
+    "type": "наше 200 мм",
+    "selfWeight_kg_m2": 23
+  },
+  {
+    "type": "наше 250 мм",
+    "selfWeight_kg_m2": 24
+  },
+  {
+    "type": "наше 150 мм с 1 слоем гвл",
+    "selfWeight_kg_m2": 31
+  },
+  {
+    "type": "наше 150 мм с 2 слоем гвл",
+    "selfWeight_kg_m2": 35
+  },
+  {
+    "type": "наше 200 мм с 1 слоем гвл",
+    "selfWeight_kg_m2": 32
+  },
+  {
+    "type": "наше 200 мм с 2 слоем гвл",
+    "selfWeight_kg_m2": 36
+  },
+  {
+    "type": "наше 250 мм с 1 слоем гвл",
+    "selfWeight_kg_m2": 33
+  },
+  {
+    "type": "наше 250 мм с 2 слоем гвл",
+    "selfWeight_kg_m2": 37
+  },
+  {
+    "type": "С-П 50",
+    "selfWeight_kg_m2": 19.236
+  },
+  {
+    "type": "С-П 80",
+    "selfWeight_kg_m2": 23.316
+  },
+  {
+    "type": "С-П 100",
+    "selfWeight_kg_m2": 25.416
+  },
+  {
+    "type": "С-П 120",
+    "selfWeight_kg_m2": 28.799999999999997
+  },
+  {
+    "type": "С-П 150",
+    "selfWeight_kg_m2": 32.028
+  },
+  {
+    "type": "С-П 200",
+    "selfWeight_kg_m2": 38.64
+  },
+  {
+    "type": "С-П 250",
+    "selfWeight_kg_m2": 45.227999999999994
+  },
+  {
+    "type": "малоуклонная кровля с подв. п.",
+    "selfWeight_kg_m2": 77.3
+  },
+  {
+    "type": "малоуклонная кровля без подв. п.",
+    "selfWeight_kg_m2": 53.3
+  },
+  {
+    "type": "профлист",
+    "selfWeight_kg_m2": 10.5
+  }
+]
