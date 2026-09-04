@@ -20,6 +20,11 @@ export function findSettlement(name: string): SettlementClimate | undefined {
   return settlementsByName.get(name);
 }
 
+/** Список всех названий населённых пунктов — для автодополнения в UI. */
+export function getAllSettlementNames(): readonly string[] {
+  return settlements.map((s) => s.settlement);
+}
+
 /**
  * Перевести римский номер снегового/ветрового района ("I".."VIII", "Iа")
  * в цифровой код, используемый в банке сечений ИНСИ ("1".."8", "1а").
