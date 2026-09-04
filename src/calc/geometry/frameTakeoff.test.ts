@@ -33,6 +33,9 @@ describe("computeFrameTakeoff", () => {
     expect(takeoff.beam.massPerM_kg).not.toBeNull();
     expect(takeoff.totalFrameMass_kg).not.toBeNull();
     expect(takeoff.totalFrameMass_kg!).toBeGreaterThan(0);
+    expect(takeoff.column.priceSale_perM).not.toBeNull();
+    expect(takeoff.totalFrameCost).not.toBeNull();
+    expect(takeoff.totalFrameCost!).toBeGreaterThan(0);
   });
 
   it("total mass equals the sum of column and beam mass", () => {
@@ -49,12 +52,11 @@ describe("computeFrameTakeoff", () => {
     );
   });
 
-  it("gracefully returns null mass (not a crash) when the price list has no matching thickness", () => {
-    // с/в=4/1 подбирает балку ПГС300/20х80х3 — толщины 3мм для сечения
-    // 300х80 в текущем прайс-листе (data/frame_profile_prices.json) нет
-    // (максимум 2,5мм, и то только в П350) — это реальный пробел
-    // прайса, не баг подбора: totalFrameMass_kg должен стать null, а
-    // не упасть с ошибкой или молча посчитать неверную массу.
+  it("all 23 profile names in the section bank resolve to a price (no remaining gaps)", () => {
+    // После исправления сопоставления семейств (ПГС-сигма, не голое
+    // "ПГС ...") все сечения из банка находят цену — раньше (до
+    // исправления по замечанию пользователя 2026-09-04) 300х80х3мм
+    // ошибочно считался отсутствующим в прайсе.
     const selection = findFrameSelection({
       span: 12,
       height_m: 3.6,
@@ -62,10 +64,27 @@ describe("computeFrameTakeoff", () => {
       svCode: "4/1",
     });
     const takeoff = computeFrameTakeoff(geometry, selection!);
+    expect(takeoff.beam.profileName).toBe("ПГС300/20х80х3");
+    expect(takeoff.beam.massPerM_kg).not.toBeNull();
+    expect(takeoff.totalFrameMass_kg).not.toBeNull();
+    expect(takeoff.totalFrameCost).not.toBeNull();
+  });
+
+  it("gracefully returns null mass (not a crash) for a profile name the price list genuinely has no match for", () => {
+    const selection = findFrameSelection({
+      span: 12,
+      height_m: 3.6,
+      responsibility: 1.0,
+      svCode: "2/3",
+    })!;
+    const bogusSelection = { ...selection, beam: { ...selection.beam, profile: "ПГС999/20х999х9" } };
+
+    const takeoff = computeFrameTakeoff(geometry, bogusSelection);
     expect(takeoff.beam.massPerM_kg).toBeNull();
     expect(takeoff.beam.totalMass_kg).toBeNull();
     expect(takeoff.totalFrameMass_kg).toBeNull();
-    // Колонна (1,5мм) при этом находится нормально.
+    expect(takeoff.totalFrameCost).toBeNull();
+    // Колонна при этом находится нормально.
     expect(takeoff.column.massPerM_kg).not.toBeNull();
   });
 });

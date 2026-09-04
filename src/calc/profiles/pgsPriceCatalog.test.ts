@@ -22,10 +22,23 @@ describe("parsePgsName", () => {
 
 describe("findPgsProperties", () => {
   it("finds mass and price for a known section, preferring Оцинк.", () => {
+    // ВАЖНО: значение 5.923 (не 5.688!) — это масса семейства
+    // "ПГС-сигма 300х80x20", которое реально используется банком сечений
+    // ("ПГС300/20х80х..."). Более короткое "ПГС 300х80 ..." (без
+    // "-сигма" и "x20") — другое, самостоятельное семейство профиля и
+    // даёт другую массу; смешение этих двух было найдено и исправлено
+    // после проверки пользователем по прайс-листу (2026-09-04).
     const result = findPgsProperties({ h_mm: 300, b_mm: 80, t_mm: 1.5 });
     expect(result).not.toBeNull();
     expect(result!.coating).toBe("Оцинк.");
-    expect(result!.massPerM_kg).toBeCloseTo(5.688, 2);
+    expect(result!.name).toContain("ПГС-сигма");
+    expect(result!.massPerM_kg).toBeCloseTo(5.923, 3);
+  });
+
+  it("finds the 3.0mm thickness for 300х80 (previously missing due to the family mix-up)", () => {
+    const result = findPgsProperties({ h_mm: 300, b_mm: 80, t_mm: 3 });
+    expect(result).not.toBeNull();
+    expect(result!.massPerM_kg).toBeCloseTo(11.7322, 3);
   });
 
   it("returns null for a dimension combination not in the price list", () => {
