@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { computeSvCode, getAllSettlementNames } from "./calc/climate/svCode";
 import { findFrameSelection, snapHeight } from "./calc/frame/sectionBank";
+import { estimateSandwichPanelCladding, getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
+import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/buildingEnvelope";
 import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
 import { computeRoofLoad, defaultRoofSlopeDeg } from "./calc/loads/roofLoad";
 import { selectPurlin } from "./calc/purlin/selectPurlin";
@@ -24,6 +26,7 @@ export function App() {
     roofingTypes.find((r) => r.type === "С-П 150")!.type,
   );
   const [maxStepMm, setMaxStepMm] = useState(1500);
+  const [claddingThickness, setCladdingThickness] = useState(100);
 
   const climate = useMemo(() => {
     try {
@@ -79,6 +82,24 @@ export function App() {
       frame.value,
     );
   }, [frame, span, length, height, heightBucket]);
+
+  const envelope = useMemo(() => {
+    const geometry = {
+      span_m: span,
+      length_m: length,
+      height_m: height,
+      framePitch_m: frame?.ok && frame.value ? frame.value.framePitch_m : 6,
+      roofSlopeDeg: defaultRoofSlopeDeg(span),
+    };
+    const wallArea = computeWallArea_m2(geometry);
+    const roofArea = computeRoofArea_m2(geometry);
+    return {
+      wallArea,
+      roofArea,
+      wall: estimateSandwichPanelCladding(wallArea, claddingThickness, "wall", "zLock"),
+      roof: estimateSandwichPanelCladding(roofArea, claddingThickness, "roof"),
+    };
+  }, [span, length, height, frame, claddingThickness]);
 
   const purlin = useMemo(() => {
     if (!roofLoad) return undefined;
@@ -179,6 +200,20 @@ export function App() {
               value={maxStepMm}
               onChange={(e) => setMaxStepMm(Number(e.target.value))}
             />
+          </label>
+
+          <label>
+            Толщина сэндвич-панели, мм
+            <select
+              value={claddingThickness}
+              onChange={(e) => setCladdingThickness(Number(e.target.value))}
+            >
+              {getSandwichPanelThicknesses().map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
       </section>
@@ -308,6 +343,33 @@ export function App() {
             Ни один профиль в каталоге не держит эту нагрузку при минимальном шаге 500мм.
           </p>
         )}
+      </section>
+
+      <section className="card">
+        <h2>Обшивка (сэндвич-панели)</h2>
+        <p className="hint">Площади без вычета ворот/дверей/окон — они считаются отдельно.</p>
+        <dl className="result-list">
+          <dt>Стены</dt>
+          <dd>
+            {envelope.wallArea.toFixed(1)} м²
+            {envelope.wall?.cost !== null && envelope.wall?.cost !== undefined
+              ? ` — ${envelope.wall.cost.toLocaleString("ru-RU")} ₽`
+              : " — цена неизвестна для этой толщины/крепления"}
+          </dd>
+          <dt>Кровля</dt>
+          <dd>
+            {envelope.roofArea.toFixed(1)} м²
+            {envelope.roof?.cost !== null && envelope.roof?.cost !== undefined
+              ? ` — ${envelope.roof.cost.toLocaleString("ru-RU")} ₽`
+              : " — цена неизвестна для этой толщины"}
+          </dd>
+          <dt>Итого обшивка</dt>
+          <dd>
+            {envelope.wall?.cost != null && envelope.roof?.cost != null
+              ? `${(envelope.wall.cost + envelope.roof.cost).toLocaleString("ru-RU")} ₽`
+              : "—"}
+          </dd>
+        </dl>
       </section>
 
       <footer>
