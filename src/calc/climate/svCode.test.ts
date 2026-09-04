@@ -13,6 +13,33 @@ describe("climate / svCode", () => {
     expect(findSettlement("Березовский")).toBeUndefined();
   });
 
+  describe("findSettlement is tolerant of case and stray whitespace", () => {
+    // Баг, найденный пользователем 2026-09-04: ввод "Иркутск" в другом
+    // регистре или с пробелом на конце возвращал "город не найден"
+    // вместо ожидаемых данных, хотя выглядит как рабочий ввод.
+    it("matches regardless of letter case", () => {
+      expect(findSettlement("иркутск")).toBeDefined();
+      expect(findSettlement("ИРКУТСК")).toBeDefined();
+      expect(findSettlement("иркутск")?.settlement).toBe("Иркутск");
+    });
+
+    it("matches with leading/trailing whitespace", () => {
+      expect(findSettlement("Иркутск ")).toBeDefined();
+      expect(findSettlement(" Иркутск")).toBeDefined();
+    });
+
+    it("still returns the exact same climate data as the canonical spelling", () => {
+      const exact = findSettlement("Иркутск");
+      const sloppy = findSettlement(" иркутск  ".trim().toLowerCase());
+      expect(sloppy?.snow.sgKpa).toBe(exact?.snow.sgKpa);
+      expect(sloppy?.wind.w0Kpa).toBe(exact?.wind.w0Kpa);
+    });
+
+    it("still returns undefined for a genuinely unknown city, case-insensitively", () => {
+      expect(findSettlement("бла-бла-город")).toBeUndefined();
+    });
+  });
+
   describe("romanDistrictToDigit", () => {
     it("converts standard roman districts", () => {
       expect(romanDistrictToDigit("III")).toBe("3");

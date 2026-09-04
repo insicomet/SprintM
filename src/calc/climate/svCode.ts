@@ -10,14 +10,32 @@ interface SvCodeMappingFile {
 const settlements = settlementsRaw as unknown as SettlementClimate[];
 const svMapping = svMappingRaw as unknown as SvCodeMappingFile;
 
-const settlementsByName = new Map<string, SettlementClimate>();
-for (const s of settlements) {
-  settlementsByName.set(s.settlement, s);
+/** Ключ для нестрогого поиска: убрать края-пробелы, привести к нижнему регистру. */
+function normalizeKey(name: string): string {
+  return name.trim().toLowerCase();
 }
 
-/** Найти населённый пункт по точному названию (регистр важен, как в источнике). */
+const settlementsByName = new Map<string, SettlementClimate>();
+const settlementsByNormalizedName = new Map<string, SettlementClimate>();
+for (const s of settlements) {
+  settlementsByName.set(s.settlement, s);
+  // При совпадении нормализованных ключей (разные города с одинаковым
+  // написанием без учёта регистра/пробелов встречаются редко) оставляем
+  // первое найденное — это тот же компромисс, что и в getAllSettlementNames.
+  const normalized = normalizeKey(s.settlement);
+  if (!settlementsByNormalizedName.has(normalized)) {
+    settlementsByNormalizedName.set(normalized, s);
+  }
+}
+
+/**
+ * Найти населённый пункт по названию. Сначала точное совпадение (как в
+ * источнике), иначе — без учёта регистра и краевых пробелов (частый
+ * случай при ручном вводе или автозаполнении браузера: "иркутск",
+ * "Иркутск " и т.п. должны находиться так же, как "Иркутск").
+ */
 export function findSettlement(name: string): SettlementClimate | undefined {
-  return settlementsByName.get(name);
+  return settlementsByName.get(name) ?? settlementsByNormalizedName.get(normalizeKey(name));
 }
 
 /** Список всех названий населённых пунктов — для автодополнения в UI. */
