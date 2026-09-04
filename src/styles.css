@@ -66,6 +66,16 @@ label {
   color: var(--muted);
 }
 
+.inline-fields {
+  display: flex;
+  gap: 6px;
+}
+
+.inline-fields input {
+  min-width: 0;
+  flex: 1;
+}
+
 input,
 select {
   padding: 8px 10px;
@@ -90,6 +100,16 @@ select {
 .result-list dd {
   margin: 0;
   font-weight: 600;
+}
+
+.summary-card {
+  border-color: var(--accent);
+  border-width: 2px;
+}
+
+.summary-total {
+  font-size: 18px;
+  color: var(--accent);
 }
 
 .hint {

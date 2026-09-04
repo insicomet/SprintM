@@ -12,6 +12,10 @@ export interface FrameMemberTakeoff {
   massPerM_kg: number | null;
   /** Суммарная масса, кг — null, если масса погонного метра неизвестна. */
   totalMass_kg: number | null;
+  /** Цена продажи погонного метра (+5%), ₽/м — null, если профиль не нашёлся в прайсе. */
+  priceSale_perM: number | null;
+  /** Суммарная стоимость, ₽ — null, если цена погонного метра неизвестна. */
+  totalCost: number | null;
 }
 
 export interface FrameTakeoff {
@@ -20,17 +24,22 @@ export interface FrameTakeoff {
   beam: FrameMemberTakeoff;
   /** Суммарная масса каркаса (колонны + балки), кг — null, если хоть одна масса неизвестна. */
   totalFrameMass_kg: number | null;
+  /** Суммарная стоимость каркаса (колонны + балки), ₽ — null, если хоть одна цена неизвестна. */
+  totalFrameCost: number | null;
 }
 
 function takeoffMember(profileName: string, totalLength_m: number): FrameMemberTakeoff {
   const dims = parsePgsName(profileName);
   const props = dims ? findPgsProperties(dims) : null;
   const massPerM_kg = props?.massPerM_kg ?? null;
+  const priceSale_perM = props?.priceSale_perM ?? null;
   return {
     profileName,
     totalLength_m,
     massPerM_kg,
     totalMass_kg: massPerM_kg !== null ? massPerM_kg * totalLength_m : null,
+    priceSale_perM,
+    totalCost: priceSale_perM !== null ? priceSale_perM * totalLength_m : null,
   };
 }
 
@@ -54,6 +63,8 @@ export function computeFrameTakeoff(geometry: BuildingGeometry, selection: Frame
     column.totalMass_kg !== null && beam.totalMass_kg !== null
       ? column.totalMass_kg + beam.totalMass_kg
       : null;
+  const totalFrameCost =
+    column.totalCost !== null && beam.totalCost !== null ? column.totalCost + beam.totalCost : null;
 
-  return { frameCount, column, beam, totalFrameMass_kg };
+  return { frameCount, column, beam, totalFrameMass_kg, totalFrameCost };
 }

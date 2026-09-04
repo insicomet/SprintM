@@ -3,8 +3,11 @@ import { computeSvCode, getAllSettlementNames } from "./calc/climate/svCode";
 import { findFrameSelection, snapHeight } from "./calc/frame/sectionBank";
 import { estimateSandwichPanelCladding, getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
 import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/buildingEnvelope";
+import { rafterLengthPerFrame_m } from "./calc/geometry/frameGeometry";
 import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
+import { computeOpeningsArea_m2, DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
 import { computeRoofLoad, defaultRoofSlopeDeg } from "./calc/loads/roofLoad";
+import { computePurlinLayout } from "./calc/purlin/purlinLayout";
 import { selectPurlin } from "./calc/purlin/selectPurlin";
 import roofingTypesRaw from "./data/roofingSelfWeight.json";
 import { SPANS, type ResponsibilityLevel, type Span } from "./types/common";
@@ -27,6 +30,7 @@ export function App() {
   );
   const [maxStepMm, setMaxStepMm] = useState(1500);
   const [claddingThickness, setCladdingThickness] = useState(100);
+  const [openings, setOpenings] = useState<OpeningsInput>(DEFAULT_OPENINGS);
 
   const climate = useMemo(() => {
     try {
@@ -69,47 +73,67 @@ export function App() {
     });
   }, [climate, roofingType, span]);
 
-  const frameTakeoff = useMemo(() => {
-    if (!frame?.ok || !frame.value || heightBucket === null) return null;
-    return computeFrameTakeoff(
-      {
-        span_m: span,
-        length_m: length,
-        height_m: height,
-        framePitch_m: frame.value.framePitch_m,
-        roofSlopeDeg: defaultRoofSlopeDeg(span),
-      },
-      frame.value,
-    );
-  }, [frame, span, length, height, heightBucket]);
-
-  const envelope = useMemo(() => {
-    const geometry = {
+  const geometry = useMemo(
+    () => ({
       span_m: span,
       length_m: length,
       height_m: height,
       framePitch_m: frame?.ok && frame.value ? frame.value.framePitch_m : 6,
       roofSlopeDeg: defaultRoofSlopeDeg(span),
-    };
-    const wallArea = computeWallArea_m2(geometry);
+    }),
+    [span, length, height, frame],
+  );
+
+  const frameTakeoff = useMemo(() => {
+    if (!frame?.ok || !frame.value || heightBucket === null) return null;
+    return computeFrameTakeoff(geometry, frame.value);
+  }, [frame, geometry, heightBucket]);
+
+  const openingsArea = useMemo(() => computeOpeningsArea_m2(openings), [openings]);
+
+  const envelope = useMemo(() => {
+    const grossWallArea = computeWallArea_m2(geometry);
+    const wallArea = Math.max(0, grossWallArea - openingsArea);
     const roofArea = computeRoofArea_m2(geometry);
     return {
+      grossWallArea,
       wallArea,
       roofArea,
       wall: estimateSandwichPanelCladding(wallArea, claddingThickness, "wall", "zLock"),
       roof: estimateSandwichPanelCladding(roofArea, claddingThickness, "roof"),
     };
-  }, [span, length, height, frame, claddingThickness]);
+  }, [geometry, openingsArea, claddingThickness]);
 
   const purlin = useMemo(() => {
     if (!roofLoad) return undefined;
     return selectPurlin({
       roofLoad_kPa: roofLoad.total_kPa,
-      framePitch_m: frame?.ok && frame.value ? frame.value.framePitch_m : 6,
+      framePitch_m: geometry.framePitch_m,
       minStep_mm: 500,
       maxStep_mm: maxStepMm,
     });
-  }, [roofLoad, frame, maxStepMm]);
+  }, [roofLoad, geometry, maxStepMm]);
+
+  const purlinLayout = useMemo(() => {
+    if (!purlin) return null;
+    return computePurlinLayout(purlin, rafterLengthPerFrame_m(geometry), geometry.length_m);
+  }, [purlin, geometry]);
+
+  const summary = useMemo(() => {
+    const steelMass_kg =
+      (frameTakeoff?.totalFrameMass_kg ?? 0) + (purlinLayout?.totalMass_kg ?? 0);
+    const hasFullSteelMass = frameTakeoff?.totalFrameMass_kg !== null && purlinLayout?.totalMass_kg !== null;
+
+    const claddingCost =
+      envelope.wall?.cost != null && envelope.roof?.cost != null
+        ? envelope.wall.cost + envelope.roof.cost
+        : null;
+
+    const knownCost = (frameTakeoff?.totalFrameCost ?? 0) + (claddingCost ?? 0);
+    const hasFullCost = frameTakeoff?.totalFrameCost != null && claddingCost != null;
+
+    return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost };
+  }, [frameTakeoff, purlinLayout, envelope]);
 
   return (
     <div className="page">
@@ -214,6 +238,58 @@ export function App() {
                 </option>
               ))}
             </select>
+          </label>
+
+          <label>
+            Ворота (шт × Ш × В, м)
+            <div className="inline-fields">
+              <input
+                type="number"
+                min="0"
+                value={openings.gatesCount}
+                onChange={(e) => setOpenings({ ...openings, gatesCount: Number(e.target.value) })}
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={openings.gateWidth_m}
+                onChange={(e) => setOpenings({ ...openings, gateWidth_m: Number(e.target.value) })}
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={openings.gateHeight_m}
+                onChange={(e) => setOpenings({ ...openings, gateHeight_m: Number(e.target.value) })}
+              />
+            </div>
+          </label>
+
+          <label>
+            Двери (шт × Ш × В, м)
+            <div className="inline-fields">
+              <input
+                type="number"
+                min="0"
+                value={openings.doorsCount}
+                onChange={(e) => setOpenings({ ...openings, doorsCount: Number(e.target.value) })}
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={openings.doorWidth_m}
+                onChange={(e) => setOpenings({ ...openings, doorWidth_m: Number(e.target.value) })}
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={openings.doorHeight_m}
+                onChange={(e) => setOpenings({ ...openings, doorHeight_m: Number(e.target.value) })}
+              />
+            </div>
           </label>
         </div>
       </section>
@@ -337,6 +413,19 @@ export function App() {
             <dd>{purlin.step_mm.toFixed(0)} мм</dd>
             <dt>Расход стали</dt>
             <dd>{purlin.massPerRoofArea_kg_m2.toFixed(2)} кг/м² кровли</dd>
+            {purlinLayout && (
+              <>
+                <dt>Линий прогонов</dt>
+                <dd>{purlinLayout.lineCount} шт.</dd>
+                <dt>Суммарно на здание</dt>
+                <dd>
+                  {purlinLayout.totalLength_m.toFixed(0)} м
+                  {purlinLayout.totalMass_kg !== null
+                    ? ` — ${purlinLayout.totalMass_kg.toFixed(0)} кг`
+                    : ""}
+                </dd>
+              </>
+            )}
           </dl>
         ) : (
           <p className="error">
@@ -347,11 +436,14 @@ export function App() {
 
       <section className="card">
         <h2>Обшивка (сэндвич-панели)</h2>
-        <p className="hint">Площади без вычета ворот/дверей/окон — они считаются отдельно.</p>
+        <p className="hint">
+          Стены — за вычетом площади ворот/дверей ({openingsArea.toFixed(1)} м²); окна считаются
+          суммарной площадью, без раскладки по фасадам.
+        </p>
         <dl className="result-list">
-          <dt>Стены</dt>
+          <dt>Стены (нетто)</dt>
           <dd>
-            {envelope.wallArea.toFixed(1)} м²
+            {envelope.wallArea.toFixed(1)} м² из {envelope.grossWallArea.toFixed(1)} м²
             {envelope.wall?.cost !== null && envelope.wall?.cost !== undefined
               ? ` — ${envelope.wall.cost.toLocaleString("ru-RU")} ₽`
               : " — цена неизвестна для этой толщины/крепления"}
@@ -372,10 +464,44 @@ export function App() {
         </dl>
       </section>
 
+      <section className="card summary-card">
+        <h2>Итоговая сводка</h2>
+        <dl className="result-list">
+          <dt>Металл (каркас + прогоны)</dt>
+          <dd>
+            {summary.steelMass_kg.toFixed(0)} кг
+            {!summary.hasFullSteelMass && " (частично — см. предупреждения выше)"}
+          </dd>
+          <dt>Обшивка</dt>
+          <dd>
+            {summary.claddingCost !== null
+              ? `${summary.claddingCost.toLocaleString("ru-RU")} ₽`
+              : "цена неизвестна"}
+          </dd>
+          <dt>Каркас (металл)</dt>
+          <dd>
+            {frameTakeoff?.totalFrameCost != null
+              ? `${frameTakeoff.totalFrameCost.toLocaleString("ru-RU")} ₽`
+              : "цена неизвестна"}
+          </dd>
+          <dt>Известная стоимость материалов</dt>
+          <dd className="summary-total">
+            {summary.knownCost.toLocaleString("ru-RU")} ₽
+            {!summary.hasFullCost && " (не полная — часть позиций ещё не оценена)"}
+          </dd>
+        </dl>
+        <p className="hint">
+          Не учтено: прогоны (только масса, без цены), связи, затяжки, узловые пластины, крепёж,
+          доборные элементы, водосток, стойки фахверка, монтаж. Это предварительная оценка металла и
+          обшивки, не коммерческое предложение.
+        </p>
+      </section>
+
       <footer>
         <p>
           Данные подобраны по банку сечений, извлечённому из исходных Excel-калькуляторов ИНСИ.
-          Ведомость материалов и стоимость — в разработке.
+          Прайс-лист актуален на даты, указанные в исходных файлах (разные разделы обновлялись в
+          разное время).
         </p>
       </footer>
     </div>
