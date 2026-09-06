@@ -5,8 +5,9 @@ export interface OpeningsInput {
   doorsCount: number;
   doorWidth_m: number;
   doorHeight_m: number;
-  /** Суммарная площадь окон, м² (упрощённо — без раскладки на отдельные проёмы). */
-  windowsArea_m2: number;
+  windowsCount: number;
+  windowWidth_m: number;
+  windowHeight_m: number;
 }
 
 export const DEFAULT_OPENINGS: OpeningsInput = {
@@ -16,14 +17,14 @@ export const DEFAULT_OPENINGS: OpeningsInput = {
   doorsCount: 1,
   doorWidth_m: 1,
   doorHeight_m: 2.1,
-  windowsArea_m2: 0,
+  windowsCount: 0,
+  windowWidth_m: 0,
+  windowHeight_m: 0,
 };
 
 /** Суммарная площадь проёмов (ворота + двери + окна), м² — вычитается из площади стен под обшивку. */
 export function computeOpeningsArea_m2(openings: OpeningsInput): number {
-  return (
-    gatesArea_m2(openings) + doorsArea_m2(openings) + openings.windowsArea_m2
-  );
+  return gatesArea_m2(openings) + doorsArea_m2(openings) + windowsArea_m2(openings);
 }
 
 function gatesArea_m2(o: OpeningsInput): number {
@@ -32,6 +33,22 @@ function gatesArea_m2(o: OpeningsInput): number {
 
 function doorsArea_m2(o: OpeningsInput): number {
   return o.doorsCount * o.doorWidth_m * o.doorHeight_m;
+}
+
+export function windowsArea_m2(o: OpeningsInput): number {
+  return o.windowsCount * o.windowWidth_m * o.windowHeight_m;
+}
+
+/**
+ * Периметр обрамления оконных проёмов, п.м — по нему в ведомости идёт
+ * уголок 80х4 в строке «Конструкции из труб»:
+ *
+ *   L156 = 2 × (ширина + высота) × количество
+ *
+ * В "22316" это 2 × (30 + 1) × 1 = 62 п.м, в "22318" окон нет → 0.
+ */
+export function windowFramingPerimeter_m(o: OpeningsInput): number {
+  return 2 * (o.windowWidth_m + o.windowHeight_m) * o.windowsCount;
 }
 
 export interface OpeningsCostItem {
@@ -75,7 +92,7 @@ const OPENING_PRICES = {
  */
 export function computeOpeningsCost(openings: OpeningsInput): OpeningsCost {
   const items: OpeningsCostItem[] = [
-    { name: "Окна", area_m2: openings.windowsArea_m2, unitPrice: OPENING_PRICES.windows },
+    { name: "Окна", area_m2: windowsArea_m2(openings), unitPrice: OPENING_PRICES.windows },
     { name: "Двери", area_m2: doorsArea_m2(openings), unitPrice: OPENING_PRICES.doors },
     { name: "Ворота", area_m2: gatesArea_m2(openings), unitPrice: OPENING_PRICES.gates },
   ].map((i) => ({ ...i, cost: i.area_m2 * i.unitPrice }));

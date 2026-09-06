@@ -1,5 +1,6 @@
 import { Fragment, useMemo, useState } from "react";
 import { computeSvCode, getAllSettlementNames } from "./calc/climate/svCode";
+import { computeBracing, type StrutTube } from "./calc/frame/bracing";
 import { findFrameSelection, snapHeight } from "./calc/frame/sectionBank";
 import {
   computeRoofCladdingSection,
@@ -23,6 +24,7 @@ import {
   computeOpeningsArea_m2,
   computeOpeningsCost,
   DEFAULT_OPENINGS,
+  windowFramingPerimeter_m,
   type OpeningsInput,
 } from "./calc/geometry/openings";
 import { computeRoofLoad, defaultRoofSlopeDeg } from "./calc/loads/roofLoad";
@@ -74,6 +76,10 @@ export function App() {
   const [openings, setOpenings] = useState<OpeningsInput>(DEFAULT_OPENINGS);
   const [postSpacing, setPostSpacing] = useState(2);
   const [snowGuards, setSnowGuards] = useState(true);
+  // Ручные входы строки «Конструкции из труб» — правила для них в исходнике нет.
+  const [tubeStrutCount, setTubeStrutCount] = useState(3);
+  const [strutTube, setStrutTube] = useState<StrutTube>("80х3");
+  const [extraTubeMass_t, setExtraTubeMass] = useState(0.432);
 
   const climate = useMemo(() => {
     try {
@@ -148,6 +154,21 @@ export function App() {
     if (!climate.ok) return null;
     return computeHorizTiesMass_kg(span, climate.value.standard, length);
   }, [climate, span, length]);
+
+  const bracing = useMemo(() => {
+    if (!frameTakeoff) return null;
+    return computeBracing({
+      span_m: span,
+      length_m: geometry.length_m,
+      height_m: geometry.height_m,
+      framePitch_m: geometry.framePitch_m,
+      frameCount: frameTakeoff.frameCount,
+      tubeStrutCount,
+      strutTube,
+      extraTubeMass_t,
+      windowFramingPerimeter_m: windowFramingPerimeter_m(openings),
+    });
+  }, [frameTakeoff, span, geometry, tubeStrutCount, strutTube, extraTubeMass_t, openings]);
 
   const drainage = useMemo(() => computeDrainage(geometry), [geometry]);
 
@@ -247,17 +268,19 @@ export function App() {
   const commercial = useMemo(() => {
     // Раскладка по статьям исходной ведомости (строки 155–160).
     // «Каркас» = F32 + F100: профили рамы, прогоны, прочие профили,
-    // весь крепёж и связи. Связи (трубы/уголок/лист) пока не посчитаны
-    // — без них статья неполная.
+    // весь крепёж и связи. Связи считаются, но «Лист» (фасонки) требует
+    // веса фасонок на раму, который известен не для всех пролётов.
     const frameMaterials =
       frameTakeoff?.totalFrameCost != null &&
       purlinLayout?.totalCost != null &&
       frameExtras != null &&
-      frameFasteners != null
+      frameFasteners != null &&
+      bracing?.totalCost != null
         ? (frameTakeoff.totalFrameCost +
             purlinLayout.totalCost +
             frameExtras.totalCost +
-            frameFasteners.totalCost) *
+            frameFasteners.totalCost +
+            bracing.totalCost) *
           SECTION_OVERHEAD
         : null;
 
@@ -274,10 +297,11 @@ export function App() {
       wallMaterials,
       roofMaterials,
       openingsCost: openingsCost.totalCost,
-      frameMissing: "связи (трубы, уголок, лист)",
+      frameMissing: bracing?.missing,
     });
   }, [
     frameTakeoff,
+    bracing,
     frameExtras,
     frameFasteners,
     purlinLayout,
@@ -294,7 +318,7 @@ export function App() {
       (frameTakeoff?.totalFrameMass_kg ?? 0) +
       (frameTakeoff?.gussetPlatesMass_kg ?? 0) +
       (frameFasteners?.totalMass_kg ?? 0) +
-      (horizTiesMass_kg ?? 0) +
+      (bracing?.totalMass_kg ?? 0) +
       (frameExtras?.totalMass_kg ?? 0) +
       wallTrim.totalMass_kg +
       (purlinLayout?.totalMass_kg ?? 0) +
@@ -304,7 +328,7 @@ export function App() {
       frameTakeoff?.totalFrameMass_kg !== null &&
       frameTakeoff?.gussetPlatesMass_kg !== null &&
       frameFasteners !== null &&
-      horizTiesMass_kg !== null &&
+      bracing?.totalMass_kg != null &&
       purlinLayout?.totalMass_kg !== null &&
       facadePostLayout?.totalMass_kg !== null;
 
@@ -319,11 +343,15 @@ export function App() {
       (purlinLayout?.totalCost ?? 0) +
       (frameFasteners?.totalCost ?? 0) +
       (frameExtras?.totalCost ?? 0) +
+      (bracing?.totalCost ?? 0) +
       wallTrim.totalCost +
       drainage.totalCost +
       roofTrim.totalCost;
     const hasFullCost =
-      frameTakeoff?.totalFrameCost != null && claddingCost != null && purlinLayout?.totalCost != null;
+      frameTakeoff?.totalFrameCost != null &&
+      claddingCost != null &&
+      purlinLayout?.totalCost != null &&
+      bracing?.totalCost != null;
 
     // Доля каждой статьи в известной стоимости — обшивка не зависит от
     // климата (только от геометрии) и обычно доминирует, из-за чего
@@ -337,6 +365,7 @@ export function App() {
       cladding: shareOf(claddingCost),
       drainage: shareOf(drainage.totalCost),
       fasteners: shareOf(frameFasteners?.totalCost),
+      bracing: shareOf(bracing?.totalCost),
       roofTrim: shareOf(roofTrim.totalCost),
       profiles: shareOf((frameExtras?.totalCost ?? 0) + wallTrim.totalCost),
     };
@@ -353,6 +382,7 @@ export function App() {
   }, [
     frameTakeoff,
     frameFasteners,
+    bracing,
     horizTiesMass_kg,
     frameExtras,
     wallTrim,
@@ -541,13 +571,56 @@ export function App() {
           </label>
 
           <label>
-            Окна, м² суммарно
+            Окна (шт × Ш × В, м)
+            <div className="inline-fields">
+              <input
+                type="number"
+                min="0"
+                value={openings.windowsCount}
+                onChange={(e) => setOpenings({ ...openings, windowsCount: Number(e.target.value) })}
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={openings.windowWidth_m}
+                onChange={(e) => setOpenings({ ...openings, windowWidth_m: Number(e.target.value) })}
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={openings.windowHeight_m}
+                onChange={(e) => setOpenings({ ...openings, windowHeight_m: Number(e.target.value) })}
+              />
+            </div>
+          </label>
+
+          <label>
+            Распорки из трубы (шт / профиль)
+            <div className="inline-fields">
+              <input
+                type="number"
+                min="0"
+                value={tubeStrutCount}
+                onChange={(e) => setTubeStrutCount(Number(e.target.value))}
+              />
+              <select value={strutTube} onChange={(e) => setStrutTube(e.target.value as StrutTube)}>
+                <option value="60х3">60х3</option>
+                <option value="80х3">80х3</option>
+                <option value="120х3">120х3</option>
+              </select>
+            </div>
+          </label>
+
+          <label>
+            Добавка к конструкциям из труб, т
             <input
               type="number"
               min="0"
-              step="1"
-              value={openings.windowsArea_m2}
-              onChange={(e) => setOpenings({ ...openings, windowsArea_m2: Number(e.target.value) })}
+              step="0.001"
+              value={extraTubeMass_t}
+              onChange={(e) => setExtraTubeMass(Number(e.target.value))}
             />
           </label>
 
@@ -686,10 +759,24 @@ export function App() {
                   </dd>
                 </Fragment>
               ))}
-              <dt>Горизонтальные связи/распорки</dt>
-              <dd>
+              {bracing?.items.map((item) => (
+                <Fragment key={item.name}>
+                  <dt>{item.name}</dt>
+                  <dd>
+                    {item.mass_t === null || item.cost === null ? (
+                      <span className="incomplete">нет веса фасонок для этого пролёта</span>
+                    ) : (
+                      <>
+                        {item.mass_t.toFixed(3)} т — {Math.round(item.cost).toLocaleString("ru-RU")} ₽
+                      </>
+                    )}
+                  </dd>
+                </Fragment>
+              ))}
+              <dt>Гориз. связи по подборщику</dt>
+              <dd className="incomplete">
                 {horizTiesMass_kg !== null
-                  ? `${horizTiesMass_kg.toFixed(0)} кг (цена неизвестна, проверено только для высоты 3,6м)`
+                  ? `${horizTiesMass_kg.toFixed(0)} кг — другой источник, в итог не входит`
                   : "нет данных для этой комбинации"}
               </dd>
               <dt>Итого металл каркаса</dt>
@@ -700,7 +787,7 @@ export function App() {
                       (frameTakeoff.gussetPlatesMass_kg ?? 0) +
                       (frameFasteners?.totalMass_kg ?? 0) +
                       (frameExtras?.totalMass_kg ?? 0) +
-                      (horizTiesMass_kg ?? 0)
+                      (bracing?.totalMass_kg ?? 0)
                     ).toFixed(0)} кг`
                   : "—"}
               </dd>

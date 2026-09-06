@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { computeOpeningsArea_m2, computeOpeningsCost, DEFAULT_OPENINGS } from "./openings";
+import {
+  computeOpeningsArea_m2,
+  computeOpeningsCost,
+  DEFAULT_OPENINGS,
+  windowFramingPerimeter_m,
+} from "./openings";
 
 describe("computeOpeningsArea_m2", () => {
   it("sums gates, doors and windows area", () => {
@@ -16,7 +21,9 @@ describe("computeOpeningsArea_m2", () => {
       doorsCount: 0,
       doorWidth_m: 0,
       doorHeight_m: 0,
-      windowsArea_m2: 0,
+      windowsCount: 0,
+      windowWidth_m: 0,
+      windowHeight_m: 0,
     });
     expect(area).toBe(0);
   });
@@ -31,7 +38,9 @@ describe("computeOpeningsCost", () => {
       doorsCount: 1,
       doorWidth_m: 1,
       doorHeight_m: 2,
-      windowsArea_m2: 30,
+      windowsCount: 1,
+        windowWidth_m: 30,
+        windowHeight_m: 1,
     });
     expect(result.totalCost).toBeCloseTo(921840, 4);
   });
@@ -44,7 +53,9 @@ describe("computeOpeningsCost", () => {
       doorsCount: 1,
       doorWidth_m: 1,
       doorHeight_m: 2,
-      windowsArea_m2: 0,
+      windowsCount: 0,
+      windowWidth_m: 0,
+      windowHeight_m: 0,
     });
     expect(result.totalCost).toBeCloseTo(787566, 4);
   });
@@ -67,8 +78,27 @@ describe("computeOpeningsCost", () => {
       doorsCount: 0,
       doorWidth_m: 0,
       doorHeight_m: 0,
-      windowsArea_m2: 0,
+      windowsCount: 0,
+      windowWidth_m: 0,
+      windowHeight_m: 0,
     });
     expect(result.totalCost).toBe(0);
+  });
+});
+
+describe("windowFramingPerimeter_m", () => {
+  it("reproduces L156 of real project '22316': one 30×1 window -> 62 п.м", () => {
+    expect(
+      windowFramingPerimeter_m({
+        ...DEFAULT_OPENINGS,
+        windowsCount: 1,
+        windowWidth_m: 30,
+        windowHeight_m: 1,
+      }),
+    ).toBeCloseTo(62, 9);
+  });
+
+  it("is zero without windows ('22318')", () => {
+    expect(windowFramingPerimeter_m(DEFAULT_OPENINGS)).toBe(0);
   });
 });
