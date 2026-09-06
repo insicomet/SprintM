@@ -10,6 +10,7 @@ import { facadePostCount } from "./calc/facadePost/postCount";
 import { selectFacadePost } from "./calc/facadePost/selectFacadePost";
 import { computeDrainage } from "./calc/drainage/drainage";
 import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/buildingEnvelope";
+import { computeFrameExtras } from "./calc/geometry/frameExtras";
 import { computeFrameFasteners } from "./calc/geometry/frameFasteners";
 import { rafterLengthPerFrame_m } from "./calc/geometry/frameGeometry";
 import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
@@ -17,6 +18,7 @@ import { computeHorizTiesMass_kg } from "./calc/geometry/horizTies";
 import { computeOpeningsArea_m2, DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
 import { computeRoofLoad, defaultRoofSlopeDeg } from "./calc/loads/roofLoad";
 import { computeRoofTrim } from "./calc/roofTrim/roofTrim";
+import { computeWallTrim } from "./calc/wallTrim/wallTrim";
 import { computePurlinLayout } from "./calc/purlin/purlinLayout";
 import { selectPurlin } from "./calc/purlin/selectPurlin";
 import roofingTypesRaw from "./data/roofingSelfWeight.json";
@@ -108,6 +110,13 @@ export function App() {
     return computeFrameFasteners(geometry, frameTakeoff.frameCount);
   }, [frameTakeoff, geometry]);
 
+  const frameExtras = useMemo(() => {
+    if (!frameTakeoff) return null;
+    return computeFrameExtras(geometry, frameTakeoff.frameCount);
+  }, [frameTakeoff, geometry]);
+
+  const wallTrim = useMemo(() => computeWallTrim(geometry), [geometry]);
+
   const horizTiesMass_kg = useMemo(() => {
     if (!climate.ok) return null;
     return computeHorizTiesMass_kg(span, climate.value.standard, length);
@@ -179,6 +188,8 @@ export function App() {
       (frameTakeoff?.gussetPlatesMass_kg ?? 0) +
       (frameFasteners?.totalMass_kg ?? 0) +
       (horizTiesMass_kg ?? 0) +
+      (frameExtras?.totalMass_kg ?? 0) +
+      wallTrim.totalMass_kg +
       (purlinLayout?.totalMass_kg ?? 0) +
       (facadePostLayout?.totalMass_kg ?? 0);
     const claddingMass_kg = wallCladding.totalMass_kg + (roofCladding?.totalMass_kg ?? 0);
@@ -200,6 +211,8 @@ export function App() {
       (claddingCost ?? 0) +
       (purlinLayout?.totalCost ?? 0) +
       (frameFasteners?.totalCost ?? 0) +
+      (frameExtras?.totalCost ?? 0) +
+      wallTrim.totalCost +
       drainage.totalCost +
       roofTrim.totalCost;
     const hasFullCost =
@@ -218,6 +231,7 @@ export function App() {
       drainage: shareOf(drainage.totalCost),
       fasteners: shareOf(frameFasteners?.totalCost),
       roofTrim: shareOf(roofTrim.totalCost),
+      profiles: shareOf((frameExtras?.totalCost ?? 0) + wallTrim.totalCost),
     };
 
     return {
@@ -233,6 +247,8 @@ export function App() {
     frameTakeoff,
     frameFasteners,
     horizTiesMass_kg,
+    frameExtras,
+    wallTrim,
     drainage,
     roofTrim,
     purlinLayout,
@@ -522,6 +538,15 @@ export function App() {
                   ? `${frameTakeoff.gussetPlatesMass_kg.toFixed(0)} кг (оценка ИНСИ, состав не расшифрован)`
                   : "нет данных для этой комбинации"}
               </dd>
+              {frameExtras?.items.map((item) => (
+                <Fragment key={item.name}>
+                  <dt>{item.name}</dt>
+                  <dd>
+                    {item.count.toFixed(1)} {item.unit} — {item.mass_kg.toFixed(1)} кг —{" "}
+                    {Math.round(item.cost).toLocaleString("ru-RU")} ₽
+                  </dd>
+                </Fragment>
+              ))}
               {frameFasteners?.items.map((item) => (
                 <Fragment key={item.name}>
                   <dt>{item.name}</dt>
@@ -545,14 +570,17 @@ export function App() {
                       frameTakeoff.totalFrameMass_kg +
                       (frameTakeoff.gussetPlatesMass_kg ?? 0) +
                       (frameFasteners?.totalMass_kg ?? 0) +
+                      (frameExtras?.totalMass_kg ?? 0) +
                       (horizTiesMass_kg ?? 0)
                     ).toFixed(0)} кг`
                   : "—"}
               </dd>
-              <dt>Итого крепёж</dt>
+              <dt>Итого крепёж и профили</dt>
               <dd>
                 {frameFasteners
-                  ? `${Math.round(frameFasteners.totalCost).toLocaleString("ru-RU")} ₽`
+                  ? `${Math.round(
+                      frameFasteners.totalCost + (frameExtras?.totalCost ?? 0),
+                    ).toLocaleString("ru-RU")} ₽`
                   : "—"}
               </dd>
             </dl>
@@ -686,6 +714,33 @@ export function App() {
       </section>
 
       <section className="card">
+        <h2>Стены — угловые элементы</h2>
+        <p className="hint">
+          Раздел «Стены» исходной ведомости целиком: остальные его позиции (ПС 245х65, окрашенные
+          профили, С-18, КФ) в обоих проектах обнулены. Делитель 1,9 в формулах — рабочая длина
+          двухметрового элемента за вычетом нахлёста.
+        </p>
+        <dl className="result-list">
+          {wallTrim.items.map((item) => (
+            <Fragment key={item.name}>
+              <dt>{item.name}</dt>
+              <dd>
+                {item.count.toFixed(1)} {item.unit} — {item.mass_kg.toFixed(1)} кг —{" "}
+                {Math.round(item.cost).toLocaleString("ru-RU")} ₽
+              </dd>
+            </Fragment>
+          ))}
+          <dt>Накладные расходы (2%)</dt>
+          <dd>{Math.round(wallTrim.overheadCost).toLocaleString("ru-RU")} ₽</dd>
+          <dt>Итого стены</dt>
+          <dd>
+            {wallTrim.totalMass_kg.toFixed(1)} кг —{" "}
+            {Math.round(wallTrim.totalCost).toLocaleString("ru-RU")} ₽
+          </dd>
+        </dl>
+      </section>
+
+      <section className="card">
         <h2>Кровля — доборные элементы</h2>
         <p className="hint">
           Формулы и цены подтверждены дословным совпадением в обеих исходных ведомостях.
@@ -777,6 +832,12 @@ export function App() {
             {summary.shares.fasteners !== null &&
               ` (${summary.shares.fasteners.toFixed(0)}% — зависит от климата)`}
           </dd>
+          <dt>Профили и уголки</dt>
+          <dd>
+            {Math.round((frameExtras?.totalCost ?? 0) + wallTrim.totalCost).toLocaleString("ru-RU")} ₽
+            {summary.shares.profiles !== null &&
+              ` (${summary.shares.profiles.toFixed(0)}% — не зависит от климата)`}
+          </dd>
           <dt>Кровля (доборные)</dt>
           <dd>
             {Math.round(roofTrim.totalCost).toLocaleString("ru-RU")} ₽
@@ -796,10 +857,9 @@ export function App() {
           </dd>
         </dl>
         <p className="hint">
-          Не учтено: затяжки, вертикальные связи фахверка, уголки и профили стен (У.115, ПС, ПШ),
-          утеплитель и пароизоляция, ГВЛ, цена узловых пластин и горизонтальных связей (только
-          масса), стойки фахверка (только масса), монтаж. Это предварительная оценка, не
-          коммерческое предложение.
+          Не учтено: затяжки, вертикальные связи фахверка, утеплитель и пароизоляция, ГВЛ, цена
+          узловых пластин и горизонтальных связей (только масса), стойки фахверка (только масса),
+          монтаж. Это предварительная оценка, не коммерческое предложение.
         </p>
       </section>
 
