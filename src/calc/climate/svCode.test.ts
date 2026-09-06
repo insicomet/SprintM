@@ -4,6 +4,8 @@ import {
   findSettlement,
   findSettlementsByName,
   getAllSettlementNames,
+  getSupportedSvCodes,
+  isSettlementSupported,
   normalizeSvCode,
   romanDistrictToDigit,
 } from "./svCode";
@@ -117,5 +119,27 @@ describe("climate / svCode", () => {
     const result = computeSvCode("Альметьевск");
     expect(result.raw).toBe("4/2");
     expect(result.standard).toBe("4/3");
+  });
+});
+
+describe("покрытие банка сечений", () => {
+  it("names the real reason when a city falls outside the bank", () => {
+    // Южно-Сахалинск: снег VII, ветер VI — за пределами просчитанного.
+    expect(() => computeSvCode("Южно-Сахалинск")).toThrowError(/выходит за пределы банка/);
+  });
+
+  it("reports supported and unsupported settlements", () => {
+    expect(isSettlementSupported("Челябинск")).toBe(true);
+    expect(isSettlementSupported("Южно-Сахалинск")).toBe(false);
+    // Города нет в справочнике вообще — тоже «не поддержан».
+    expect(isSettlementSupported("Урюпинск-на-Марсе")).toBe(false);
+  });
+
+  it("lists the combinations the bank actually has", () => {
+    const codes = getSupportedSvCodes();
+    expect(codes).toContain("4/1");
+    expect(codes).toContain("3/1");
+    expect(codes).not.toContain("8/7");
+    expect(new Set(codes).size).toBe(codes.length);
   });
 });

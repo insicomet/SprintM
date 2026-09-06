@@ -98,9 +98,35 @@ export function romanDistrictToDigit(roman: string): string {
 export function normalizeSvCode(rawCode: string): string {
   const standard = svMapping.combo_to_standard[rawCode];
   if (standard === undefined) {
-    throw new Error(`Код "с/в" "${rawCode}" не найден в таблице соответствия`);
+    const [snow, wind] = rawCode.split("/");
+    throw new Error(
+      `Сочетание «снег ${snow} / ветер ${wind}» выходит за пределы банка сечений ИНСИ. ` +
+        `Банк просчитан до снегового района V и ветрового IV; для этого города ` +
+        `нужен индивидуальный расчёт.`,
+    );
   }
   return standard;
+}
+
+/** Все сочетания «с/в», для которых в банке ИНСИ есть просчитанные строки. */
+export function getSupportedSvCodes(): readonly string[] {
+  return [...new Set(Object.values(svMapping.combo_to_standard))].sort();
+}
+
+/**
+ * Покрывает ли банк сечений климат этого населённого пункта.
+ *
+ * По нашему справочнику (1096 городов) не покрыто 63: Камчатка, Сахалин,
+ * Норильск, Воркута, Черноморское побережье и ещё несколько мест, где
+ * сочетание снега и ветра выходит за просчитанную ИНСИ область.
+ */
+export function isSettlementSupported(cityName: string): boolean {
+  try {
+    computeSvCode(cityName);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
