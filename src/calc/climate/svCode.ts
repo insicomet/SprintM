@@ -1,6 +1,6 @@
 import settlementsRaw from "../../data/settlementsClimate.json";
 import svMappingRaw from "../../data/svCodeMapping.json";
-import type { SettlementClimate, SvCodeResult } from "./types";
+import type { SettlementClimate, SvCode, SvCodeResult } from "./types";
 
 interface SvCodeMappingFile {
   combo_to_standard: Record<string, string>;
@@ -169,4 +169,20 @@ export function computeSvCode(cityName: string): SvCodeResult {
   const standard = normalizeSvCode(raw);
 
   return { city, raw, standard };
+}
+
+/**
+ * Код «с/в» из явно заданных районов.
+ *
+ * Нужен, когда снеговой район берётся не из справочника напрямую, а через
+ * лестницу нагрузок ИНСИ (см. climate/snowLadder.ts): ветровой район при
+ * этом остаётся из справочника — у ИНСИ он тоже читается по СП, без
+ * пересчёта (подбор!AK9 = снегветер, столбец H).
+ */
+export function svCodeFromDistricts(
+  snowDistrict: string,
+  windDistrict: string,
+): { raw: SvCode; standard: SvCode } {
+  const raw = `${romanDistrictToDigit(snowDistrict)}/${romanDistrictToDigit(windDistrict)}`;
+  return { raw, standard: normalizeSvCode(raw) };
 }

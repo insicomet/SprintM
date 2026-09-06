@@ -215,12 +215,30 @@ describe("computeProject — реальный проект «22318»", () => {
 });
 
 describe("computeProject — поведение вне сверки", () => {
-  it("falls back to our own climate base when с/в is not overridden", () => {
+  it("reaches the estimator's own с/в and k without any override", () => {
+    // Наша база даёт Берёзовскому снег 1,5 кПа. Лестница ИНСИ: 1,5 + 0,1
+    // (С-П 150) = 1,6 → район IV, k = 0,8. Ровно то, что стоит в файле.
     const r = computeProject({ ...project22316, svOverride: undefined, bankK: "auto" });
-    // Наша база: Берёзовский (Свердловская) — снег III, ветер I.
-    expect(r.climate.ok && r.climate.value.standard).toBe("3/1");
+    expect(r.bankBlock!.snowDistrict).toBe("IV");
+    expect(r.bankBlock!.bankK).toBe(0.8);
+    expect(r.climate.ok && r.climate.value.standard).toBe("4/1");
     expect(r.climate.ok && r.climate.overridden).toBe(false);
-    expect(r.commercial.totalCost).not.toBeNull();
+    const s = r.frame!.ok ? r.frame!.value : null;
+    expect(s!.framePitch_m).toBe(4.5);
+    expect(s!.bolts.totalInFrame).toBe(308);
+    expect(s!.massGussetPlates_kg).toBe(264);
+  });
+
+  it("does the same for «22318» — снег 1,8 через ту же лестницу", () => {
+    const r = computeProject({ ...project22318, svOverride: undefined, bankK: "auto" });
+    // 1,8 + 0,1 = 1,9 → IV / 1,0.
+    expect(r.bankBlock!.snowDistrict).toBe("IV");
+    expect(r.bankBlock!.bankK).toBe(1);
+    expect(r.climate.ok && r.climate.value.standard).toBe("4/1");
+    const s = r.frame!.ok ? r.frame!.value : null;
+    expect(s!.framePitch_m).toBe(4);
+    expect(s!.bolts.totalInFrame).toBe(276);
+    expect(s!.massGussetPlates_kg).toBe(238);
   });
 
   it("survives every span without throwing", () => {

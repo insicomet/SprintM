@@ -1,4 +1,5 @@
-import { computeSvCode } from "../climate/svCode";
+import { computeSvCode, svCodeFromDistricts } from "../climate/svCode";
+import { selectBankBlock, type BankBlock } from "../climate/snowLadder";
 import { computeBracing, type StrutTube } from "../frame/bracing";
 import { findFrameSelection, snapHeight } from "../frame/sectionBank";
 import {
@@ -58,9 +59,9 @@ export interface ProjectInputs {
   /** γn — коэффициент надёжности по ответственности (вывод!D7), идёт в нагрузки. */
   gammaN: ResponsibilityLevel;
   /**
-   * Блок банка сечений (подбор!W9). В исходнике это ОТДЕЛЬНАЯ величина:
-   * в "22316" γn = 1, а сечения взяты из блока k = 0,8.
-   * "auto" — брать тот же, что γn.
+   * Блок банка сечений (подбор!W9). В исходнике он НЕ равен γn: его вместе
+   * со снеговым районом выдаёт лестница нагрузок (climate/snowLadder.ts).
+   * "auto" — как в исходнике, по лестнице.
    */
   bankK: "auto" | ResponsibilityLevel;
   /** Код «с/в» вручную; пусто — из нашей климатической базы. */
@@ -151,11 +152,30 @@ export function computeProject(inputs: ProjectInputs) {
   } = inputs;
 
   // ---- Климат -------------------------------------------------------
+  //
+  // Снеговой район и коэффициент k блока банка ИНСИ выводит не из
+  // справочника, а из НАГРУЗКИ — через лестницу порогов (снегветер).
+  // Нагрузку берём свою, правило перевода — их. Ветровой район у них
+  // читается по СП напрямую, как и у нас.
   let climate:
     | { ok: true; value: ReturnType<typeof computeSvCode>; overridden: boolean }
     | { ok: false; error: string };
+  let bankBlock: BankBlock | null = null;
   try {
-    const value = computeSvCode(city);
+    const base = computeSvCode(city);
+    const snow_kPa =
+      snowLoadOverride_kPa != null && snowLoadOverride_kPa > 0
+        ? snowLoadOverride_kPa
+        : base.city.snow.sgKpa;
+
+    bankBlock =
+      snow_kPa === null ? null : selectBankBlock(snow_kPa, roofingType, gammaN);
+
+    let value = base;
+    if (bankBlock && base.city.wind.region) {
+      const byLadder = svCodeFromDistricts(bankBlock.snowDistrict, base.city.wind.region);
+      value = { ...base, raw: byLadder.raw, standard: byLadder.standard };
+    }
     climate = {
       ok: true,
       value: svOverride ? { ...value, standard: svOverride } : value,
@@ -178,7 +198,7 @@ export function computeProject(inputs: ProjectInputs) {
       const query = {
         span,
         height_m,
-        responsibility: bankK === "auto" ? gammaN : bankK,
+        responsibility: bankK === "auto" ? (bankBlock?.bankK ?? gammaN) : bankK,
         svCode: climate.value.standard,
       };
       let value = findFrameSelection(
@@ -426,6 +446,8 @@ export function computeProject(inputs: ProjectInputs) {
 
   return {
     climate,
+    /** Пара «снеговой район + k», выбранная лестницей нагрузок ИНСИ. */
+    bankBlock,
     /** Снеговая нагрузка, фактически ушедшая в расчёт, кН/м². */
     snowLoad_kPa: sgKpa,
     snowOverridden,

@@ -116,6 +116,7 @@ export function App() {
 
   const {
     climate,
+    bankBlock,
     frame,
     trussedVariantMissing,
     heightBucket,
@@ -214,7 +215,7 @@ export function App() {
           </label>
 
           <label>
-            Блок банка сечений k
+            Блок банка сечений k (перекрыть)
             <select
               value={String(bankK)}
               onChange={(e) =>
@@ -225,7 +226,7 @@ export function App() {
                 )
               }
             >
-              <option value="auto">как γn</option>
+              <option value="auto">по лестнице нагрузок</option>
               <option value="1">k = 1,0</option>
               <option value="0.8">k = 0,8</option>
             </select>
@@ -515,6 +516,19 @@ export function App() {
             <dt>Ветровой район</dt>
             <dd>
               {climate.value.city.wind.region} ({climate.value.city.wind.w0Kpa} кПа)
+            </dd>
+            <dt>Блок банка (лестница ИНСИ)</dt>
+            <dd>
+              {bankBlock ? (
+                <>
+                  район {bankBlock.snowDistrict}, k = {bankBlock.bankK} — держит{" "}
+                  {bankBlock.designLoad_kPa} кПа при нагрузке{" "}
+                  {bankBlock.lookupLoad_kPa.toFixed(2)} кПа (снег + {bankBlock.roofingSupplement_kPa}{" "}
+                  за покрытие)
+                </>
+              ) : (
+                <span className="incomplete">нагрузка вне лестницы — нужен расчёт конструктора</span>
+              )}
             </dd>
             <dt>Код "с/в"</dt>
             <dd>
