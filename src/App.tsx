@@ -6,7 +6,6 @@ import { facadePostCount } from "./calc/facadePost/postCount";
 import { selectFacadePost } from "./calc/facadePost/selectFacadePost";
 import { computeDrainage } from "./calc/drainage/drainage";
 import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/buildingEnvelope";
-import { computeDowelFasteners } from "./calc/geometry/dowelFasteners";
 import { computeFrameFasteners } from "./calc/geometry/frameFasteners";
 import { rafterLengthPerFrame_m } from "./calc/geometry/frameGeometry";
 import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
@@ -106,8 +105,6 @@ export function App() {
     return computeHorizTiesMass_kg(span, climate.value.standard, length);
   }, [climate, span, length]);
 
-  const dowelFasteners = useMemo(() => computeDowelFasteners(2 * (span + length)), [span, length]);
-
   const drainage = useMemo(() => computeDrainage(geometry), [geometry]);
 
   const openingsArea = useMemo(() => computeOpeningsArea_m2(openings), [openings]);
@@ -168,7 +165,6 @@ export function App() {
       (frameTakeoff?.gussetPlatesMass_kg ?? 0) +
       (frameFasteners?.totalMass_kg ?? 0) +
       (horizTiesMass_kg ?? 0) +
-      dowelFasteners.mass_kg +
       (purlinLayout?.totalMass_kg ?? 0) +
       (facadePostLayout?.totalMass_kg ?? 0);
     const hasFullSteelMass =
@@ -188,6 +184,7 @@ export function App() {
       (frameTakeoff?.totalFrameCost ?? 0) +
       (claddingCost ?? 0) +
       (purlinLayout?.totalCost ?? 0) +
+      (frameFasteners?.totalCost ?? 0) +
       drainage.totalCost;
     const hasFullCost =
       frameTakeoff?.totalFrameCost != null && claddingCost != null && purlinLayout?.totalCost != null;
@@ -203,6 +200,7 @@ export function App() {
       purlin: shareOf(purlinLayout?.totalCost),
       cladding: shareOf(claddingCost),
       drainage: shareOf(drainage.totalCost),
+      fasteners: shareOf(frameFasteners?.totalCost),
     };
 
     return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost, shares };
@@ -210,7 +208,6 @@ export function App() {
     frameTakeoff,
     frameFasteners,
     horizTiesMass_kg,
-    dowelFasteners,
     drainage,
     purlinLayout,
     facadePostLayout,
@@ -476,39 +473,16 @@ export function App() {
                   ? `${frameTakeoff.gussetPlatesMass_kg.toFixed(0)} кг (оценка ИНСИ, состав не расшифрован)`
                   : "нет данных для этой комбинации"}
               </dd>
-              {frameFasteners && (
-                <>
-                  <dt>Крепёж Фс11/Фс14</dt>
+              {frameFasteners?.items.map((item) => (
+                <Fragment key={item.name}>
+                  <dt>{item.name}</dt>
                   <dd>
-                    {Math.round(frameFasteners.fc11_14Count)} шт — {frameFasteners.fc11_14Mass_kg.toFixed(0)} кг
-                    (цена неизвестна)
+                    {Math.round(item.count)} шт — {item.mass_kg.toFixed(1)} кг —{" "}
+                    {Math.round(item.cost).toLocaleString("ru-RU")} ₽
+                    {item.isEstimated ? " (ставка не подтверждена для этого пролёта)" : ""}
                   </dd>
-                  <dt>Крепёж Фс12</dt>
-                  <dd>
-                    {Math.round(frameFasteners.fc12Count)} шт — {frameFasteners.fc12Mass_kg.toFixed(0)} кг (цена
-                    неизвестна)
-                  </dd>
-                  <dt>Саморез 5,5x25</dt>
-                  <dd>
-                    {Math.round(frameFasteners.screw525Count)} шт — {frameFasteners.screw525Mass_kg.toFixed(1)} кг
-                    (цена неизвестна){frameFasteners.screw525RateIsEstimated ? ", ставка оценочная" : ""}
-                  </dd>
-                  <dt>Болт М16х50</dt>
-                  <dd>
-                    {Math.round(frameFasteners.boltM16Count)} шт — {frameFasteners.boltM16Mass_kg.toFixed(0)} кг
-                    (цена неизвестна){frameFasteners.boltM16RateIsEstimated ? ", ставка оценочная" : ""}
-                  </dd>
-                  <dt>Болт М12х40</dt>
-                  <dd>
-                    {Math.round(frameFasteners.boltM12Count)} шт — {frameFasteners.boltM12Mass_kg.toFixed(1)} кг
-                    (цена неизвестна){frameFasteners.boltM12RateIsEstimated ? ", ставка оценочная" : ""}
-                  </dd>
-                </>
-              )}
-              <dt>Дюбель-гвоздь 6х60 (по периметру)</dt>
-              <dd>
-                {Math.round(dowelFasteners.count)} шт — {dowelFasteners.mass_kg.toFixed(1)} кг (цена неизвестна)
-              </dd>
+                </Fragment>
+              ))}
               <dt>Горизонтальные связи/распорки</dt>
               <dd>
                 {horizTiesMass_kg !== null
@@ -522,9 +496,14 @@ export function App() {
                       frameTakeoff.totalFrameMass_kg +
                       (frameTakeoff.gussetPlatesMass_kg ?? 0) +
                       (frameFasteners?.totalMass_kg ?? 0) +
-                      (horizTiesMass_kg ?? 0) +
-                      dowelFasteners.mass_kg
+                      (horizTiesMass_kg ?? 0)
                     ).toFixed(0)} кг`
+                  : "—"}
+              </dd>
+              <dt>Итого крепёж</dt>
+              <dd>
+                {frameFasteners
+                  ? `${Math.round(frameFasteners.totalCost).toLocaleString("ru-RU")} ₽`
                   : "—"}
               </dd>
             </dl>
@@ -693,6 +672,14 @@ export function App() {
               ? `${purlinLayout.totalCost.toLocaleString("ru-RU")} ₽`
               : "цена неизвестна"}
             {summary.shares.purlin !== null && ` (${summary.shares.purlin.toFixed(0)}% — зависит от климата)`}
+          </dd>
+          <dt>Крепёж</dt>
+          <dd>
+            {frameFasteners
+              ? `${Math.round(frameFasteners.totalCost).toLocaleString("ru-RU")} ₽`
+              : "—"}
+            {summary.shares.fasteners !== null &&
+              ` (${summary.shares.fasteners.toFixed(0)}% — зависит от климата)`}
           </dd>
           <dt>Водосток</dt>
           <dd>
