@@ -11,18 +11,22 @@ export function computeRoofArea_m2(geometry: BuildingGeometry): number {
 }
 
 /**
- * Площадь стен, м² — два продольных фасада (до карниза) + два торцевых
- * фронтона (прямоугольник + треугольник фронтона). Ворота/двери/окна
- * не вычитаются — это отдельная позиция ведомости.
+ * Площадь стен, м² — по формуле обеих реальных ведомостей (строка
+ * "СП 100"):
+ *
+ *   (пролёт + длина) × 2 × высота  +  пролёт × 2 × 2
+ *
+ * Первое слагаемое — периметр на высоту (оба продольных фасада плюс
+ * прямоугольная часть обоих торцов). Второе — надбавка на фронтоны:
+ * ИНСИ считает её как 2×пролёт на фронтон, не по геометрии треугольника.
+ * Для пролёта 18м и уклона 15° это 36 м² против геометрических 21,7 м²,
+ * то есть с запасом — видимо, на подрезку панелей по скату.
+ *
+ * Ворота/двери/окна не вычитаются: в исходнике они вычитаются прямо в
+ * формуле вручную, у нас это отдельный ввод проёмов.
  */
 export function computeWallArea_m2(geometry: BuildingGeometry): number {
-  const sideWalls = 2 * geometry.length_m * geometry.height_m;
-
-  const slopeRad = (geometry.roofSlopeDeg * Math.PI) / 180;
-  const gableRise_m = (geometry.span_m / 2) * Math.tan(slopeRad);
-  const endWallRectangle = geometry.span_m * geometry.height_m;
-  const endWallTriangle = 0.5 * geometry.span_m * gableRise_m;
-  const endWalls = 2 * (endWallRectangle + endWallTriangle);
-
-  return sideWalls + endWalls;
+  const perimeterWalls = (geometry.span_m + geometry.length_m) * 2 * geometry.height_m;
+  const gableAllowance = geometry.span_m * 2 * 2;
+  return perimeterWalls + gableAllowance;
 }

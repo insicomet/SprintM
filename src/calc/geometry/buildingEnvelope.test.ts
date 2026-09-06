@@ -16,17 +16,22 @@ describe("computeRoofArea_m2", () => {
 });
 
 describe("computeWallArea_m2", () => {
-  it("computes side walls + gable end walls with roof pitch", () => {
+  it("matches real project '22316': 18×30, высота 5 -> 552 м² до вычета проёмов", () => {
+    // (18+30)×2×5 + 18×2×2 = 480 + 72
     const geometry = { span_m: 18, length_m: 30, height_m: 5, framePitch_m: 4.5, roofSlopeDeg: 15 };
-    const sideWalls = 2 * 30 * 5;
-    const rise = 9 * Math.tan((15 * Math.PI) / 180);
-    const endWalls = 2 * (18 * 5 + 0.5 * 18 * rise);
-    expect(computeWallArea_m2(geometry)).toBeCloseTo(sideWalls + endWalls, 6);
+    expect(computeWallArea_m2(geometry)).toBeCloseTo(552, 6);
   });
 
-  it("degenerates to a plain box (no gable triangle) for a flat roof", () => {
-    const geometry = { span_m: 18, length_m: 30, height_m: 5, framePitch_m: 4.5, roofSlopeDeg: 0 };
-    const expected = 2 * 30 * 5 + 2 * 18 * 5;
-    expect(computeWallArea_m2(geometry)).toBeCloseTo(expected, 6);
+  it("matches real project '22318': 15×24, высота 5 -> 450 м² до вычета проёмов", () => {
+    // (15+24)×2×5 + 15×2×2 = 390 + 60
+    const geometry = { span_m: 15, length_m: 24, height_m: 5, framePitch_m: 4, roofSlopeDeg: 15 };
+    expect(computeWallArea_m2(geometry)).toBeCloseTo(450, 6);
+  });
+
+  it("does not depend on roof pitch — the gable allowance is a flat 2×пролёт per gable", () => {
+    const base = { span_m: 18, length_m: 30, height_m: 5, framePitch_m: 4.5 };
+    expect(computeWallArea_m2({ ...base, roofSlopeDeg: 0 })).toBe(
+      computeWallArea_m2({ ...base, roofSlopeDeg: 15 }),
+    );
   });
 });
