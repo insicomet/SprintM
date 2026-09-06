@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { computeSvCode, getAllSettlementNames } from "./calc/climate/svCode";
 import { findFrameSelection, snapHeight } from "./calc/frame/sectionBank";
 import { estimateSandwichPanelCladding, getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
 import { facadePostCount } from "./calc/facadePost/postCount";
 import { selectFacadePost } from "./calc/facadePost/selectFacadePost";
+import { computeDrainage } from "./calc/drainage/drainage";
 import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/buildingEnvelope";
 import { computeDowelFasteners } from "./calc/geometry/dowelFasteners";
 import { computeFrameFasteners } from "./calc/geometry/frameFasteners";
@@ -107,6 +108,8 @@ export function App() {
 
   const dowelFasteners = useMemo(() => computeDowelFasteners(2 * (span + length)), [span, length]);
 
+  const drainage = useMemo(() => computeDrainage(geometry), [geometry]);
+
   const openingsArea = useMemo(() => computeOpeningsArea_m2(openings), [openings]);
 
   const envelope = useMemo(() => {
@@ -182,7 +185,10 @@ export function App() {
         : null;
 
     const knownCost =
-      (frameTakeoff?.totalFrameCost ?? 0) + (claddingCost ?? 0) + (purlinLayout?.totalCost ?? 0);
+      (frameTakeoff?.totalFrameCost ?? 0) +
+      (claddingCost ?? 0) +
+      (purlinLayout?.totalCost ?? 0) +
+      drainage.totalCost;
     const hasFullCost =
       frameTakeoff?.totalFrameCost != null && claddingCost != null && purlinLayout?.totalCost != null;
 
@@ -196,6 +202,7 @@ export function App() {
       frame: shareOf(frameTakeoff?.totalFrameCost),
       purlin: shareOf(purlinLayout?.totalCost),
       cladding: shareOf(claddingCost),
+      drainage: shareOf(drainage.totalCost),
     };
 
     return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost, shares };
@@ -204,6 +211,7 @@ export function App() {
     frameFasteners,
     horizTiesMass_kg,
     dowelFasteners,
+    drainage,
     purlinLayout,
     facadePostLayout,
     envelope,
@@ -630,6 +638,33 @@ export function App() {
         </dl>
       </section>
 
+      <section className="card">
+        <h2>Водосток (ф150мм)</h2>
+        <p className="hint">
+          Формулы подтверждены дословным совпадением в обеих исходных ведомостях. Цены — из прайса
+          ИНСИ на водосток, актуальны на дату исходных файлов. Дробные количества держателей и
+          соединителей исходник не округляет — оставлено как есть.
+        </p>
+        <dl className="result-list">
+          {drainage.items.map((item) => (
+            <Fragment key={item.name}>
+              <dt>{item.name}</dt>
+              <dd>
+                {item.count.toFixed(item.count % 1 === 0 ? 0 : 1)} {item.unit} —{" "}
+                {item.mass_kg.toFixed(1)} кг — {Math.round(item.cost).toLocaleString("ru-RU")} ₽
+              </dd>
+            </Fragment>
+          ))}
+          <dt>Накладные расходы (2%)</dt>
+          <dd>{Math.round(drainage.overheadCost).toLocaleString("ru-RU")} ₽</dd>
+          <dt>Итого водосток</dt>
+          <dd>
+            {drainage.totalMass_kg.toFixed(1)} кг —{" "}
+            {Math.round(drainage.totalCost).toLocaleString("ru-RU")} ₽
+          </dd>
+        </dl>
+      </section>
+
       <section className="card summary-card">
         <h2>Итоговая сводка</h2>
         <dl className="result-list">
@@ -659,6 +694,12 @@ export function App() {
               : "цена неизвестна"}
             {summary.shares.purlin !== null && ` (${summary.shares.purlin.toFixed(0)}% — зависит от климата)`}
           </dd>
+          <dt>Водосток</dt>
+          <dd>
+            {Math.round(drainage.totalCost).toLocaleString("ru-RU")} ₽
+            {summary.shares.drainage !== null &&
+              ` (${summary.shares.drainage.toFixed(0)}% — не зависит от климата)`}
+          </dd>
           <dt>Известная стоимость материалов</dt>
           <dd className="summary-total">
             {summary.knownCost.toLocaleString("ru-RU")} ₽
@@ -666,10 +707,10 @@ export function App() {
           </dd>
         </dl>
         <p className="hint">
-          Не учтено: затяжки, вертикальные связи фахверка, доборные элементы, водосток, цена
-          узловых пластин, всего крепежа и горизонтальных связей (только масса), стоек фахверка
-          (только масса), монтаж. Это предварительная оценка металла и обшивки, не коммерческое
-          предложение.
+          Не учтено: затяжки, вертикальные связи фахверка, доборные элементы (конёк, фронтон,
+          уголки), утеплитель и пароизоляция, цена узловых пластин, всего крепежа и горизонтальных
+          связей (только масса), стоек фахверка (только масса), монтаж. Это предварительная оценка,
+          не коммерческое предложение.
         </p>
       </section>
 
