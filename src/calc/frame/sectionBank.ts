@@ -72,23 +72,23 @@ function mapRow(row: RawBankRow): FrameSelection {
 const bank: FrameSelection[] = (rawBank as RawBankRow[]).map(mapRow);
 
 /**
- * Привести фактическую высоту здания к ближайшей (не меньшей) "высотной
- * корзине" банка сечений, как это делает исходный файл ИНСИ (формулы
- * подбор!AM9..AM15 / AN9..AN15 — снаппинг вверх по списку доступных высот).
+ * Привести фактическую высоту здания к "высотной корзине" банка сечений
+ * по порогам исходного файла ИНСИ (подбор!AN9:AN15, см. HEIGHT_BUCKETS_*).
  *
- * Если высота больше максимальной доступной корзины — бросает ошибку
- * (в исходном файле такие случаи отмечены как "нужен расчет").
+ * Если высота больше последнего порога — бросает ошибку (в исходном
+ * файле такой случай помечен "нужен расчет").
  */
 export function snapHeight(span: Span, height_m: number): number {
   const buckets = span === 24 ? HEIGHT_BUCKETS_24 : HEIGHT_BUCKETS_9_21;
-  const snapped = buckets.find((b) => height_m <= b);
-  if (snapped === undefined) {
+  const match = buckets.find(([maxHeight]) => height_m <= maxHeight);
+  if (match === undefined) {
+    const [lastMax] = buckets[buckets.length - 1];
     throw new Error(
-      `Высота ${height_m}м для пролёта ${span}м превышает максимальную корзину банка сечений ` +
-        `(${buckets[buckets.length - 1]}м) — в исходном файле ИНСИ такой случай помечен "нужен расчет".`,
+      `Высота ${height_m}м для пролёта ${span}м превышает максимум банка сечений ` +
+        `(${lastMax}м) — в исходном файле ИНСИ такой случай помечен "нужен расчет".`,
     );
   }
-  return snapped;
+  return match[1];
 }
 
 export interface FrameSelectionQuery {
