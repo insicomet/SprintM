@@ -5,6 +5,7 @@ import { estimateSandwichPanelCladding, getSandwichPanelThicknesses } from "./ca
 import { facadePostCount } from "./calc/facadePost/postCount";
 import { selectFacadePost } from "./calc/facadePost/selectFacadePost";
 import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/buildingEnvelope";
+import { computeDowelFasteners } from "./calc/geometry/dowelFasteners";
 import { computeFrameFasteners } from "./calc/geometry/frameFasteners";
 import { rafterLengthPerFrame_m } from "./calc/geometry/frameGeometry";
 import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
@@ -104,6 +105,11 @@ export function App() {
     return computeHorizTiesMass_kg(span, climate.value.standard, length);
   }, [climate, span, length]);
 
+  const dowelFasteners = useMemo(
+    () => computeDowelFasteners(span, 2 * (span + length)),
+    [span, length],
+  );
+
   const openingsArea = useMemo(() => computeOpeningsArea_m2(openings), [openings]);
 
   const envelope = useMemo(() => {
@@ -162,6 +168,7 @@ export function App() {
       (frameTakeoff?.gussetPlatesMass_kg ?? 0) +
       (frameFasteners?.totalMass_kg ?? 0) +
       (horizTiesMass_kg ?? 0) +
+      dowelFasteners.mass_kg +
       (purlinLayout?.totalMass_kg ?? 0) +
       (facadePostLayout?.totalMass_kg ?? 0);
     const hasFullSteelMass =
@@ -195,7 +202,15 @@ export function App() {
     };
 
     return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost, shares };
-  }, [frameTakeoff, frameFasteners, horizTiesMass_kg, purlinLayout, facadePostLayout, envelope]);
+  }, [
+    frameTakeoff,
+    frameFasteners,
+    horizTiesMass_kg,
+    dowelFasteners,
+    purlinLayout,
+    facadePostLayout,
+    envelope,
+  ]);
 
   return (
     <div className="page">
@@ -478,8 +493,18 @@ export function App() {
                     {Math.round(frameFasteners.boltM16Count)} шт — {frameFasteners.boltM16Mass_kg.toFixed(0)} кг
                     (цена неизвестна){frameFasteners.boltM16RateIsEstimated ? ", ставка оценочная" : ""}
                   </dd>
+                  <dt>Болт М12х40</dt>
+                  <dd>
+                    {Math.round(frameFasteners.boltM12Count)} шт — {frameFasteners.boltM12Mass_kg.toFixed(1)} кг
+                    (цена неизвестна){frameFasteners.boltM12RateIsEstimated ? ", ставка оценочная" : ""}
+                  </dd>
                 </>
               )}
+              <dt>Дюбель-гвоздь 6х60 (по периметру)</dt>
+              <dd>
+                {Math.round(dowelFasteners.count)} шт — {dowelFasteners.mass_kg.toFixed(1)} кг (цена неизвестна)
+                {dowelFasteners.isEstimated ? ", плотность оценочная" : ""}
+              </dd>
               <dt>Горизонтальные связи/распорки</dt>
               <dd>
                 {horizTiesMass_kg !== null
@@ -493,7 +518,8 @@ export function App() {
                       frameTakeoff.totalFrameMass_kg +
                       (frameTakeoff.gussetPlatesMass_kg ?? 0) +
                       (frameFasteners?.totalMass_kg ?? 0) +
-                      (horizTiesMass_kg ?? 0)
+                      (horizTiesMass_kg ?? 0) +
+                      dowelFasteners.mass_kg
                     ).toFixed(0)} кг`
                   : "—"}
               </dd>
@@ -644,10 +670,10 @@ export function App() {
           </dd>
         </dl>
         <p className="hint">
-          Не учтено: затяжки, вертикальные связи фахверка, прочий крепёж (кроме Фс11/12/14,
-          саморезов 5,5x25 и болтов М16х50), доборные элементы, водосток, цена узловых пластин,
-          всего крепежа и горизонтальных связей (только масса), стоек фахверка (только масса),
-          монтаж. Это предварительная оценка металла и обшивки, не коммерческое предложение.
+          Не учтено: затяжки, вертикальные связи фахверка, доборные элементы, водосток, цена
+          узловых пластин, всего крепежа и горизонтальных связей (только масса), стоек фахверка
+          (только масса), монтаж. Это предварительная оценка металла и обшивки, не коммерческое
+          предложение.
         </p>
       </section>
 

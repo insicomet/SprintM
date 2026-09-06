@@ -18,6 +18,11 @@ export interface FrameFastenersTakeoff {
   boltM16Mass_kg: number;
   /** true, если ставка для этого пролёта не подтверждена и взята с ближайшего известного. */
   boltM16RateIsEstimated: boolean;
+  /** Кол-во "Болт М12х40" на здание, шт (= кол-во рам × ставка по пролёту). */
+  boltM12Count: number;
+  boltM12Mass_kg: number;
+  /** true, если ставка для этого пролёта подтверждена только одним примером или не подтверждена вовсе. */
+  boltM12RateIsEstimated: boolean;
   totalMass_kg: number;
 }
 
@@ -76,6 +81,34 @@ function boltM16Rate(span: Span): { rate: number; isEstimated: boolean } {
   return { rate: 50, isEstimated: true };
 }
 
+/** Масса одного болта М12х40, кг — литеральное значение из файла "22318" (H77/H87), одинаково во всех 5 листах. */
+const BOLT_M12_UNIT_MASS_KG = 0.05;
+
+/**
+ * Ставка "болтов М12х40 на одну раму" по пролёту — по одному реальному
+ * примеру на пролёт из файла "22318" (кроме 15м — подтверждено дважды,
+ * листы "12м" и "15", оба дают 16):
+ *
+ *   12м -> 17, 15м -> 16, 18м -> 16, 21м -> 25
+ *
+ * В отличие от саморезов/болтов М16, ставка тут НЕ монотонна по пролёту
+ * (17→16→16→25) — похоже на вручную вбитую в конкретном проекте
+ * константу, а не на строгую функцию пролёта. Для 9м/24м данных нет.
+ */
+const BOLT_M12_RATE_BY_SPAN: Partial<Record<Span, number>> = {
+  12: 17,
+  15: 16,
+  18: 16,
+  21: 25,
+};
+
+function boltM12Rate(span: Span): { rate: number; isEstimated: boolean } {
+  const known = BOLT_M12_RATE_BY_SPAN[span];
+  if (known !== undefined) return { rate: known, isEstimated: false };
+  // 9м ближе к 12м (17), 24м ближе к 21м (25) — не подтверждено примером.
+  return { rate: span < 12 ? 17 : 25, isEstimated: true };
+}
+
 /**
  * Крепёж каркаса "Фс11/Фс14" и "Фс12" — количество по формуле,
  * подтверждённой на реальном примере из файла "22316" ("12м"!C29/C30):
@@ -111,6 +144,10 @@ export function computeFrameFasteners(
   const boltM16Count = frameCount * boltRate;
   const boltM16Mass_kg = boltM16Count * BOLT_M16_UNIT_MASS_KG;
 
+  const { rate: boltM12RateValue, isEstimated: boltM12IsEstimated } = boltM12Rate(geometry.span_m);
+  const boltM12Count = frameCount * boltM12RateValue;
+  const boltM12Mass_kg = boltM12Count * BOLT_M12_UNIT_MASS_KG;
+
   return {
     fc11_14Count,
     fc12Count,
@@ -122,6 +159,10 @@ export function computeFrameFasteners(
     boltM16Count,
     boltM16Mass_kg,
     boltM16RateIsEstimated: boltIsEstimated,
-    totalMass_kg: fc11_14Mass_kg + fc12Mass_kg + screw525Mass_kg + boltM16Mass_kg,
+    boltM12Count,
+    boltM12Mass_kg,
+    boltM12RateIsEstimated: boltM12IsEstimated,
+    totalMass_kg:
+      fc11_14Mass_kg + fc12Mass_kg + screw525Mass_kg + boltM16Mass_kg + boltM12Mass_kg,
   };
 }

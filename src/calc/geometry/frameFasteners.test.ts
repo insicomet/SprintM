@@ -20,8 +20,13 @@ describe("computeFrameFasteners", () => {
     expect(result.fc12Mass_kg).toBeCloseTo(result.fc12Count * 0.5, 6);
     expect(result.screw525Mass_kg).toBeCloseTo(result.screw525Count * 0.0043, 6);
     expect(result.boltM16Mass_kg).toBeCloseTo(result.boltM16Count * 0.12, 6);
+    expect(result.boltM12Mass_kg).toBeCloseTo(result.boltM12Count * 0.05, 6);
     expect(result.totalMass_kg).toBeCloseTo(
-      result.fc11_14Mass_kg + result.fc12Mass_kg + result.screw525Mass_kg + result.boltM16Mass_kg,
+      result.fc11_14Mass_kg +
+        result.fc12Mass_kg +
+        result.screw525Mass_kg +
+        result.boltM16Mass_kg +
+        result.boltM12Mass_kg,
       9,
     );
   });
@@ -78,6 +83,35 @@ describe("computeFrameFasteners", () => {
       const result = computeFrameFasteners({ span_m: 24, height_m: 6 }, 5);
       expect(result.boltM16Count).toBe(5 * 50);
       expect(result.boltM16RateIsEstimated).toBe(true);
+    });
+  });
+
+  describe("Болт М12х40 rate — one real example per span in file '22318' (span 15м confirmed twice)", () => {
+    it.each([
+      [12, 17],
+      [15, 16],
+      [18, 16],
+      [21, 25],
+    ] as const)("span %im -> rate %i per frame", (span, rate) => {
+      const result = computeFrameFasteners({ span_m: span, height_m: 5 }, 11);
+      expect(result.boltM12Count).toBe(11 * rate);
+      expect(result.boltM12RateIsEstimated).toBe(false);
+    });
+
+    it("falls back to the nearest known rate for 9m and 24m, flagged as estimated", () => {
+      const nine = computeFrameFasteners({ span_m: 9, height_m: 5 }, 5);
+      expect(nine.boltM12Count).toBe(5 * 17);
+      expect(nine.boltM12RateIsEstimated).toBe(true);
+
+      const twentyFour = computeFrameFasteners({ span_m: 24, height_m: 5 }, 5);
+      expect(twentyFour.boltM12Count).toBe(5 * 25);
+      expect(twentyFour.boltM12RateIsEstimated).toBe(true);
+    });
+
+    it("matches the exact reference value for span=18, 11 frames (file '22318', sheet '18')", () => {
+      // C87 = 16*K90 = 16*11 = 176
+      const result = computeFrameFasteners({ span_m: 18, height_m: 6 }, 11);
+      expect(result.boltM12Count).toBe(176);
     });
   });
 });
