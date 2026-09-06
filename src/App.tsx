@@ -6,6 +6,10 @@ import {
   computeWallCladdingSection,
 } from "./calc/cladding/claddingSections";
 import { getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
+import {
+  computeRoofUnpricedItems,
+  computeWallUnpricedItems,
+} from "./calc/cladding/unpricedItems";
 import { facadePostCount } from "./calc/facadePost/postCount";
 import { selectFacadePost } from "./calc/facadePost/selectFacadePost";
 import { computeDrainage } from "./calc/drainage/drainage";
@@ -198,6 +202,15 @@ export function App() {
       snowGuardPurlin: snowGuards,
     });
   }, [purlin, geometry, snowGuards]);
+
+  // Строки ведомости, у которых количество считается, а стоимость не заведена.
+  const unpricedSections = useMemo(() => {
+    const wall = computeWallUnpricedItems(geometry);
+    const roof = purlinLayout
+      ? computeRoofUnpricedItems(geometry, roofThickness, purlinLayout.totalProfileLength_m)
+      : null;
+    return roof ? [wall, roof] : [wall];
+  }, [geometry, roofThickness, purlinLayout]);
 
   const wallCladding = useMemo(
     () => computeWallCladdingSection(geometry, envelope.wallArea, wallThickness),
@@ -768,6 +781,39 @@ export function App() {
               : "Ни один профиль не проходит по несущей способности в допустимом диапазоне шага."}
           </p>
         )}
+      </section>
+
+      <section className="card">
+        <h2>Не входит в итог расчётчика</h2>
+        <p className="hint">
+          У этих строк ведомости количество считается, а колонка стоимости оставлена пустой —
+          в «Итого стена» и «Итого кровля» они не попадают. Показываю отдельно, чтобы было видно,
+          о каких деньгах речь. Утеплитель стены и Изоспан в разделе «Стена» заглушены прямо в
+          формуле (×0): стена — сэндвич-панель, утеплитель внутри неё.
+        </p>
+        {unpricedSections.map((s) => (
+          <Fragment key={s.section}>
+            <dl className="result-list">
+              <dt className="group-heading">{s.section}</dt>
+              <dd />
+              {s.items.map((i) => (
+                <Fragment key={i.name}>
+                  <dt>{i.name}</dt>
+                  <dd>
+                    {i.count.toLocaleString("ru-RU", { maximumFractionDigits: 2 })} {i.unit}{" "}
+                    <span className="incomplete">
+                      — было бы {Math.round(i.wouldCost).toLocaleString("ru-RU")} ₽
+                    </span>
+                  </dd>
+                </Fragment>
+              ))}
+              <dt>Итого по разделу</dt>
+              <dd className="incomplete">
+                {Math.round(s.wouldAddCost).toLocaleString("ru-RU")} ₽ — не в итоге
+              </dd>
+            </dl>
+          </Fragment>
+        ))}
       </section>
 
       <section className="card">
