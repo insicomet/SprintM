@@ -12,6 +12,7 @@ import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
 import { computeHorizTiesMass_kg } from "./calc/geometry/horizTies";
 import { computeOpeningsArea_m2, DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
 import { computeRoofLoad, defaultRoofSlopeDeg } from "./calc/loads/roofLoad";
+import { computeRoofTrim } from "./calc/roofTrim/roofTrim";
 import { computePurlinLayout } from "./calc/purlin/purlinLayout";
 import { selectPurlin } from "./calc/purlin/selectPurlin";
 import roofingTypesRaw from "./data/roofingSelfWeight.json";
@@ -37,6 +38,7 @@ export function App() {
   const [claddingThickness, setCladdingThickness] = useState(100);
   const [openings, setOpenings] = useState<OpeningsInput>(DEFAULT_OPENINGS);
   const [postSpacing, setPostSpacing] = useState(2);
+  const [snowGuards, setSnowGuards] = useState(true);
 
   const climate = useMemo(() => {
     try {
@@ -106,6 +108,8 @@ export function App() {
   }, [climate, span, length]);
 
   const drainage = useMemo(() => computeDrainage(geometry), [geometry]);
+
+  const roofTrim = useMemo(() => computeRoofTrim(geometry, { snowGuards }), [geometry, snowGuards]);
 
   const openingsArea = useMemo(() => computeOpeningsArea_m2(openings), [openings]);
 
@@ -185,7 +189,8 @@ export function App() {
       (claddingCost ?? 0) +
       (purlinLayout?.totalCost ?? 0) +
       (frameFasteners?.totalCost ?? 0) +
-      drainage.totalCost;
+      drainage.totalCost +
+      roofTrim.totalCost;
     const hasFullCost =
       frameTakeoff?.totalFrameCost != null && claddingCost != null && purlinLayout?.totalCost != null;
 
@@ -201,6 +206,7 @@ export function App() {
       cladding: shareOf(claddingCost),
       drainage: shareOf(drainage.totalCost),
       fasteners: shareOf(frameFasteners?.totalCost),
+      roofTrim: shareOf(roofTrim.totalCost),
     };
 
     return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost, shares };
@@ -209,6 +215,7 @@ export function App() {
     frameFasteners,
     horizTiesMass_kg,
     drainage,
+    roofTrim,
     purlinLayout,
     facadePostLayout,
     envelope,
@@ -380,6 +387,16 @@ export function App() {
               value={postSpacing}
               onChange={(e) => setPostSpacing(Number(e.target.value))}
             />
+          </label>
+          <label>
+            Снегозадержатель
+            <select
+              value={snowGuards ? "есть" : "нет"}
+              onChange={(e) => setSnowGuards(e.target.value === "есть")}
+            >
+              <option value="есть">есть</option>
+              <option value="нет">нет</option>
+            </select>
           </label>
         </div>
       </section>
@@ -618,6 +635,34 @@ export function App() {
       </section>
 
       <section className="card">
+        <h2>Кровля — доборные элементы</h2>
+        <p className="hint">
+          Формулы и цены подтверждены дословным совпадением в обеих исходных ведомостях.
+          Снегозадержатель включается вручную — в исходнике это множитель 0/1 у строки, ему
+          соответствует поле «Прогон под снегозадержание» в подборе. Профлистовые варианты обшивки
+          (С-18, С-44, вент. конька) в обоих проектах отключены, поэтому их здесь нет.
+        </p>
+        <dl className="result-list">
+          {roofTrim.items.map((item) => (
+            <Fragment key={item.name}>
+              <dt>{item.name}</dt>
+              <dd>
+                {item.count.toFixed(item.count % 1 === 0 ? 0 : 1)} {item.unit} —{" "}
+                {item.mass_kg.toFixed(1)} кг — {Math.round(item.cost).toLocaleString("ru-RU")} ₽
+              </dd>
+            </Fragment>
+          ))}
+          <dt>Накладные расходы (2%)</dt>
+          <dd>{Math.round(roofTrim.overheadCost).toLocaleString("ru-RU")} ₽</dd>
+          <dt>Итого кровля</dt>
+          <dd>
+            {roofTrim.totalMass_kg.toFixed(1)} кг —{" "}
+            {Math.round(roofTrim.totalCost).toLocaleString("ru-RU")} ₽
+          </dd>
+        </dl>
+      </section>
+
+      <section className="card">
         <h2>Водосток (ф150мм)</h2>
         <p className="hint">
           Формулы подтверждены дословным совпадением в обеих исходных ведомостях. Цены — из прайса
@@ -681,6 +726,12 @@ export function App() {
             {summary.shares.fasteners !== null &&
               ` (${summary.shares.fasteners.toFixed(0)}% — зависит от климата)`}
           </dd>
+          <dt>Кровля (доборные)</dt>
+          <dd>
+            {Math.round(roofTrim.totalCost).toLocaleString("ru-RU")} ₽
+            {summary.shares.roofTrim !== null &&
+              ` (${summary.shares.roofTrim.toFixed(0)}% — не зависит от климата)`}
+          </dd>
           <dt>Водосток</dt>
           <dd>
             {Math.round(drainage.totalCost).toLocaleString("ru-RU")} ₽
@@ -694,10 +745,10 @@ export function App() {
           </dd>
         </dl>
         <p className="hint">
-          Не учтено: затяжки, вертикальные связи фахверка, доборные элементы (конёк, фронтон,
-          уголки), утеплитель и пароизоляция, цена узловых пластин, всего крепежа и горизонтальных
-          связей (только масса), стоек фахверка (только масса), монтаж. Это предварительная оценка,
-          не коммерческое предложение.
+          Не учтено: затяжки, вертикальные связи фахверка, уголки и профили стен (У.115, ПС, ПШ),
+          утеплитель и пароизоляция, ГВЛ, цена узловых пластин и горизонтальных связей (только
+          масса), стойки фахверка (только масса), монтаж. Это предварительная оценка, не
+          коммерческое предложение.
         </p>
       </section>
 
