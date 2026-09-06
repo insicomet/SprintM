@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Module1" script:language="StarBasic">
+Sub Recalc(sIn As String, sOut As String)
+  Dim oDesk As Object, oDoc As Object
+  Dim aArgs(1) As New com.sun.star.beans.PropertyValue
+  aArgs(0).Name = "Hidden" : aArgs(0).Value = True
+  aArgs(1).Name = "UpdateDocMode" : aArgs(1).Value = com.sun.star.document.UpdateDocMode.NO_UPDATE
+  oDoc = StarDesktop.loadComponentFromURL(ConvertToURL(sIn), "_blank", 0, aArgs())
+  oDoc.calculateAll()
+  Dim aSave(0) As New com.sun.star.beans.PropertyValue
+  aSave(0).Name = "FilterName" : aSave(0).Value = "Calc MS Excel 2007 XML"
+  oDoc.storeToURL(ConvertToURL(sOut), aSave())
+  oDoc.close(False)
+End Sub
+</script:module>

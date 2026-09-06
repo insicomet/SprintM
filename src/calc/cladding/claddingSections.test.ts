@@ -71,4 +71,24 @@ describe("computeRoofCladdingSection", () => {
     expect(byName(section)["СП 50 (кровля)"].cost).toBeNull();
     expect(section.totalCost).toBeNull();
   });
+
+  it("takes the screw length from the panel thickness, not from a constant", () => {
+    // Таблички M103:M109 и M110:M115 ведомости идут парами в одном
+    // (перемешанном) порядке: 80→115, 100→140, 150→190, 120→160,
+    // 200→240, 250→285. Оба реальных проекта попадают в 140 и 190.
+    const pairs: [number, string, number][] = [
+      [80, "с/з 5,5х115", 43.1],
+      [100, "с/з 5,5х140", 51.9],
+      [120, "с/з 5,5х160", 71.1],
+      [150, "с/з 5,5х190", 94.8],
+      [200, "с/з 5,5х240", 145.7],
+      [250, "с/з 5,5х285", 188.9],
+    ];
+    for (const [thickness, name, price] of pairs) {
+      const roof = byName(computeRoofCladdingSection(g22316, 556.2, thickness, 12));
+      expect(roof[name].unitPrice, `кровля ${thickness}`).toBeCloseTo(price, 6);
+      const wall = byName(computeWallCladdingSection(g22316, 504, thickness));
+      expect(wall[name].unitPrice, `стена ${thickness}`).toBeCloseTo(price, 6);
+    }
+  });
 });
