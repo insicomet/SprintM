@@ -36,9 +36,14 @@ export interface BankBlock {
 /**
  * Надбавка к снеговой нагрузке за тип покрытия (снегветер!AM6:AN23).
  * Тяжёлая кровля прибавляет, лёгкий профлист снимает 0,1 кПа.
+ *
+ * Возвращает null для покрытий, которых в таблице нет — это обе
+ * «малоуклонные кровли» (77,3 и 53,3 кг/м², самые тяжёлые из списка).
+ * Подставлять им ноль нельзя: на границе района это увело бы здание на
+ * ступень вниз, то есть в более лёгкие сечения.
  */
-export function roofingSupplement_kPa(roofingType: string): number {
-  return ladder["надбавка_покрытия"][roofingType] ?? 0;
+export function roofingSupplement_kPa(roofingType: string): number | null {
+  return ladder["надбавка_покрытия"][roofingType] ?? null;
 }
 
 /**
@@ -77,6 +82,7 @@ export function selectBankBlock(
   gammaN: ResponsibilityLevel,
 ): BankBlock | null {
   const supplement = roofingSupplement_kPa(roofingType);
+  if (supplement === null) return null;
   const lookup = snowLoad_kPa + supplement;
 
   let step: LadderStep | null = null;

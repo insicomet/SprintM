@@ -1,5 +1,5 @@
 import { Fragment, useMemo, useState } from "react";
-import { getAllSettlementNames } from "./calc/climate/svCode";
+import { getAllSettlementNames, getSupportedSvCodes } from "./calc/climate/svCode";
 import { getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
 import type { StrutTube } from "./calc/frame/bracing";
 import { DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
@@ -16,7 +16,7 @@ const settlementNames = getAllSettlementNames();
 const roofingTypes = roofingTypesRaw as { type: string; selfWeight_kg_m2: number }[];
 
 /** Коды «с/в», для которых в банке сечений ИНСИ есть просчитанные строки. */
-const SV_CODES = ["1/3", "2/2", "2/3", "2/4", "3/1", "3/2", "3/4", "4/1", "4/3", "5/1", "5/3"];
+const SV_CODES = getSupportedSvCodes();
 
 export function App() {
   const [city, setCity] = useState("Челябинск");
@@ -117,6 +117,7 @@ export function App() {
   const {
     climate,
     bankBlock,
+    bankBlockMissing,
     frame,
     trussedVariantMissing,
     heightBucket,
@@ -172,7 +173,16 @@ export function App() {
 
           <label>
             Пролёт, м
-            <select value={span} onChange={(e) => setSpan(Number(e.target.value) as Span)}>
+            <select
+              value={span}
+              onChange={(e) => {
+                const next = Number(e.target.value) as Span;
+                setSpan(next);
+                // Вариант «СГ по Р» есть только на 24 м — иначе он повис бы
+                // включённым и давал вечное предупреждение.
+                if (next !== 24) setTrussedVariant(false);
+              }}
+            >
               {SPANS.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -527,7 +537,11 @@ export function App() {
                   за покрытие)
                 </>
               ) : (
-                <span className="incomplete">нагрузка вне лестницы — нужен расчёт конструктора</span>
+                <span className="incomplete">
+                  {bankBlockMissing === "покрытие"
+                    ? "для этого покрытия в лестнице нет надбавки — блок банка не определить"
+                    : "нагрузка вне лестницы — нужен расчёт конструктора"}
+                </span>
               )}
             </dd>
             <dt>Код "с/в"</dt>
@@ -579,7 +593,8 @@ export function App() {
           </dl>
         ) : (
           <p className="error">
-            Комбинация пролёт={span}м, высота={heightBucket}м, k={responsibility}, с/в=
+            Комбинация пролёт={span}м, высота={heightBucket}м, k=
+            {bankK === "auto" ? (bankBlock?.bankK ?? responsibility) : bankK}, с/в=
             {climate.value.standard} не найдена в банке сечений.
           </p>
         )}
@@ -732,7 +747,8 @@ export function App() {
         ) : (
           <p className="error">
             {maxPurlinStep === null
-              ? "Нет снеговой нагрузки для этого населённого пункта — подбор прогонов невозможен."
+              ? "Не с чего считать максимальный шаг: нет снеговой нагрузки для этого " +
+                "населённого пункта либо выбранной марки настила нет в таблице несущей способности."
               : "Ни один профиль не проходит по несущей способности в допустимом диапазоне шага."}
           </p>
         )}
@@ -972,6 +988,27 @@ export function App() {
             {commercial.materialsWithPackaging !== null
               ? `${Math.round(commercial.materialsWithPackaging / 1.02).toLocaleString("ru-RU")} ₽`
               : "—"}
+          </dd>
+          <dt>Из чего складывается</dt>
+          <dd>
+            {(
+              [
+                ["обшивка", summary.shares.cladding],
+                ["каркас", summary.shares.frame],
+                ["прогоны", summary.shares.purlin],
+                ["связи", summary.shares.bracing],
+                ["крепёж", summary.shares.fasteners],
+                ["профили", summary.shares.profiles],
+                ["кровля", summary.shares.roofTrim],
+                ["водосток", summary.shares.drainage],
+              ] as [string, number | null][]
+            )
+              .filter(([, share]) => share !== null && share >= 0.5)
+              .map(([name, share]) => `${name} ${share!.toFixed(0)}%`)
+              .join(" · ")}
+            {!summary.hasFullCost && (
+              <span className="incomplete"> — доли от известной части</span>
+            )}
           </dd>
         </dl>
         <p className="hint">

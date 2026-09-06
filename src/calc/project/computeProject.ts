@@ -1,5 +1,9 @@
 import { computeSvCode, svCodeFromDistricts } from "../climate/svCode";
-import { selectBankBlock, type BankBlock } from "../climate/snowLadder";
+import {
+  roofingSupplement_kPa,
+  selectBankBlock,
+  type BankBlock,
+} from "../climate/snowLadder";
 import { computeBracing, type StrutTube } from "../frame/bracing";
 import { findFrameSelection, snapHeight } from "../frame/sectionBank";
 import {
@@ -448,6 +452,13 @@ export function computeProject(inputs: ProjectInputs) {
     climate,
     /** Пара «снеговой район + k», выбранная лестницей нагрузок ИНСИ. */
     bankBlock,
+    /** Почему лестница не дала пару — если не дала. */
+    bankBlockMissing:
+      bankBlock !== null
+        ? null
+        : roofingSupplement_kPa(roofingType) === null
+          ? ("покрытие" as const)
+          : ("нагрузка" as const),
     /** Снеговая нагрузка, фактически ушедшая в расчёт, кН/м². */
     snowLoad_kPa: sgKpa,
     snowOverridden,

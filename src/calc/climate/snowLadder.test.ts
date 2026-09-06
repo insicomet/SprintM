@@ -9,8 +9,11 @@ describe("roofingSupplement_kPa", () => {
     expect(roofingSupplement_kPa("наше 100 мм")).toBe(0);
   });
 
-  it("is zero for a roofing type outside the table", () => {
-    expect(roofingSupplement_kPa("чего-то такого нет")).toBe(0);
+  it("has nothing for the low-slope roofs the table never listed", () => {
+    // Обе «малоуклонные» есть в списке покрытий, но не в лестнице.
+    expect(roofingSupplement_kPa("малоуклонная кровля с подв. п.")).toBeNull();
+    expect(roofingSupplement_kPa("малоуклонная кровля без подв. п.")).toBeNull();
+    expect(roofingSupplement_kPa("чего-то такого нет")).toBeNull();
   });
 });
 
@@ -60,5 +63,9 @@ describe("selectBankBlock", () => {
     expect(selectBankBlock(0.2, "С-П 100", 1.0)).toBeNull();
     // Выше 3,2 кПа таблица говорит «уточнить у главного конструктора».
     expect(selectBankBlock(3.5, "С-П 100", 1.0)).toBeNull();
+  });
+
+  it("refuses a roofing the ladder has no supplement for, instead of assuming zero", () => {
+    expect(selectBankBlock(1.5, "малоуклонная кровля с подв. п.", 1.0)).toBeNull();
   });
 });

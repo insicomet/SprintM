@@ -157,4 +157,11 @@ describe("дубль «3/3» в таблице соответствия", () => 
     expect(result.raw).toBe("3/3");
     expect(result.standard).toBe("3/2");
   });
+
+  it("the bank's own 3/3 rows stay unreachable — the engine cannot reach them either", () => {
+    // На пролёте 24 м в банке есть строки с меткой «3/3», но таблица
+    // соответствия ведёт 3/3 на 3/2 (первое совпадение ПОИСКПОЗ), поэтому
+    // до них не добирается и сам подборщик. Данные оставлены как есть.
+    expect(normalizeSvCode("3/3")).not.toBe("3/3");
+  });
 });
