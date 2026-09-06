@@ -18,10 +18,10 @@ import { selectPurlin } from "./calc/purlin/selectPurlin";
 import roofingTypesRaw from "./data/roofingSelfWeight.json";
 import { SPANS, type ResponsibilityLevel, type Span } from "./types/common";
 
-// Названия могут повторяться (одноимённые города в разных регионах) —
-// список для <datalist> должен быть уникальным, иначе React ругается
-// на дублирующиеся key и браузер схлопывает повторы в один <option>.
-const settlementNames = Array.from(new Set(getAllSettlementNames()));
+// Одноимённые города (два Берёзовских, два Гурьевска и т.п.) приходят
+// уже в уточнённой форме "Город, Регион", поэтому список уникален и
+// позволяет выбрать нужный осознанно.
+const settlementNames = getAllSettlementNames();
 
 const roofingTypes = roofingTypesRaw as { type: string; selfWeight_kg_m2: number }[];
 
@@ -405,6 +405,10 @@ export function App() {
         <h2>Климат</h2>
         {climate.ok ? (
           <dl className="result-list">
+            <dt>Населённый пункт</dt>
+            <dd>
+              {climate.value.city.settlement}, {climate.value.city.region}
+            </dd>
             <dt>Снеговой район</dt>
             <dd>
               {climate.value.city.snow.region} ({climate.value.city.snow.sgKpa} кПа)

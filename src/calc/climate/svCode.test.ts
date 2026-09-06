@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { computeSvCode, findSettlement, normalizeSvCode, romanDistrictToDigit } from "./svCode";
+import {
+  computeSvCode,
+  findSettlement,
+  findSettlementsByName,
+  getAllSettlementNames,
+  normalizeSvCode,
+  romanDistrictToDigit,
+} from "./svCode";
 
 describe("climate / svCode", () => {
   it("finds a known settlement", () => {
@@ -9,8 +16,53 @@ describe("climate / svCode", () => {
     expect(city?.wind.region).toBe("II");
   });
 
-  it("throws for a settlement not in the reference (e.g. Березовский — see open assumption)", () => {
-    expect(findSettlement("Березовский")).toBeUndefined();
+  it("returns undefined for a settlement that is genuinely absent", () => {
+    expect(findSettlement("Урюпинск-на-Марсе")).toBeUndefined();
+  });
+
+  describe("matches ё and е", () => {
+    // В справочнике город записан как "Берёзовский", а в исходных файлах
+    // ИНСИ и при ручном вводе — "Березовский", из-за чего он не находился.
+    it("finds Берёзовский when typed with е", () => {
+      const city = findSettlement("Березовский");
+      expect(city).toBeDefined();
+      expect(city?.settlement).toBe("Берёзовский");
+    });
+
+    it("still finds it when typed with ё", () => {
+      expect(findSettlement("Берёзовский")?.settlement).toBe("Берёзовский");
+    });
+  });
+
+  describe("same-named settlements", () => {
+    it("reports every Берёзовский in the reference", () => {
+      const all = findSettlementsByName("Березовский");
+      expect(all.length).toBe(2);
+      expect(all.map((c) => c.region).sort()).toEqual([
+        "Кемеровская область",
+        "Свердловская область",
+      ]);
+    });
+
+    it("picks one by the qualified 'Город, Регион' form", () => {
+      const sverdlovsk = findSettlement("Берёзовский, Свердловская область");
+      expect(sverdlovsk?.snow.region).toBe("III");
+      expect(sverdlovsk?.snow.sgKpa).toBe(1.5);
+      expect(sverdlovsk?.wind.region).toBe("I");
+
+      const kemerovo = findSettlement("Березовский, Кемеровская область");
+      expect(kemerovo?.snow.region).toBe("IV");
+      expect(kemerovo?.wind.region).toBe("III");
+    });
+
+    it("offers same-named settlements qualified in the autocomplete list", () => {
+      const names = getAllSettlementNames();
+      expect(names).toContain("Берёзовский, Свердловская область");
+      expect(names).toContain("Берёзовский, Кемеровская область");
+      expect(names).not.toContain("Берёзовский");
+      // Уникальные названия остаются простыми.
+      expect(names).toContain("Челябинск");
+    });
   });
 
   describe("findSettlement is tolerant of case and stray whitespace", () => {

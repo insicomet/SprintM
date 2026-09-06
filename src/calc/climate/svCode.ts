@@ -10,37 +10,67 @@ interface SvCodeMappingFile {
 const settlements = settlementsRaw as unknown as SettlementClimate[];
 const svMapping = svMappingRaw as unknown as SvCodeMappingFile;
 
-/** Ключ для нестрогого поиска: убрать края-пробелы, привести к нижнему регистру. */
+/**
+ * Ключ для нестрогого поиска: убрать края-пробелы, привести к нижнему
+ * регистру и приравнять "ё" к "е".
+ *
+ * Последнее существенно: в справочнике город записан как "Берёзовский",
+ * а в исходных файлах ИНСИ и при ручном вводе — "Березовский". Без
+ * этого приведения такой город просто не находился.
+ */
 function normalizeKey(name: string): string {
-  return name.trim().toLowerCase();
+  return name.trim().toLowerCase().replace(/ё/g, "е");
 }
 
-const settlementsByName = new Map<string, SettlementClimate>();
-const settlementsByNormalizedName = new Map<string, SettlementClimate>();
+/** "Город, Регион" — форма для различения одноимённых населённых пунктов. */
+export function qualifiedSettlementName(s: SettlementClimate): string {
+  return `${s.settlement}, ${s.region}`;
+}
+
+const byNormalizedName = new Map<string, SettlementClimate[]>();
+const byNormalizedQualified = new Map<string, SettlementClimate>();
 for (const s of settlements) {
-  settlementsByName.set(s.settlement, s);
-  // При совпадении нормализованных ключей (разные города с одинаковым
-  // написанием без учёта регистра/пробелов встречаются редко) оставляем
-  // первое найденное — это тот же компромисс, что и в getAllSettlementNames.
-  const normalized = normalizeKey(s.settlement);
-  if (!settlementsByNormalizedName.has(normalized)) {
-    settlementsByNormalizedName.set(normalized, s);
-  }
+  const key = normalizeKey(s.settlement);
+  const bucket = byNormalizedName.get(key);
+  if (bucket) bucket.push(s);
+  else byNormalizedName.set(key, [s]);
+
+  byNormalizedQualified.set(normalizeKey(qualifiedSettlementName(s)), s);
 }
 
 /**
- * Найти населённый пункт по названию. Сначала точное совпадение (как в
- * источнике), иначе — без учёта регистра и краевых пробелов (частый
- * случай при ручном вводе или автозаполнении браузера: "иркутск",
- * "Иркутск " и т.п. должны находиться так же, как "Иркутск").
+ * Все населённые пункты с таким названием. Тёзки в справочнике есть
+ * (например два Берёзовских — в Свердловской и Кемеровской областях, с
+ * разным климатом), поэтому UI должен их различать.
  */
-export function findSettlement(name: string): SettlementClimate | undefined {
-  return settlementsByName.get(name) ?? settlementsByNormalizedName.get(normalizeKey(name));
+export function findSettlementsByName(name: string): readonly SettlementClimate[] {
+  const qualified = byNormalizedQualified.get(normalizeKey(name));
+  if (qualified) return [qualified];
+  return byNormalizedName.get(normalizeKey(name)) ?? [];
 }
 
-/** Список всех названий населённых пунктов — для автодополнения в UI. */
+/**
+ * Найти населённый пункт по названию — принимает как простое название
+ * ("Иркутск", "иркутск", "Иркутск "), так и уточнённое "Город, Регион".
+ * Если тёзок несколько и регион не указан, возвращает первый по порядку
+ * справочника (UI показывает регион выбранного и предлагает уточнить).
+ */
+export function findSettlement(name: string): SettlementClimate | undefined {
+  return findSettlementsByName(name)[0];
+}
+
+/**
+ * Названия для автодополнения в UI: уникальные названия как есть, а
+ * тёзки — в уточнённой форме "Город, Регион", чтобы их можно было
+ * выбрать осознанно.
+ */
 export function getAllSettlementNames(): readonly string[] {
-  return settlements.map((s) => s.settlement);
+  const names: string[] = [];
+  for (const [, group] of byNormalizedName) {
+    if (group.length === 1) names.push(group[0].settlement);
+    else names.push(...group.map(qualifiedSettlementName));
+  }
+  return names.sort((a, b) => a.localeCompare(b, "ru"));
 }
 
 /**
@@ -76,13 +106,24 @@ export function normalizeSvCode(rawCode: string): string {
 /**
  * Определить код "с/в" по городу.
  *
- * ВАЖНО (открытое допущение): в исходном файле ИНСИ снеговой район
- * подбирается по РАЗНЫМ столбцам для уровня ответственности k=1,0 и
- * k=0,8 (лист "снегветер", столбцы J и L) — иногда они совпадают,
- * иногда нет. В settlementsClimate.json (источник — kilevoy/steel-building-calc)
- * хранится только один снеговой район на город, без разбивки по
- * ответственности. Пока используется он для обоих случаев;
- * это нужно перепроверить на дополнительных примерах из ИНСИ.
+ * РАСХОЖДЕНИЕ С ИСХОДНИКОМ ИНСИ (осознанное решение заказчика — наш
+ * справочник в приоритете):
+ *
+ * Сами нагрузки у нас и у ИНСИ практически одни и те же: по 254 общим
+ * городам снеговая нагрузка совпадает с их столбцом "по данным ГМЦ"
+ * (снегветер!E) в 86% случаев, ветровая (снегветер!I) — тоже в 86%.
+ *
+ * А вот РАЙОН выводится по-разному. Мы берём его прямо из справочника
+ * по СП 20.13330. ИНСИ же прогоняет нагрузку через собственную таблицу
+ * порогов (снегветер!AB:AH), причём отдельную для каждого уровня
+ * ответственности: столбец J при k=1,0 и столбец L при k=0,8. Из-за
+ * этого одна и та же нагрузка может дать разные районы — например
+ * Берёзовский при 1,5 кН/м² попадает у них в IV при k=1,0 и в III при
+ * k=0,8, а у нас всегда III.
+ *
+ * Следствие: по части городов код "с/в" (а значит и подобранные
+ * сечения) будет отличаться от расчёта ИНСИ. Уровень ответственности у
+ * нас влияет только на выбор строки банка сечений, но не на район.
  */
 export function computeSvCode(cityName: string): SvCodeResult {
   const city = findSettlement(cityName);
