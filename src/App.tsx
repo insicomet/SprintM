@@ -1,7 +1,11 @@
 import { Fragment, useMemo, useState } from "react";
 import { computeSvCode, getAllSettlementNames } from "./calc/climate/svCode";
 import { findFrameSelection, snapHeight } from "./calc/frame/sectionBank";
-import { estimateSandwichPanelCladding, getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
+import {
+  computeRoofCladdingSection,
+  computeWallCladdingSection,
+} from "./calc/cladding/claddingSections";
+import { getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
 import { facadePostCount } from "./calc/facadePost/postCount";
 import { selectFacadePost } from "./calc/facadePost/selectFacadePost";
 import { computeDrainage } from "./calc/drainage/drainage";
@@ -35,7 +39,9 @@ export function App() {
     roofingTypes.find((r) => r.type === "С-П 150")!.type,
   );
   const [maxStepMm, setMaxStepMm] = useState(1500);
-  const [claddingThickness, setCladdingThickness] = useState(100);
+  // В обоих реальных проектах стена 100мм, кровля 150мм.
+  const [wallThickness, setWallThickness] = useState(100);
+  const [roofThickness, setRoofThickness] = useState(150);
   const [openings, setOpenings] = useState<OpeningsInput>(DEFAULT_OPENINGS);
   const [postSpacing, setPostSpacing] = useState(2);
   const [snowGuards, setSnowGuards] = useState(true);
@@ -117,14 +123,8 @@ export function App() {
     const grossWallArea = computeWallArea_m2(geometry);
     const wallArea = Math.max(0, grossWallArea - openingsArea);
     const roofArea = computeRoofArea_m2(geometry);
-    return {
-      grossWallArea,
-      wallArea,
-      roofArea,
-      wall: estimateSandwichPanelCladding(wallArea, claddingThickness, "wall", "zLock"),
-      roof: estimateSandwichPanelCladding(roofArea, claddingThickness, "roof"),
-    };
-  }, [geometry, openingsArea, claddingThickness]);
+    return { grossWallArea, wallArea, roofArea };
+  }, [geometry, openingsArea]);
 
   const purlin = useMemo(() => {
     if (!roofLoad) return undefined;
@@ -140,6 +140,16 @@ export function App() {
     if (!purlin) return null;
     return computePurlinLayout(purlin, rafterLengthPerFrame_m(geometry), geometry.length_m);
   }, [purlin, geometry]);
+
+  const wallCladding = useMemo(
+    () => computeWallCladdingSection(geometry, envelope.wallArea, wallThickness),
+    [geometry, envelope.wallArea, wallThickness],
+  );
+
+  const roofCladding = useMemo(() => {
+    if (!purlinLayout) return null;
+    return computeRoofCladdingSection(geometry, envelope.roofArea, roofThickness, purlinLayout.lineCount);
+  }, [geometry, envelope.roofArea, roofThickness, purlinLayout]);
 
   const facadePost = useMemo(() => {
     if (!climate.ok || climate.value.city.wind.w0Kpa === null) return undefined;
@@ -171,6 +181,7 @@ export function App() {
       (horizTiesMass_kg ?? 0) +
       (purlinLayout?.totalMass_kg ?? 0) +
       (facadePostLayout?.totalMass_kg ?? 0);
+    const claddingMass_kg = wallCladding.totalMass_kg + (roofCladding?.totalMass_kg ?? 0);
     const hasFullSteelMass =
       frameTakeoff?.totalFrameMass_kg !== null &&
       frameTakeoff?.gussetPlatesMass_kg !== null &&
@@ -180,8 +191,8 @@ export function App() {
       facadePostLayout?.totalMass_kg !== null;
 
     const claddingCost =
-      envelope.wall?.cost != null && envelope.roof?.cost != null
-        ? envelope.wall.cost + envelope.roof.cost
+      wallCladding.totalCost != null && roofCladding?.totalCost != null
+        ? wallCladding.totalCost + roofCladding.totalCost
         : null;
 
     const knownCost =
@@ -209,7 +220,15 @@ export function App() {
       roofTrim: shareOf(roofTrim.totalCost),
     };
 
-    return { steelMass_kg, hasFullSteelMass, claddingCost, knownCost, hasFullCost, shares };
+    return {
+      steelMass_kg,
+      claddingMass_kg,
+      hasFullSteelMass,
+      claddingCost,
+      knownCost,
+      hasFullCost,
+      shares,
+    };
   }, [
     frameTakeoff,
     frameFasteners,
@@ -218,7 +237,8 @@ export function App() {
     roofTrim,
     purlinLayout,
     facadePostLayout,
-    envelope,
+    wallCladding,
+    roofCladding,
   ]);
 
   return (
@@ -313,11 +333,19 @@ export function App() {
           </label>
 
           <label>
-            Толщина сэндвич-панели, мм
-            <select
-              value={claddingThickness}
-              onChange={(e) => setCladdingThickness(Number(e.target.value))}
-            >
+            Сэндвич-панель стены, мм
+            <select value={wallThickness} onChange={(e) => setWallThickness(Number(e.target.value))}>
+              {getSandwichPanelThicknesses().map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Сэндвич-панель кровли, мм
+            <select value={roofThickness} onChange={(e) => setRoofThickness(Number(e.target.value))}>
               {getSandwichPanelThicknesses().map((t) => (
                 <option key={t} value={t}>
                   {t}
@@ -611,28 +639,47 @@ export function App() {
       <section className="card">
         <h2>Обшивка (сэндвич-панели)</h2>
         <p className="hint">
-          Стены — за вычетом площади ворот/дверей ({openingsArea.toFixed(1)} м²); окна считаются
-          суммарной площадью, без раскладки по фасадам.
+          Стены — за вычетом площади ворот/дверей ({openingsArea.toFixed(1)} м² из{" "}
+          {envelope.grossWallArea.toFixed(1)} м²); окна считаются суммарной площадью, без раскладки
+          по фасадам. Площадь кровли — пятно застройки с надбавкой 3% на уклон, как в исходной
+          ведомости. Количество саморезов кровли зависит от числа прогонов (в исходнике оно
+          вбивается вручную, у нас берётся из подбора).
         </p>
         <dl className="result-list">
-          <dt>Стены (нетто)</dt>
-          <dd>
-            {envelope.wallArea.toFixed(1)} м² из {envelope.grossWallArea.toFixed(1)} м²
-            {envelope.wall?.cost !== null && envelope.wall?.cost !== undefined
-              ? ` — ${envelope.wall.cost.toLocaleString("ru-RU")} ₽`
-              : " — цена неизвестна для этой толщины/крепления"}
-          </dd>
-          <dt>Кровля</dt>
-          <dd>
-            {envelope.roofArea.toFixed(1)} м²
-            {envelope.roof?.cost !== null && envelope.roof?.cost !== undefined
-              ? ` — ${envelope.roof.cost.toLocaleString("ru-RU")} ₽`
-              : " — цена неизвестна для этой толщины"}
-          </dd>
+          {[
+            ["Стены", wallCladding] as const,
+            ["Кровля", roofCladding] as const,
+          ].map(([label, section]) =>
+            section === null ? null : (
+              <Fragment key={label}>
+                <dt className="group-heading">{label}</dt>
+                <dd />
+                {section.items.map((item) => (
+                  <Fragment key={`${label}-${item.name}`}>
+                    <dt>{item.name}</dt>
+                    <dd>
+                      {item.count.toFixed(1)} {item.unit} — {item.mass_kg.toFixed(1)} кг —{" "}
+                      {item.cost !== null
+                        ? `${Math.round(item.cost).toLocaleString("ru-RU")} ₽`
+                        : "цены нет в прайсе для этой толщины"}
+                    </dd>
+                  </Fragment>
+                ))}
+                <dt>Накладные расходы (2%)</dt>
+                <dd>
+                  {section.overheadCost !== null
+                    ? `${Math.round(section.overheadCost).toLocaleString("ru-RU")} ₽`
+                    : "—"}
+                </dd>
+              </Fragment>
+            ),
+          )}
           <dt>Итого обшивка</dt>
           <dd>
-            {envelope.wall?.cost != null && envelope.roof?.cost != null
-              ? `${(envelope.wall.cost + envelope.roof.cost).toLocaleString("ru-RU")} ₽`
+            {summary.claddingCost !== null
+              ? `${summary.claddingMass_kg.toFixed(0)} кг — ${Math.round(
+                  summary.claddingCost,
+                ).toLocaleString("ru-RU")} ₽`
               : "—"}
           </dd>
         </dl>
