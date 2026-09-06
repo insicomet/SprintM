@@ -149,6 +149,10 @@ export function App() {
 
   const bill = useMemo(() => buildBill(project), [project]);
 
+  // Сколько ручных переопределений включено — чтобы свёрнутый блок не прятал их молча.
+  const overrideCount =
+    (snowOverrideKpa > 0 ? 1 : 0) + (svOverride ? 1 : 0) + (bankK !== "auto" ? 1 : 0);
+
   return (
     <div className="page">
       <header>
@@ -157,9 +161,9 @@ export function App() {
       </header>
 
       <section className="card">
-        <h2>Исходные данные</h2>
+        <h2>Объект</h2>
         <div className="form-grid">
-          <label>
+          <label className="span-2">
             Город
             <input
               list="settlements"
@@ -172,6 +176,9 @@ export function App() {
                 <option key={name} value={name} />
               ))}
             </datalist>
+            <span className="field-hint">
+              Из него берутся снеговая и ветровая нагрузки — от них зависят сечения.
+            </span>
           </label>
 
           <label>
@@ -198,8 +205,8 @@ export function App() {
             Длина, м
             <input
               type="number"
-              step="0.5"
-              min="1"
+              min="6"
+              step="1"
               value={length}
               onChange={(e) => setLength(Number(e.target.value))}
             />
@@ -209,15 +216,20 @@ export function App() {
             Высота, м
             <input
               type="number"
+              min="3"
               step="0.1"
-              min="1"
               value={height}
               onChange={(e) => setHeight(Number(e.target.value))}
             />
+            <span className="field-hint">
+              {heightBucket !== null
+                ? `Расчётная корзина банка: ${heightBucket} м`
+                : "Выше максимума банка сечений"}
+            </span>
           </label>
 
           <label>
-            Уровень ответственности γn (нагрузки)
+            Уровень ответственности γn
             <select
               value={responsibility}
               onChange={(e) => setResponsibility(Number(e.target.value) as ResponsibilityLevel)}
@@ -225,28 +237,16 @@ export function App() {
               <option value={1.0}>II (γn = 1,0)</option>
               <option value={0.8}>III (γn = 0,8)</option>
             </select>
+            <span className="field-hint">Идёт в нагрузки. Блок банка k подбирается сам.</span>
           </label>
+        </div>
+      </section>
 
-          <label>
-            Блок банка сечений k (перекрыть)
-            <select
-              value={String(bankK)}
-              onChange={(e) =>
-                setBankK(
-                  e.target.value === "auto"
-                    ? "auto"
-                    : (Number(e.target.value) as ResponsibilityLevel),
-                )
-              }
-            >
-              <option value="auto">по лестнице нагрузок</option>
-              <option value="1">k = 1,0</option>
-              <option value="0.8">k = 0,8</option>
-            </select>
-          </label>
-
-          <label>
-            Тип кровли (для веса прогонов)
+      <section className="card">
+        <h2>Ограждение</h2>
+        <div className="form-grid">
+          <label className="span-2">
+            Покрытие кровли
             <select value={roofingType} onChange={(e) => setRoofingType(e.target.value)}>
               {roofingTypes.map((r) => (
                 <option key={r.type} value={r.type}>
@@ -254,61 +254,9 @@ export function App() {
                 </option>
               ))}
             </select>
-          </label>
-
-          <label>
-            Шаг рам, м (0 — из банка сечений)
-            <input
-              type="number"
-              min="0"
-              step="0.5"
-              value={framePitchOverride}
-              onChange={(e) => setFramePitchOverride(Number(e.target.value))}
-            />
-          </label>
-
-          <label>
-            Марка настила (ограничивает шаг прогонов)
-            <select value={deckingMark} onChange={(e) => setDeckingMark(e.target.value)}>
-              {DECKING_MARKS.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            Макс. шаг прогонов, мм (0 — по настилу)
-            <input
-              type="number"
-              step="50"
-              min="0"
-              value={maxStepOverrideMm}
-              onChange={(e) => setMaxStepOverrideMm(Number(e.target.value))}
-            />
-          </label>
-
-          <label>
-            Мин. шаг прогонов, мм (0 — без ограничения)
-            <input
-              type="number"
-              min="0"
-              step="50"
-              value={minStepMm}
-              onChange={(e) => setMinStepMm(Number(e.target.value))}
-            />
-          </label>
-
-          <label>
-            Прогон под ограждение
-            <select
-              value={railingPurlin ? "есть" : "нет"}
-              onChange={(e) => setRailingPurlin(e.target.value === "есть")}
-            >
-              <option value="нет">нет</option>
-              <option value="есть">есть</option>
-            </select>
+            <span className="field-hint">
+              Влияет и на вес прогонов, и на надбавку к снеговой нагрузке.
+            </span>
           </label>
 
           <label>
@@ -333,8 +281,29 @@ export function App() {
             </select>
           </label>
 
+          <label className="span-2">
+            Марка настила
+            <select value={deckingMark} onChange={(e) => setDeckingMark(e.target.value)}>
+              {DECKING_MARKS.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+            <span className="field-hint">
+              Ограничивает максимальный шаг прогонов
+              {maxPurlinStep !== null && maxStepOverrideMm === 0 ? `: сейчас ${maxPurlinStep} мм` : ""}
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>Проёмы</h2>
+        <p className="hint">Количество × ширина × высота, м. Вычитаются из площади стен.</p>
+        <div className="form-grid">
           <label>
-            Ворота (шт × Ш × В, м)
+            Ворота
             <div className="inline-fields">
               <input
                 type="number"
@@ -360,7 +329,7 @@ export function App() {
           </label>
 
           <label>
-            Двери (шт × Ш × В, м)
+            Двери
             <div className="inline-fields">
               <input
                 type="number"
@@ -386,7 +355,7 @@ export function App() {
           </label>
 
           <label>
-            Окна (шт × Ш × В, м)
+            Окна
             <div className="inline-fields">
               <input
                 type="number"
@@ -412,6 +381,85 @@ export function App() {
           </label>
 
           <label>
+            Всего проёмов
+            <output className="readonly-field">{openingsArea.toFixed(1)} м²</output>
+            <span className="field-hint">
+              Стена под обшивку: {envelope.wallArea.toFixed(1)} из {envelope.grossWallArea.toFixed(1)} м²
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>Кровля и прогоны</h2>
+        <div className="form-grid">
+          <label>
+            Снегозадержатель
+            <select
+              value={snowGuards ? "есть" : "нет"}
+              onChange={(e) => setSnowGuards(e.target.value === "есть")}
+            >
+              <option value="есть">есть</option>
+              <option value="нет">нет</option>
+            </select>
+            <span className="field-hint">Добавляет прогон и строку доборных элементов.</span>
+          </label>
+
+          <label>
+            Прогон под ограждение
+            <select
+              value={railingPurlin ? "есть" : "нет"}
+              onChange={(e) => setRailingPurlin(e.target.value === "есть")}
+            >
+              <option value="нет">нет</option>
+              <option value="есть">есть</option>
+            </select>
+          </label>
+
+          <label>
+            Шаг рам, м
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              value={framePitchOverride}
+              onChange={(e) => setFramePitchOverride(Number(e.target.value))}
+            />
+            <span className="field-hint">
+              0 — из банка сечений{framePitchOverride === 0 ? ` (${geometry.framePitch_m} м)` : ""}
+            </span>
+          </label>
+
+          <label>
+            Макс. шаг прогонов, мм
+            <input
+              type="number"
+              step="50"
+              min="0"
+              value={maxStepOverrideMm}
+              onChange={(e) => setMaxStepOverrideMm(Number(e.target.value))}
+            />
+            <span className="field-hint">0 — по несущей способности настила</span>
+          </label>
+
+          <label>
+            Мин. шаг прогонов, мм
+            <input
+              type="number"
+              min="0"
+              step="50"
+              value={minStepMm}
+              onChange={(e) => setMinStepMm(Number(e.target.value))}
+            />
+            <span className="field-hint">0 — без ограничения снизу</span>
+          </label>
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>Связи, фахверк, перекрытие</h2>
+        <div className="form-grid">
+          <label>
             Распорки из трубы (шт / профиль)
             <div className="inline-fields">
               <input
@@ -426,10 +474,11 @@ export function App() {
                 <option value="120х3">120х3</option>
               </select>
             </div>
+            <span className="field-hint">В обоих реальных проектах — 3 шт.</span>
           </label>
 
           <label>
-            Добавка к конструкциям из труб, т
+            Добавка к трубам, т
             <input
               type="number"
               min="0"
@@ -437,6 +486,7 @@ export function App() {
               value={extraTubeMass_t}
               onChange={(e) => setExtraTubeMass(Number(e.target.value))}
             />
+            <span className="field-hint">Слагаемое, вписанное в формулу руками. Правила нет.</span>
           </label>
 
           <label>
@@ -448,9 +498,49 @@ export function App() {
               value={postSpacing}
               onChange={(e) => setPostSpacing(Number(e.target.value))}
             />
+            <span className="field-hint">Влияет только на подбор сечения стойки.</span>
           </label>
+
           <label>
-            Снег вручную, кН/м² (0 — из нашей базы)
+            Перекрытие
+            <select
+              value={mezzanine ? "есть" : "нет"}
+              onChange={(e) => setMezzanine(e.target.value === "есть")}
+            >
+              <option value="нет">нет</option>
+              <option value="есть">есть</option>
+            </select>
+            <span className="field-hint">В ведомости раздел есть, но его итог обнулён.</span>
+          </label>
+
+          {span === 24 && (
+            <label>
+              Спринт с СГ по Р
+              <select
+                value={trussedVariant ? "да" : "нет"}
+                onChange={(e) => setTrussedVariant(e.target.value === "да")}
+              >
+                <option value="нет">нет</option>
+                <option value="да">да</option>
+              </select>
+              <span className="field-hint">Вариант со шпренгельной затяжкой, только 24 м.</span>
+            </label>
+          )}
+        </div>
+      </section>
+
+      <details className="card overrides">
+        <summary>
+          Ручные переопределения
+          {overrideCount > 0 && <span className="badge">{overrideCount}</span>}
+        </summary>
+        <p className="hint">
+          Нужны, чтобы сверить расчёт с конкретным файлом расчётчика. В обычной работе не трогайте:
+          снег берётся из нашей базы, а район и k выводит лестница нагрузок.
+        </p>
+        <div className="form-grid">
+          <label>
+            Снег, кН/м²
             <input
               type="number"
               min="0"
@@ -458,12 +548,13 @@ export function App() {
               value={snowOverrideKpa}
               onChange={(e) => setSnowOverrideKpa(Number(e.target.value))}
             />
+            <span className="field-hint">0 — из нашей базы</span>
           </label>
 
           <label>
-            Код «с/в» вручную (для сверки с расчётчиком)
+            Код «с/в»
             <select value={svOverride} onChange={(e) => setSvOverride(e.target.value)}>
-              <option value="">из нашей базы</option>
+              <option value="">по лестнице нагрузок</option>
               {SV_CODES.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -472,42 +563,25 @@ export function App() {
             </select>
           </label>
 
-          {span === 24 && (
-            <label>
-              Спринт с СГ по Р (шпренгельная затяжка)
-              <select
-                value={trussedVariant ? "да" : "нет"}
-                onChange={(e) => setTrussedVariant(e.target.value === "да")}
-              >
-                <option value="нет">нет</option>
-                <option value="да">да</option>
-              </select>
-            </label>
-          )}
-
           <label>
-            Перекрытие (раздел ведомости)
+            Блок банка сечений k
             <select
-              value={mezzanine ? "есть" : "нет"}
-              onChange={(e) => setMezzanine(e.target.value === "есть")}
+              value={String(bankK)}
+              onChange={(e) =>
+                setBankK(
+                  e.target.value === "auto"
+                    ? "auto"
+                    : (Number(e.target.value) as ResponsibilityLevel),
+                )
+              }
             >
-              <option value="нет">нет</option>
-              <option value="есть">есть</option>
-            </select>
-          </label>
-
-          <label>
-            Снегозадержатель
-            <select
-              value={snowGuards ? "есть" : "нет"}
-              onChange={(e) => setSnowGuards(e.target.value === "есть")}
-            >
-              <option value="есть">есть</option>
-              <option value="нет">нет</option>
+              <option value="auto">по лестнице нагрузок</option>
+              <option value="1">k = 1,0</option>
+              <option value="0.8">k = 0,8</option>
             </select>
           </label>
         </div>
-      </section>
+      </details>
 
       <section className="card">
         <h2>Климат</h2>
