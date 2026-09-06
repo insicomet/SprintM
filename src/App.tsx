@@ -26,7 +26,17 @@ import { computeCommercialSummary } from "./calc/summary/commercialSummary";
 import { computeRoofTrim } from "./calc/roofTrim/roofTrim";
 import { computeWallTrim } from "./calc/wallTrim/wallTrim";
 import { computePurlinLayout } from "./calc/purlin/purlinLayout";
-import { selectPurlin } from "./calc/purlin/selectPurlin";
+import {
+  DECKING_MARKS,
+  DEFAULT_DECKING_MARK,
+  maxPurlinStepByDecking,
+} from "./calc/purlin/deckingSpan";
+import {
+  insulationThicknessForRoofing,
+  purlinFamilyForRoofing,
+  roofLoadForDecking_kPa,
+  selectPurlin,
+} from "./calc/purlin/selectPurlin";
 import roofingTypesRaw from "./data/roofingSelfWeight.json";
 import { SPANS, type ResponsibilityLevel, type Span } from "./types/common";
 
@@ -51,7 +61,9 @@ export function App() {
   const [roofingType, setRoofingType] = useState(
     roofingTypes.find((r) => r.type === "С-П 150")!.type,
   );
-  const [maxStepMm, setMaxStepMm] = useState(1500);
+  const [deckingMark, setDeckingMark] = useState(DEFAULT_DECKING_MARK);
+  // 0 — считать максимальный шаг по несущей способности настила (вывод!D24 пусто).
+  const [maxStepOverrideMm, setMaxStepOverrideMm] = useState(0);
   // В обоих реальных проектах стена 100мм, кровля 150мм.
   const [wallThickness, setWallThickness] = useState(100);
   const [roofThickness, setRoofThickness] = useState(150);
@@ -147,20 +159,45 @@ export function App() {
     return { grossWallArea, wallArea, roofArea };
   }, [geometry, openingsArea]);
 
+  // «Макс шаг прогонов» (вывод!D23): по несущей способности настила при
+  // нагрузке на покрытие × 1,15. Ручной ввод (вывод!D24) перекрывает его.
+  const maxPurlinStep = useMemo(() => {
+    const sg = climate.ok ? climate.value.city.snow.sgKpa : null;
+    if (sg === null) return null;
+    const byDecking = maxPurlinStepByDecking(
+      deckingMark,
+      roofLoadForDecking_kPa(sg, defaultRoofSlopeDeg(span)) * 1.15,
+    );
+    return maxStepOverrideMm > 0 ? maxStepOverrideMm : byDecking;
+  }, [climate, deckingMark, span, maxStepOverrideMm]);
+
   const purlin = useMemo(() => {
-    if (!roofLoad) return undefined;
-    return selectPurlin({
-      roofLoad_kPa: roofLoad.total_kPa,
-      framePitch_m: geometry.framePitch_m,
-      minStep_mm: 500,
-      maxStep_mm: maxStepMm,
-    });
-  }, [roofLoad, geometry, maxStepMm]);
+    const sg = climate.ok ? climate.value.city.snow.sgKpa : null;
+    if (sg === null || maxPurlinStep === null) return null;
+    const selfWeight = roofingTypes.find((r) => r.type === roofingType)?.selfWeight_kg_m2 ?? 0;
+    return selectPurlin(
+      {
+        span_m: geometry.span_m,
+        framePitch_m: geometry.framePitch_m,
+        snowLoad_kPa: sg,
+        roofingSelfWeight_kg_m2: selfWeight,
+        roofSlopeDeg: geometry.roofSlopeDeg,
+        gammaN: responsibility,
+        maxStep_mm: maxPurlinStep,
+        snowGuardPurlin: snowGuards,
+        family: purlinFamilyForRoofing(roofingType),
+        insulationThickness_mm: insulationThicknessForRoofing(roofingType),
+      },
+      geometry.length_m,
+    );
+  }, [climate, geometry, maxPurlinStep, responsibility, roofingType, snowGuards]);
 
   const purlinLayout = useMemo(() => {
     if (!purlin) return null;
-    return computePurlinLayout(purlin, rafterLengthPerFrame_m(geometry), geometry.length_m);
-  }, [purlin, geometry]);
+    return computePurlinLayout(purlin, geometry.span_m, geometry.length_m, {
+      snowGuardPurlin: snowGuards,
+    });
+  }, [purlin, geometry, snowGuards]);
 
   const wallCladding = useMemo(
     () => computeWallCladdingSection(geometry, envelope.wallArea, wallThickness),
@@ -395,13 +432,24 @@ export function App() {
           </label>
 
           <label>
-            Макс. шаг прогонов, мм
+            Марка настила (ограничивает шаг прогонов)
+            <select value={deckingMark} onChange={(e) => setDeckingMark(e.target.value)}>
+              {DECKING_MARKS.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Макс. шаг прогонов, мм (0 — по настилу)
             <input
               type="number"
               step="50"
-              min="500"
-              value={maxStepMm}
-              onChange={(e) => setMaxStepMm(Number(e.target.value))}
+              min="0"
+              value={maxStepOverrideMm}
+              onChange={(e) => setMaxStepOverrideMm(Number(e.target.value))}
             />
           </label>
 
@@ -659,10 +707,11 @@ export function App() {
       </section>
 
       <section className="card">
-        <h2>Прогоны — независимый расчёт</h2>
+        <h2>Прогоны</h2>
         <p className="hint">
-          Считается по каталогу сечений напрямую (нагрузка → несущая способность), а не берётся из
-          банка сечений — для сверки с колонкой «Прогоны» выше.
+          Повторяет подбор расчётчика: перебор шага 500…3000 мм с шагом 5 мм, отсев профилей с
+          коэффициентом использования больше 1 и выбор шага с наименьшей массой стали — отдельно
+          по стали МП350 и МП390.
         </p>
         {roofLoad && (
           <p className="hint">
@@ -673,24 +722,38 @@ export function App() {
         )}
         {purlin ? (
           <dl className="result-list">
+            <dt>Макс. шаг по настилу</dt>
+            <dd>
+              {maxPurlinStep} мм{maxStepOverrideMm > 0 ? " (задан вручную)" : ` (${deckingMark})`}
+            </dd>
             <dt>Профиль</dt>
             <dd>
               {purlin.profile.name} ({purlin.profile.series})
             </dd>
-            <dt>Принятый шаг</dt>
-            <dd>{purlin.step_mm.toFixed(0)} мм</dd>
+            <dt>Подобранный шаг</dt>
+            <dd>{purlin.step_mm} мм</dd>
             <dt>Расход стали</dt>
-            <dd>{purlin.massPerRoofArea_kg_m2.toFixed(2)} кг/м² кровли</dd>
+            <dd>{purlin.massPerBuildingArea_kg_m2.toFixed(2)} кг/м² здания</dd>
+            {purlin.runnerUp && (
+              <>
+                <dt>Второй вариант</dt>
+                <dd>
+                  {purlin.runnerUp.profile.name} ({purlin.runnerUp.profile.series}), шаг{" "}
+                  {purlin.runnerUp.step_mm} мм — {purlin.runnerUp.massPerBuilding_kg.toFixed(0)} кг
+                </dd>
+              </>
+            )}
             {purlinLayout && (
               <>
                 <dt>Линий прогонов</dt>
-                <dd>{purlinLayout.lineCount} шт.</dd>
+                <dd>
+                  {purlinLayout.lineCount} шт.
+                  {snowGuards ? " + прогон под снегозадержание" : ""}
+                </dd>
                 <dt>Суммарно на здание</dt>
                 <dd>
-                  {purlinLayout.totalLength_m.toFixed(0)} м
-                  {purlinLayout.totalMass_kg !== null
-                    ? ` — ${purlinLayout.totalMass_kg.toFixed(0)} кг`
-                    : ""}
+                  {purlinLayout.totalProfileLength_m.toFixed(0)} п.м. —{" "}
+                  {purlinLayout.totalMass_kg.toFixed(0)} кг
                   {purlinLayout.totalCost !== null
                     ? ` — ${purlinLayout.totalCost.toLocaleString("ru-RU")} ₽`
                     : " — цена неизвестна"}
@@ -700,7 +763,9 @@ export function App() {
           </dl>
         ) : (
           <p className="error">
-            Ни один профиль в каталоге не держит эту нагрузку при минимальном шаге 500мм.
+            {maxPurlinStep === null
+              ? "Нет снеговой нагрузки для этого населённого пункта — подбор прогонов невозможен."
+              : "Ни один профиль не проходит по несущей способности в допустимом диапазоне шага."}
           </p>
         )}
       </section>

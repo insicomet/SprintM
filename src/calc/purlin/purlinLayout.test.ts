@@ -1,39 +1,75 @@
 import { describe, expect, it } from "vitest";
 import { computePurlinLayout } from "./purlinLayout";
 import { selectPurlin } from "./selectPurlin";
+import type { PurlinSelectionInput } from "./types";
+
+const project22316: PurlinSelectionInput = {
+  span_m: 18,
+  framePitch_m: 4.5,
+  snowLoad_kPa: 1.5,
+  roofingSelfWeight_kg_m2: 32.028,
+  roofSlopeDeg: 15,
+  gammaN: 1,
+  maxStep_mm: 2150,
+  snowGuardPurlin: true,
+  family: "2ПС",
+};
+
+const project22318: PurlinSelectionInput = {
+  span_m: 15,
+  framePitch_m: 4,
+  snowLoad_kPa: 1.8,
+  roofingSelfWeight_kg_m2: 32.028,
+  roofSlopeDeg: 15,
+  gammaN: 1,
+  maxStep_mm: 1900,
+  snowGuardPurlin: false,
+  family: "2ПС",
+};
 
 describe("computePurlinLayout", () => {
-  it("computes line count, total length and mass consistently", () => {
-    const purlin = selectPurlin({
-      roofLoad_kPa: 2.3,
-      framePitch_m: 6,
-      minStep_mm: 500,
-      maxStep_mm: 1500,
-    });
-    expect(purlin).toBeDefined();
+  it("reproduces the purlin line of real project '22316': 780 п.м., 3174,6 кг", () => {
+    const purlin = selectPurlin(project22316, 30)!;
+    const layout = computePurlinLayout(purlin, 18, 30, { snowGuardPurlin: true });
 
-    const rafterLength_m = 18.6; // ~ span/cos(slope) for an 18m span
-    const buildingLength_m = 30;
-    const layout = computePurlinLayout(purlin!, rafterLength_m, buildingLength_m);
+    expect(layout.totalProfileLength_m).toBeCloseTo(780, 9);
+    expect(layout.totalMass_kg).toBeCloseTo(3174.6, 6);
+    // Крепёж кровельных панелей расчётчик считал по 12 прогонам.
+    expect(layout.lineCount).toBe(12);
+  });
 
-    const stepM = purlin!.step_mm / 1000;
-    expect(layout.lineCount).toBe(Math.ceil(rafterLength_m / stepM + 1));
-    expect(layout.totalLength_m).toBe(layout.lineCount * buildingLength_m);
-    expect(layout.totalMass_kg).toBeCloseTo(layout.totalLength_m * purlin!.profile.mass_kg_per_m, 6);
+  it("reproduces the purlin line of real project '22318': 480 п.м., 1699,2 кг", () => {
+    const purlin = selectPurlin(project22318, 24)!;
+    const layout = computePurlinLayout(purlin, 15, 24, { snowGuardPurlin: false });
+
+    expect(layout.totalProfileLength_m).toBeCloseTo(480, 9);
+    expect(layout.totalMass_kg).toBeCloseTo(1699.2, 6);
+    expect(layout.lineCount).toBe(10);
+  });
+
+  it("the building mass matches what the selection itself reports", () => {
+    const purlin = selectPurlin(project22316, 30)!;
+    const layout = computePurlinLayout(purlin, 18, 30, { snowGuardPurlin: true });
+    expect(layout.totalMass_kg).toBeCloseTo(purlin.massPerBuilding_kg, 6);
+  });
+
+  it("prices the purlins per metre of assembled line", () => {
+    const purlin = selectPurlin(project22316, 30)!;
+    const layout = computePurlinLayout(purlin, 18, 30, { snowGuardPurlin: true });
     expect(layout.totalCost).not.toBeNull();
     expect(layout.totalCost!).toBeGreaterThan(0);
   });
 
   it("more lines are needed for a smaller step", () => {
-    const purlin = selectPurlin({
-      roofLoad_kPa: 2.3,
-      framePitch_m: 6,
-      minStep_mm: 500,
-      maxStep_mm: 1500,
-    });
-    const wide = computePurlinLayout(purlin!, 18.6, 30);
-    const narrower = { ...purlin!, step_mm: purlin!.step_mm / 2 };
-    const narrow = computePurlinLayout(narrower, 18.6, 30);
+    const purlin = selectPurlin(project22316, 30)!;
+    const wide = computePurlinLayout(purlin, 18, 30, { snowGuardPurlin: true });
+    const narrow = computePurlinLayout(
+      { ...purlin, step_mm: purlin.step_mm / 2 },
+      18,
+      30,
+      { snowGuardPurlin: true },
+    );
     expect(narrow.lineCount).toBeGreaterThan(wide.lineCount);
+    expect(narrow.totalProfileLength_m).toBeGreaterThan(wide.totalProfileLength_m);
   });
 });

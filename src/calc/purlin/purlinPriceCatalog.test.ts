@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { findPurlinPrice } from "./purlinPriceCatalog";
-import { getPurlinCatalog } from "./catalog";
+import { getPurlinCatalog, PURLIN_SERIES } from "./catalog";
 
 describe("findPurlinPrice", () => {
   it("doubles the single-profile mass/price for 2ТПС (pair of ТПС)", () => {
@@ -25,12 +25,12 @@ describe("findPurlinPrice", () => {
     // Реальный пробел прайса (не баг сопоставления): ПС 145х45 и 195х45
     // в прайс-листе останавливаются на 1,5мм — толщины 2мм для этих
     // двух ширин просто не завозят/не прайсуют.
-    const all = getPurlinCatalog();
+    const all = PURLIN_SERIES.flatMap((s) => [...getPurlinCatalog(s)]);
     const unmatched = all.filter((p) => findPurlinPrice(p.name) === null);
     expect(unmatched.map((p) => p.name)).toEqual([
       "2ПС 145х45х2",
-      "2ПС 145х45х2",
       "2ПС 195х45х2",
+      "2ПС 145х45х2",
       "2ПС 195х45х2",
     ]);
   });
@@ -39,7 +39,7 @@ describe("findPurlinPrice", () => {
     // Каталог кандидатов (purlinCatalog*.json) и прайс-лист — разные
     // источники одних и тех же профилей; масса совпадает с точностью
     // до нормального округления сортамента, не побитово.
-    const all = getPurlinCatalog();
+    const all = PURLIN_SERIES.flatMap((s) => [...getPurlinCatalog(s)]);
     for (const p of all) {
       const price = findPurlinPrice(p.name);
       if (price?.massPerM_kg != null) {
