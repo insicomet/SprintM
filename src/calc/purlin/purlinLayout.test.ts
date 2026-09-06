@@ -53,11 +53,19 @@ describe("computePurlinLayout", () => {
     expect(layout.totalMass_kg).toBeCloseTo(purlin.massPerBuilding_kg, 6);
   });
 
-  it("prices the purlins per metre of assembled line", () => {
-    const purlin = selectPurlin(project22316, 30)!;
-    const layout = computePurlinLayout(purlin, 18, 30, { snowGuardPurlin: true });
-    expect(layout.totalCost).not.toBeNull();
-    expect(layout.totalCost!).toBeGreaterThan(0);
+  it("prices the purlins exactly as the estimator did in both projects", () => {
+    // "22316": 780 п.м. × 575 ₽ = 448 500 ₽ (ведомость, F24)
+    const a = selectPurlin(project22316, 30)!;
+    expect(computePurlinLayout(a, 18, 30, { snowGuardPurlin: true }).totalCost).toBeCloseTo(
+      448500,
+      6,
+    );
+    // "22318": 480 п.м. × 508 ₽ = 243 840 ₽
+    const b = selectPurlin(project22318, 24)!;
+    expect(computePurlinLayout(b, 15, 24, { snowGuardPurlin: false }).totalCost).toBeCloseTo(
+      243840,
+      6,
+    );
   });
 
   it("more lines are needed for a smaller step", () => {

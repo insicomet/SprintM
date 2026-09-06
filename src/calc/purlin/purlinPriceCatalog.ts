@@ -22,6 +22,14 @@ const prices = pricesRaw as unknown as PurlinPriceFile;
 export interface PurlinPriceResult {
   /** Цена продажи (+5%) за метр ГОТОВОГО прогона, ₽/м — для 2ПС/2ТПС уже удвоена (пара профилей). */
   priceSale_perM: number | null;
+  /**
+   * Базовая цена (без +5%) за метр ГОТОВОГО прогона, ₽/м — тоже удвоенная.
+   *
+   * Прогоны расчётчик берёт именно по ней: в "22316" строка прогонов идёт
+   * по 575 ₽/п.м (ПС 200х65х1,5), в "22318" — по 508 ₽/п.м
+   * (ПС 195х45х1,5), и это ровно базовая цена прайса, а не цена продажи.
+   */
+  priceBase_perM: number | null;
   /** Масса погонного метра готового прогона, кг/м — для сверки с purlinCatalog. */
   massPerM_kg: number | null;
   coating: string;
@@ -92,6 +100,7 @@ export function findPurlinPrice(profileName: string, preferredCoating = "Оци�
     if (!picked) return null;
     return {
       priceSale_perM: picked.row.priceSale !== null ? picked.row.priceSale * 2 : null,
+      priceBase_perM: picked.row.price0 !== null ? picked.row.price0 * 2 : null,
       massPerM_kg: picked.row.weight_kg !== null ? picked.row.weight_kg * 2 : null,
       coating: picked.coating,
     };
@@ -107,6 +116,7 @@ export function findPurlinPrice(profileName: string, preferredCoating = "Оци�
     if (!picked) return null;
     return {
       priceSale_perM: picked.row.priceSale,
+      priceBase_perM: picked.row.price0,
       massPerM_kg: picked.row.weight_kg,
       coating: picked.coating,
     };

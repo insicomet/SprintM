@@ -63,9 +63,11 @@ export function computePurlinLayout(
   const totalMass_kg = totalLineLength_m * purlin.profile.mass_kg_per_m;
 
   // Прайс отдаёт цену за метр ГОТОВОГО прогона (для 2ПС/2ТПС уже удвоенную),
-  // поэтому умножаем на длину линий, а не профиля.
+  // поэтому умножаем на длину линий, а не профиля. Берём БАЗОВУЮ цену —
+  // именно её расчётчик ставит в строку прогонов (575 ₽/п.м в "22316",
+  // 508 ₽/п.м в "22318"), а не цену продажи с +5%.
   const price = findPurlinPrice(purlin.profile.name);
-  const totalCost = price?.priceSale_perM != null ? price.priceSale_perM * totalLineLength_m : null;
+  const totalCost = price?.priceBase_perM != null ? price.priceBase_perM * totalLineLength_m : null;
 
   return { lineCount, totalLineLength_m, totalProfileLength_m, totalMass_kg, totalCost };
 }
