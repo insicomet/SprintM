@@ -3,6 +3,7 @@ import { getAllSettlementNames, getSupportedSvCodes } from "./calc/climate/svCod
 import { getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
 import type { StrutTube } from "./calc/frame/bracing";
 import { DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
+import { buildBill } from "./calc/bill/buildBill";
 import { computeProject } from "./calc/project/computeProject";
 import { DECKING_MARKS, DEFAULT_DECKING_MARK } from "./calc/purlin/deckingSpan";
 import roofingTypesRaw from "./data/roofingSelfWeight.json";
@@ -145,6 +146,8 @@ export function App() {
     commercial,
     summary,
   } = project;
+
+  const bill = useMemo(() => buildBill(project), [project]);
 
   return (
     <div className="page">
@@ -943,6 +946,132 @@ export function App() {
             {Math.round(drainage.totalCost).toLocaleString("ru-RU")} ₽
           </dd>
         </dl>
+      </section>
+
+      <section className="card bill-card">
+        <div className="bill-head">
+          <h2>Ведомость материалов</h2>
+          <button type="button" className="print-button" onClick={() => window.print()}>
+            Печать
+          </button>
+        </div>
+        <p className="hint no-print">
+          Те же числа, что и в карточках выше, но в порядке и структуре исходной ведомости.
+          Итог каждого раздела подписан ячейкой, с которой он сверяется.
+        </p>
+        <div className="bill-meta">
+          {climate.ok ? `${climate.value.city.settlement}, ${climate.value.city.region}` : "—"} ·{" "}
+          {span} × {length} × {height} м · шаг рам {geometry.framePitch_m} м ·{" "}
+          {frameTakeoff ? `${frameTakeoff.frameCount} рам` : "—"} · с/в{" "}
+          {climate.ok ? climate.value.standard : "—"}
+        </div>
+
+        <table className="bill">
+          <thead>
+            <tr>
+              <th>наименование</th>
+              <th className="num">кол-во</th>
+              <th>ед.</th>
+              <th className="num">цена</th>
+              <th className="num">стоимость</th>
+              <th className="num">масса, кг</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { caption: "Материалы ЗАО «ИНСИ»", sections: bill.materials },
+              { caption: "Дополнительные материалы", sections: bill.additional },
+            ].map((block) => (
+              <Fragment key={block.caption}>
+                <tr className="bill-block">
+                  <td colSpan={6}>{block.caption}</td>
+                </tr>
+                {block.sections.map((s) => (
+                  <Fragment key={`${block.caption}-${s.sourceCell}`}>
+                    <tr className="bill-section">
+                      <td colSpan={6}>{s.title}</td>
+                    </tr>
+                    {s.rows.map((r, idx) => (
+                      <tr key={`${s.sourceCell}-${r.name}-${idx}`}>
+                        <td>
+                          {r.name}
+                          {r.note && <span className="incomplete"> — {r.note}</span>}
+                        </td>
+                        <td className="num">
+                          {r.count === null
+                            ? "—"
+                            : r.count.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}
+                        </td>
+                        <td>{r.unit}</td>
+                        <td className="num">
+                          {r.unitPrice === null
+                            ? "—"
+                            : r.unitPrice.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}
+                        </td>
+                        <td className="num">
+                          {r.cost === null ? "—" : Math.round(r.cost).toLocaleString("ru-RU")}
+                        </td>
+                        <td className="num">
+                          {r.mass_kg === null ? "—" : Math.round(r.mass_kg).toLocaleString("ru-RU")}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="bill-sub">
+                      <td colSpan={4}>Накладные расходы 2%</td>
+                      <td className="num">
+                        {s.overheadCost === null
+                          ? "—"
+                          : Math.round(s.overheadCost).toLocaleString("ru-RU")}
+                      </td>
+                      <td />
+                    </tr>
+                    <tr className="bill-total">
+                      <td colSpan={4}>
+                        Итого {s.title.toLowerCase()} <span className="cell">{s.sourceCell}</span>
+                      </td>
+                      <td className="num">
+                        {s.totalCost === null ? "—" : Math.round(s.totalCost).toLocaleString("ru-RU")}
+                      </td>
+                      <td className="num">{Math.round(s.totalMass_kg).toLocaleString("ru-RU")}</td>
+                    </tr>
+                  </Fragment>
+                ))}
+              </Fragment>
+            ))}
+            <tr className="bill-grand">
+              <td colSpan={4}>Рекомендуемая цена реализации</td>
+              <td className="num">
+                {bill.recommendedPrice === null
+                  ? "—"
+                  : Math.round(bill.recommendedPrice).toLocaleString("ru-RU")}
+              </td>
+              <td className="num">{Math.round(bill.buildingMass_kg).toLocaleString("ru-RU")}</td>
+            </tr>
+            <tr className="bill-sub">
+              <td colSpan={4}>Упаковка 2%</td>
+              <td className="num">
+                {bill.packaging === null ? "—" : Math.round(bill.packaging).toLocaleString("ru-RU")}
+              </td>
+              <td />
+            </tr>
+            <tr className="bill-grand">
+              <td colSpan={4}>ИТОГО цена + упаковка</td>
+              <td className="num">
+                {bill.totalWithPackaging === null
+                  ? "—"
+                  : Math.round(bill.totalWithPackaging).toLocaleString("ru-RU")}
+              </td>
+              <td />
+            </tr>
+            <tr>
+              <td colSpan={4}>Окна, ворота, двери</td>
+              <td className="num">
+                {Math.round(openingsCost.totalCost).toLocaleString("ru-RU")}
+              </td>
+              <td />
+            </tr>
+          </tbody>
+        </table>
       </section>
 
       <section className="card summary-card">

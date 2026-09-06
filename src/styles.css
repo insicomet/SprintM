@@ -152,3 +152,128 @@ footer {
   font-size: 0.88em;
   color: var(--muted);
 }
+
+/* ---- Ведомость материалов ---- */
+
+.bill-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.print-button {
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.print-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.bill-meta {
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Таблица шире карточки — уводим её в собственный скролл, а не в скролл страницы. */
+.bill-card {
+  overflow-x: auto;
+}
+
+table.bill {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table.bill th,
+table.bill td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+table.bill th {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+table.bill .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+tr.bill-block td {
+  padding-top: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom-color: var(--text);
+}
+
+tr.bill-section td {
+  padding-top: 10px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+tr.bill-sub td {
+  color: var(--muted);
+}
+
+tr.bill-total td {
+  font-weight: 600;
+  background: #f6f8f7;
+}
+
+tr.bill-total .cell {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.85em;
+}
+
+tr.bill-grand td {
+  font-weight: 700;
+  border-bottom-width: 2px;
+  border-bottom-color: var(--accent);
+}
+
+/* На печать уходит только ведомость. */
+@media print {
+  .page > header,
+  .page > section:not(.bill-card),
+  .page > footer,
+  .no-print,
+  .print-button {
+    display: none !important;
+  }
+
+  .bill-card {
+    border: none;
+    padding: 0;
+    overflow: visible;
+  }
+
+  table.bill {
+    font-size: 10pt;
+    min-width: 0;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+}
