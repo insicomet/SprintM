@@ -247,3 +247,39 @@ describe("computeProject — поведение вне сверки", () => {
     );
   });
 });
+
+describe("вариант «СГ по Р» (пролёт 24 м)", () => {
+  const base24: ProjectInputs = {
+    ...project22316,
+    span: 24,
+    height_m: 6,
+    svOverride: "1/3",
+    bankK: 1.0,
+    trussedVariant: false,
+  };
+
+  it("uses the standard row by default", () => {
+    const r = computeProject(base24);
+    const s = r.frame!.ok ? r.frame!.value : null;
+    expect(s!.variant).toBe("стандарт");
+    expect(s!.beam.profile).toBe("ПГС300/20х80х2");
+    expect(r.trussedVariantMissing).toBe(false);
+  });
+
+  it("switches to the trussed row when asked", () => {
+    const r = computeProject({ ...base24, trussedVariant: true });
+    const s = r.frame!.ok ? r.frame!.value : null;
+    expect(s!.variant).toBe("вариант_2");
+    expect(s!.beam.profile).toBe("ПГС300/20х80х2 сг по Р");
+    expect(s!.massGussetPlates_kg).toBe(507);
+    expect(r.trussedVariantMissing).toBe(false);
+  });
+
+  it("falls back to the standard row and says so when the bank has no trussed variant", () => {
+    // Вариант «СГ по Р» есть только для с/в 1/3.
+    const r = computeProject({ ...base24, svOverride: "4/1", trussedVariant: true });
+    expect(r.trussedVariantMissing).toBe(true);
+    const s = r.frame!.ok ? r.frame!.value : null;
+    expect(s!.variant).toBe("стандарт");
+  });
+});

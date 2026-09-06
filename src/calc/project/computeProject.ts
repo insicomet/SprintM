@@ -97,6 +97,12 @@ export interface ProjectInputs {
   extraTubeMass_t: number;
   /** Шаг стоек фахверка, м — влияет только на подбор сечения стойки. */
   postSpacing_m: number;
+  /**
+   * «Спринт с СГ по Р» — вариант каркаса со шпренгельной затяжкой
+   * (вывод!C29: «для пролета 24м, если спринт с СГ по Р, пиши +»).
+   * В банке такие строки есть только для пролёта 24 м и с/в 1/3.
+   */
+  trussedVariant?: boolean;
 }
 
 export type ProjectResult = ReturnType<typeof computeProject>;
@@ -133,6 +139,7 @@ export function computeProject(inputs: ProjectInputs) {
     strutTube,
     extraTubeMass_t,
     postSpacing_m,
+    trussedVariant,
   } = inputs;
 
   // ---- Климат -------------------------------------------------------
@@ -155,17 +162,25 @@ export function computeProject(inputs: ProjectInputs) {
     | { ok: true; value: ReturnType<typeof findFrameSelection> }
     | { ok: false; error: string }
     | null = null;
+  // Вариант «СГ по Р» есть в банке не для всякой комбинации; если его нет,
+  // считаем по стандартному и говорим об этом.
+  let trussedVariantMissing = false;
   if (climate.ok) {
     try {
-      frame = {
-        ok: true,
-        value: findFrameSelection({
-          span,
-          height_m,
-          responsibility: bankK === "auto" ? gammaN : bankK,
-          svCode: climate.value.standard,
-        }),
+      const query = {
+        span,
+        height_m,
+        responsibility: bankK === "auto" ? gammaN : bankK,
+        svCode: climate.value.standard,
       };
+      let value = findFrameSelection(
+        trussedVariant ? { ...query, variant: "вариант_2" } : query,
+      );
+      if (trussedVariant && !value) {
+        trussedVariantMissing = true;
+        value = findFrameSelection(query);
+      }
+      frame = { ok: true, value };
     } catch (e) {
       frame = { ok: false, error: (e as Error).message };
     }
@@ -404,6 +419,7 @@ export function computeProject(inputs: ProjectInputs) {
     snowLoad_kPa: sgKpa,
     snowOverridden,
     frame,
+    trussedVariantMissing,
     heightBucket,
     geometry,
     roofLoad,

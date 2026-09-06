@@ -53,6 +53,8 @@ export function App() {
   // Снеговая нагрузка вручную — подборщик для части городов берёт
   // уточнённое значение ГМЦ, которого в нашей базе нет (Сургут: 1,8 против 2,0).
   const [snowOverrideKpa, setSnowOverrideKpa] = useState(0);
+  // «Спринт с СГ по Р» — вариант со шпренгельной затяжкой, только 24 м.
+  const [trussedVariant, setTrussedVariant] = useState(false);
 
   const project = useMemo(
     () =>
@@ -79,6 +81,7 @@ export function App() {
         strutTube,
         extraTubeMass_t,
         postSpacing_m: postSpacing,
+        trussedVariant,
       }),
     [
       city,
@@ -103,12 +106,14 @@ export function App() {
       strutTube,
       extraTubeMass_t,
       postSpacing,
+      trussedVariant,
     ],
   );
 
   const {
     climate,
     frame,
+    trussedVariantMissing,
     heightBucket,
     geometry,
     roofLoad,
@@ -449,6 +454,19 @@ export function App() {
             </select>
           </label>
 
+          {span === 24 && (
+            <label>
+              Спринт с СГ по Р (шпренгельная затяжка)
+              <select
+                value={trussedVariant ? "да" : "нет"}
+                onChange={(e) => setTrussedVariant(e.target.value === "да")}
+              >
+                <option value="нет">нет</option>
+                <option value="да">да</option>
+              </select>
+            </label>
+          )}
+
           <label>
             Снегозадержатель
             <select
@@ -503,6 +521,11 @@ export function App() {
         <h2>Сечения рамы</h2>
         {heightBucket !== null && (
           <p className="hint">Высота {height}м приведена к расчётной корзине {heightBucket}м.</p>
+        )}
+        {trussedVariantMissing && (
+          <p className="hint incomplete">
+            Варианта со связями по Р для этой комбинации в банке нет — считаю по стандартному.
+          </p>
         )}
         {!climate.ok ? (
           <p className="error">Нет данных по климату — сечения не рассчитаны.</p>
