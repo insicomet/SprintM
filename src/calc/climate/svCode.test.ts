@@ -143,3 +143,18 @@ describe("покрытие банка сечений", () => {
     expect(new Set(codes).size).toBe(codes.length);
   });
 });
+
+describe("дубль «3/3» в таблице соответствия", () => {
+  it("takes the first match, like ПОИСКПОЗ does — 3/3 → 3/2, not 3/4", () => {
+    // В исходнике «3/3» стоит дважды: в блоке (→ 3/2) и ниже него (→ 3/4).
+    // Блока «3/4» в банке сечений не существует.
+    expect(normalizeSvCode("3/3")).toBe("3/2");
+    expect(getSupportedSvCodes()).not.toContain("3/4");
+  });
+
+  it("Новосибирск (снег III, ветер III) снова находится в банке", () => {
+    const result = computeSvCode("Новосибирск");
+    expect(result.raw).toBe("3/3");
+    expect(result.standard).toBe("3/2");
+  });
+});

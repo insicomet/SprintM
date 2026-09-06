@@ -51,16 +51,21 @@ describe("покрытие климатического справочника",
       for (const span of SPANS) {
         for (const height_m of heightsFor(span)) {
           for (const responsibility of [1.0, 0.8] as ResponsibilityLevel[]) {
+            // findFrameSelection не бросает, а возвращает undefined —
+            // ловим именно это, иначе дыры проходят мимо теста.
+            let found: unknown;
             try {
-              findFrameSelection({ span, height_m, responsibility, svCode });
+              found = findFrameSelection({ span, height_m, responsibility, svCode });
             } catch {
-              holes.push(`${svCode} · ${span}м · h${height_m} · k=${responsibility}`);
+              found = undefined;
             }
+            if (!found) holes.push(`${svCode} · ${span}м · h${height_m} · k=${responsibility}`);
           }
         }
       }
     }
-    // Дыры допустимы, но список должен быть известен и не расти молча.
+    // eslint-disable-next-line no-console
+    console.log(`дыр в банке: ${holes.length}\n` + holes.join("\n"));
     expect(holes).toEqual([]);
   });
 
