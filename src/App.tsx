@@ -1,48 +1,10 @@
 import { Fragment, useMemo, useState } from "react";
-import { computeSvCode, getAllSettlementNames } from "./calc/climate/svCode";
-import { computeBracing, type StrutTube } from "./calc/frame/bracing";
-import { findFrameSelection, snapHeight } from "./calc/frame/sectionBank";
-import {
-  computeRoofCladdingSection,
-  computeWallCladdingSection,
-} from "./calc/cladding/claddingSections";
+import { getAllSettlementNames } from "./calc/climate/svCode";
 import { getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
-import {
-  computeRoofUnpricedItems,
-  computeWallUnpricedItems,
-} from "./calc/cladding/unpricedItems";
-import { facadePostCount } from "./calc/facadePost/postCount";
-import { selectFacadePost } from "./calc/facadePost/selectFacadePost";
-import { computeDrainage } from "./calc/drainage/drainage";
-import { computeRoofArea_m2, computeWallArea_m2 } from "./calc/geometry/buildingEnvelope";
-import { computeFrameExtras } from "./calc/geometry/frameExtras";
-import { computeFrameFasteners } from "./calc/geometry/frameFasteners";
-import { rafterLengthPerFrame_m } from "./calc/geometry/frameGeometry";
-import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
-import { computeHorizTiesMass_kg } from "./calc/geometry/horizTies";
-import {
-  computeOpeningsArea_m2,
-  computeOpeningsCost,
-  DEFAULT_OPENINGS,
-  windowFramingPerimeter_m,
-  type OpeningsInput,
-} from "./calc/geometry/openings";
-import { computeRoofLoad, defaultRoofSlopeDeg } from "./calc/loads/roofLoad";
-import { computeCommercialSummary } from "./calc/summary/commercialSummary";
-import { computeRoofTrim } from "./calc/roofTrim/roofTrim";
-import { computeWallTrim } from "./calc/wallTrim/wallTrim";
-import { computePurlinLayout } from "./calc/purlin/purlinLayout";
-import {
-  DECKING_MARKS,
-  DEFAULT_DECKING_MARK,
-  maxPurlinStepByDecking,
-} from "./calc/purlin/deckingSpan";
-import {
-  insulationThicknessForRoofing,
-  purlinFamilyForRoofing,
-  roofLoadForDecking_kPa,
-  selectPurlin,
-} from "./calc/purlin/selectPurlin";
+import type { StrutTube } from "./calc/frame/bracing";
+import { DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
+import { computeProject } from "./calc/project/computeProject";
+import { DECKING_MARKS, DEFAULT_DECKING_MARK } from "./calc/purlin/deckingSpan";
 import roofingTypesRaw from "./data/roofingSelfWeight.json";
 import { SPANS, type ResponsibilityLevel, type Span } from "./types/common";
 
@@ -55,11 +17,6 @@ const roofingTypes = roofingTypesRaw as { type: string; selfWeight_kg_m2: number
 
 /** Коды «с/в», для которых в банке сечений ИНСИ есть просчитанные строки. */
 const SV_CODES = ["1/3", "2/2", "2/3", "2/4", "3/1", "3/2", "3/4", "4/1", "4/3", "5/1", "5/3"];
-
-// Накладные расходы раздела «Каркас» — 2%, как и во всех остальных
-// разделах ведомости (ячейки C31 и C99). В модулях обшивки, водостока
-// и доборных элементов они уже учтены внутри.
-const SECTION_OVERHEAD = 1.02;
 
 export function App() {
   const [city, setCity] = useState("Челябинск");
@@ -93,343 +50,90 @@ export function App() {
   // Блок банка сечений (подбор!W9) — в исходнике это ОТДЕЛЬНАЯ величина от
   // γn (вывод!D7): в "22316" γn = 1, а сечения взяты из блока k = 0,8.
   const [bankK, setBankK] = useState<"auto" | ResponsibilityLevel>("auto");
+  // Снеговая нагрузка вручную — подборщик для части городов берёт
+  // уточнённое значение ГМЦ, которого в нашей базе нет (Сургут: 1,8 против 2,0).
+  const [snowOverrideKpa, setSnowOverrideKpa] = useState(0);
 
-  const climate = useMemo(() => {
-    try {
-      const value = computeSvCode(city);
-      // Ручное переопределение кода — чтобы можно было сверить расчёт с
-      // файлом расчётчика, где с/в взят по его таблице «снегветер».
-      return {
-        ok: true as const,
-        value: svOverride ? { ...value, standard: svOverride } : value,
-        overridden: Boolean(svOverride),
-      };
-    } catch (e) {
-      return { ok: false as const, error: (e as Error).message };
-    }
-  }, [city, svOverride]);
-
-  const frame = useMemo(() => {
-    if (!climate.ok) return null;
-    try {
-      const result = findFrameSelection({
+  const project = useMemo(
+    () =>
+      computeProject({
+        city,
         span,
+        length_m: length,
         height_m: height,
-        responsibility: bankK === "auto" ? responsibility : bankK,
-        svCode: climate.value.standard,
-      });
-      return { ok: true as const, value: result };
-    } catch (e) {
-      return { ok: false as const, error: (e as Error).message };
-    }
-  }, [climate, span, height, responsibility, bankK]);
-
-  const heightBucket = useMemo(() => {
-    try {
-      return snapHeight(span, height);
-    } catch {
-      return null;
-    }
-  }, [span, height]);
-
-  const roofLoad = useMemo(() => {
-    if (!climate.ok || climate.value.city.snow.sgKpa === null) return null;
-    const selfWeight = roofingTypes.find((r) => r.type === roofingType)?.selfWeight_kg_m2 ?? 0;
-    return computeRoofLoad({
-      sgKpa: climate.value.city.snow.sgKpa,
-      roofSlopeDeg: defaultRoofSlopeDeg(span),
-      selfWeight_kg_m2: selfWeight,
-    });
-  }, [climate, roofingType, span]);
-
-  const geometry = useMemo(
-    () => ({
-      span_m: span,
-      length_m: length,
-      height_m: height,
-      framePitch_m:
-        framePitchOverride > 0
-          ? framePitchOverride
-          : frame?.ok && frame.value
-            ? frame.value.framePitch_m
-            : 6,
-      roofSlopeDeg: defaultRoofSlopeDeg(span),
-    }),
-    [span, length, height, frame, framePitchOverride],
-  );
-
-  const frameTakeoff = useMemo(() => {
-    if (!frame?.ok || !frame.value || heightBucket === null) return null;
-    return computeFrameTakeoff(geometry, frame.value);
-  }, [frame, geometry, heightBucket]);
-
-  const frameFasteners = useMemo(() => {
-    if (!frameTakeoff || !frame?.ok || !frame.value) return null;
-    // База формулы болтов М16 — «Болты в раме» выбранной строки банка.
-    return computeFrameFasteners(geometry, frameTakeoff.frameCount, frame.value.bolts.totalInFrame);
-  }, [frameTakeoff, geometry, frame]);
-
-  const frameExtras = useMemo(() => {
-    if (!frameTakeoff) return null;
-    return computeFrameExtras(geometry, frameTakeoff.frameCount);
-  }, [frameTakeoff, geometry]);
-
-  const wallTrim = useMemo(() => computeWallTrim(geometry), [geometry]);
-
-  const horizTiesMass_kg = useMemo(() => {
-    if (!climate.ok) return null;
-    return computeHorizTiesMass_kg(span, climate.value.standard, length);
-  }, [climate, span, length]);
-
-  const bracing = useMemo(() => {
-    if (!frameTakeoff || !frame?.ok || !frame.value) return null;
-    return computeBracing({
-      span_m: span,
-      length_m: geometry.length_m,
-      height_m: geometry.height_m,
-      framePitch_m: geometry.framePitch_m,
-      frameCount: frameTakeoff.frameCount,
+        gammaN: responsibility,
+        bankK,
+        svOverride,
+        snowLoadOverride_kPa: snowOverrideKpa,
+        roofingType,
+        deckingMark,
+        maxStepOverride_mm: maxStepOverrideMm,
+        minStep_mm: minStepMm,
+        framePitchOverride_m: framePitchOverride,
+        wallPanel_mm: wallThickness,
+        roofPanel_mm: roofThickness,
+        openings,
+        snowGuards,
+        railingPurlin,
+        tubeStrutCount,
+        strutTube,
+        extraTubeMass_t,
+        postSpacing_m: postSpacing,
+      }),
+    [
+      city,
+      span,
+      length,
+      height,
+      responsibility,
+      bankK,
+      svOverride,
+      snowOverrideKpa,
+      roofingType,
+      deckingMark,
+      maxStepOverrideMm,
+      minStepMm,
+      framePitchOverride,
+      wallThickness,
+      roofThickness,
+      openings,
+      snowGuards,
+      railingPurlin,
       tubeStrutCount,
       strutTube,
       extraTubeMass_t,
-      windowFramingPerimeter_m: windowFramingPerimeter_m(openings),
-      gussetMassPerFrame_kg: frame.value.massGussetPlates_kg,
-    });
-  }, [frameTakeoff, frame, span, geometry, tubeStrutCount, strutTube, extraTubeMass_t, openings]);
-
-  const drainage = useMemo(() => computeDrainage(geometry), [geometry]);
-
-  const roofTrim = useMemo(() => computeRoofTrim(geometry, { snowGuards }), [geometry, snowGuards]);
-
-  const openingsArea = useMemo(() => computeOpeningsArea_m2(openings), [openings]);
-  const openingsCost = useMemo(() => computeOpeningsCost(openings), [openings]);
-
-  const envelope = useMemo(() => {
-    const grossWallArea = computeWallArea_m2(geometry);
-    const wallArea = Math.max(0, grossWallArea - openingsArea);
-    const roofArea = computeRoofArea_m2(geometry);
-    return { grossWallArea, wallArea, roofArea };
-  }, [geometry, openingsArea]);
-
-  // «Макс шаг прогонов» (вывод!D23): по несущей способности настила при
-  // нагрузке на покрытие × 1,15. Ручной ввод (вывод!D24) перекрывает его.
-  const maxPurlinStep = useMemo(() => {
-    const sg = climate.ok ? climate.value.city.snow.sgKpa : null;
-    if (sg === null) return null;
-    const byDecking = maxPurlinStepByDecking(
-      deckingMark,
-      roofLoadForDecking_kPa(sg, defaultRoofSlopeDeg(span)) * 1.15,
-    );
-    return maxStepOverrideMm > 0 ? maxStepOverrideMm : byDecking;
-  }, [climate, deckingMark, span, maxStepOverrideMm]);
-
-  const purlin = useMemo(() => {
-    const sg = climate.ok ? climate.value.city.snow.sgKpa : null;
-    if (sg === null || maxPurlinStep === null) return null;
-    const selfWeight = roofingTypes.find((r) => r.type === roofingType)?.selfWeight_kg_m2 ?? 0;
-    return selectPurlin(
-      {
-        span_m: geometry.span_m,
-        framePitch_m: geometry.framePitch_m,
-        snowLoad_kPa: sg,
-        roofingSelfWeight_kg_m2: selfWeight,
-        roofSlopeDeg: geometry.roofSlopeDeg,
-        gammaN: responsibility,
-        maxStep_mm: maxPurlinStep,
-        snowGuardPurlin: snowGuards,
-        railingPurlin,
-        minStep_mm: minStepMm,
-        family: purlinFamilyForRoofing(roofingType),
-        insulationThickness_mm: insulationThicknessForRoofing(roofingType),
-      },
-      geometry.length_m,
-    );
-  }, [
-    climate,
-    geometry,
-    maxPurlinStep,
-    responsibility,
-    roofingType,
-    snowGuards,
-    railingPurlin,
-    minStepMm,
-  ]);
-
-  const purlinLayout = useMemo(() => {
-    if (!purlin) return null;
-    return computePurlinLayout(purlin, geometry.span_m, geometry.length_m, {
-      snowGuardPurlin: snowGuards,
-      railingPurlin,
-    });
-  }, [purlin, geometry, snowGuards, railingPurlin]);
-
-  // Строки ведомости, у которых количество считается, а стоимость не заведена.
-  const unpricedSections = useMemo(() => {
-    const wall = computeWallUnpricedItems(geometry);
-    const roof = purlinLayout
-      ? computeRoofUnpricedItems(geometry, roofThickness, purlinLayout.totalProfileLength_m)
-      : null;
-    return roof ? [wall, roof] : [wall];
-  }, [geometry, roofThickness, purlinLayout]);
-
-  const wallCladding = useMemo(
-    () => computeWallCladdingSection(geometry, envelope.wallArea, wallThickness),
-    [geometry, envelope.wallArea, wallThickness],
+      postSpacing,
+    ],
   );
 
-  const roofCladding = useMemo(() => {
-    if (!purlinLayout) return null;
-    return computeRoofCladdingSection(geometry, envelope.roofArea, roofThickness, purlinLayout.lineCount);
-  }, [geometry, envelope.roofArea, roofThickness, purlinLayout]);
-
-  const facadePost = useMemo(() => {
-    if (!climate.ok || climate.value.city.wind.w0Kpa === null) return undefined;
-    return selectFacadePost({
-      w0_kPa: climate.value.city.wind.w0Kpa,
-      postSpacing_m: postSpacing,
-      height_m: height,
-    });
-  }, [climate, postSpacing, height]);
-
-  const facadePostLayout = useMemo(() => {
-    if (!facadePost) return null;
-    // Количество — по практическому правилу (не из формул исходного
-    // файла ИНСИ, см. facadePost/postCount.ts), не по периметру/шагу.
-    // Шаг стоек (postSpacing) используется только для расчёта нагрузки
-    // на одну стойку при подборе сечения (см. selectFacadePost) — с
-    // количеством он намеренно не связан.
-    const postCount = facadePostCount(span);
-    const totalLength_m = postCount * geometry.height_m;
-    const totalMass_kg = totalLength_m * facadePost.profile.mass_kg_per_m;
-    return { postCount, totalLength_m, totalMass_kg };
-  }, [facadePost, geometry, span]);
-
-  const commercial = useMemo(() => {
-    // Раскладка по статьям исходной ведомости (строки 155–160).
-    // «Каркас» = F32 + F100: профили рамы, прогоны, прочие профили,
-    // весь крепёж и связи. Связи считаются, но «Лист» (фасонки) требует
-    // веса фасонок на раму, который известен не для всех пролётов.
-    const frameMaterials =
-      frameTakeoff?.totalFrameCost != null &&
-      purlinLayout?.totalCost != null &&
-      frameExtras != null &&
-      frameFasteners != null &&
-      bracing?.totalCost != null
-        ? (frameTakeoff.totalFrameCost +
-            purlinLayout.totalCost +
-            frameExtras.totalCost +
-            frameFasteners.totalCost +
-            bracing.totalCost) *
-          SECTION_OVERHEAD
-        : null;
-
-    // «Стеновое ограждение» = F44 + F114, «Кровельное» = F147 + F70 + F81.
-    // Эти разделы уже включают свои 2% внутри модулей.
-    const wallMaterials = wallCladding.totalCost != null ? wallCladding.totalCost + wallTrim.totalCost : null;
-    const roofMaterials =
-      roofCladding?.totalCost != null
-        ? roofCladding.totalCost + drainage.totalCost + roofTrim.totalCost
-        : null;
-
-    return computeCommercialSummary({
-      frameMaterials,
-      wallMaterials,
-      roofMaterials,
-      openingsCost: openingsCost.totalCost,
-      frameMissing: bracing?.missing,
-    });
-  }, [
+  const {
+    climate,
+    frame,
+    heightBucket,
+    geometry,
+    roofLoad,
     frameTakeoff,
-    bracing,
+    frameFasteners,
     frameExtras,
-    frameFasteners,
-    purlinLayout,
-    wallCladding,
-    wallTrim,
-    roofCladding,
-    drainage,
-    roofTrim,
-    openingsCost,
-  ]);
-
-  const summary = useMemo(() => {
-    const steelMass_kg =
-      (frameTakeoff?.totalFrameMass_kg ?? 0) +
-      (frameFasteners?.totalMass_kg ?? 0) +
-      (bracing?.totalMass_kg ?? 0) +
-      (frameExtras?.totalMass_kg ?? 0) +
-      wallTrim.totalMass_kg +
-      (purlinLayout?.totalMass_kg ?? 0) +
-      (facadePostLayout?.totalMass_kg ?? 0);
-    const claddingMass_kg = wallCladding.totalMass_kg + (roofCladding?.totalMass_kg ?? 0);
-    const hasFullSteelMass =
-      frameTakeoff?.totalFrameMass_kg !== null &&
-      frameFasteners !== null &&
-      bracing?.totalMass_kg != null &&
-      purlinLayout?.totalMass_kg !== null &&
-      facadePostLayout?.totalMass_kg !== null;
-
-    const claddingCost =
-      wallCladding.totalCost != null && roofCladding?.totalCost != null
-        ? wallCladding.totalCost + roofCladding.totalCost
-        : null;
-
-    const knownCost =
-      (frameTakeoff?.totalFrameCost ?? 0) +
-      (claddingCost ?? 0) +
-      (purlinLayout?.totalCost ?? 0) +
-      (frameFasteners?.totalCost ?? 0) +
-      (frameExtras?.totalCost ?? 0) +
-      (bracing?.totalCost ?? 0) +
-      wallTrim.totalCost +
-      drainage.totalCost +
-      roofTrim.totalCost;
-    const hasFullCost =
-      frameTakeoff?.totalFrameCost != null &&
-      claddingCost != null &&
-      purlinLayout?.totalCost != null &&
-      bracing?.totalCost != null;
-
-    // Доля каждой статьи в известной стоимости — обшивка не зависит от
-    // климата (только от геометрии) и обычно доминирует, из-за чего
-    // при смене города меняется в основном "невидимая на глаз" часть
-    // (каркас+прогоны), а итоговая сумма почти не сдвигается.
-    const shareOf = (cost: number | null | undefined) =>
-      cost != null && knownCost > 0 ? (cost / knownCost) * 100 : null;
-    const shares = {
-      frame: shareOf(frameTakeoff?.totalFrameCost),
-      purlin: shareOf(purlinLayout?.totalCost),
-      cladding: shareOf(claddingCost),
-      drainage: shareOf(drainage.totalCost),
-      fasteners: shareOf(frameFasteners?.totalCost),
-      bracing: shareOf(bracing?.totalCost),
-      roofTrim: shareOf(roofTrim.totalCost),
-      profiles: shareOf((frameExtras?.totalCost ?? 0) + wallTrim.totalCost),
-    };
-
-    return {
-      steelMass_kg,
-      claddingMass_kg,
-      hasFullSteelMass,
-      claddingCost,
-      knownCost,
-      hasFullCost,
-      shares,
-    };
-  }, [
-    frameTakeoff,
-    frameFasteners,
     bracing,
     horizTiesMass_kg,
-    frameExtras,
-    wallTrim,
-    drainage,
-    roofTrim,
+    maxPurlinStep,
+    purlin,
     purlinLayout,
-    facadePostLayout,
+    openingsArea,
+    openingsCost,
+    envelope,
     wallCladding,
     roofCladding,
-  ]);
+    wallTrim,
+    roofTrim,
+    drainage,
+    unpricedSections,
+    facadePost,
+    facadePostLayout,
+    commercial,
+    summary,
+  } = project;
 
   return (
     <div className="page">
@@ -723,6 +427,17 @@ export function App() {
             />
           </label>
           <label>
+            Снег вручную, кН/м² (0 — из нашей базы)
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              value={snowOverrideKpa}
+              onChange={(e) => setSnowOverrideKpa(Number(e.target.value))}
+            />
+          </label>
+
+          <label>
             Код «с/в» вручную (для сверки с расчётчиком)
             <select value={svOverride} onChange={(e) => setSvOverride(e.target.value)}>
               <option value="">из нашей базы</option>
@@ -758,6 +473,11 @@ export function App() {
             <dt>Снеговой район</dt>
             <dd>
               {climate.value.city.snow.region} ({climate.value.city.snow.sgKpa} кПа)
+              {project.snowOverridden && (
+                <span className="incomplete">
+                  {" "}— в расчёт ушло {project.snowLoad_kPa} кПа, задано вручную
+                </span>
+              )}
             </dd>
             <dt>Ветровой район</dt>
             <dd>
