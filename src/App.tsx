@@ -15,8 +15,14 @@ import { computeFrameFasteners } from "./calc/geometry/frameFasteners";
 import { rafterLengthPerFrame_m } from "./calc/geometry/frameGeometry";
 import { computeFrameTakeoff } from "./calc/geometry/frameTakeoff";
 import { computeHorizTiesMass_kg } from "./calc/geometry/horizTies";
-import { computeOpeningsArea_m2, DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
+import {
+  computeOpeningsArea_m2,
+  computeOpeningsCost,
+  DEFAULT_OPENINGS,
+  type OpeningsInput,
+} from "./calc/geometry/openings";
 import { computeRoofLoad, defaultRoofSlopeDeg } from "./calc/loads/roofLoad";
+import { computeCommercialSummary } from "./calc/summary/commercialSummary";
 import { computeRoofTrim } from "./calc/roofTrim/roofTrim";
 import { computeWallTrim } from "./calc/wallTrim/wallTrim";
 import { computePurlinLayout } from "./calc/purlin/purlinLayout";
@@ -30,6 +36,11 @@ import { SPANS, type ResponsibilityLevel, type Span } from "./types/common";
 const settlementNames = getAllSettlementNames();
 
 const roofingTypes = roofingTypesRaw as { type: string; selfWeight_kg_m2: number }[];
+
+// Накладные расходы раздела «Каркас» — 2%, как и во всех остальных
+// разделах ведомости (ячейки C31 и C99). В модулях обшивки, водостока
+// и доборных элементов они уже учтены внутри.
+const SECTION_OVERHEAD = 1.02;
 
 export function App() {
   const [city, setCity] = useState("Челябинск");
@@ -127,6 +138,7 @@ export function App() {
   const roofTrim = useMemo(() => computeRoofTrim(geometry, { snowGuards }), [geometry, snowGuards]);
 
   const openingsArea = useMemo(() => computeOpeningsArea_m2(openings), [openings]);
+  const openingsCost = useMemo(() => computeOpeningsCost(openings), [openings]);
 
   const envelope = useMemo(() => {
     const grossWallArea = computeWallArea_m2(geometry);
@@ -181,6 +193,51 @@ export function App() {
     const totalMass_kg = totalLength_m * facadePost.profile.mass_kg_per_m;
     return { postCount, totalLength_m, totalMass_kg };
   }, [facadePost, geometry, span]);
+
+  const commercial = useMemo(() => {
+    // Раскладка по статьям исходной ведомости (строки 155–160).
+    // «Каркас» = F32 + F100: профили рамы, прогоны, прочие профили,
+    // весь крепёж и связи. Связи (трубы/уголок/лист) пока не посчитаны
+    // — без них статья неполная.
+    const frameMaterials =
+      frameTakeoff?.totalFrameCost != null &&
+      purlinLayout?.totalCost != null &&
+      frameExtras != null &&
+      frameFasteners != null
+        ? (frameTakeoff.totalFrameCost +
+            purlinLayout.totalCost +
+            frameExtras.totalCost +
+            frameFasteners.totalCost) *
+          SECTION_OVERHEAD
+        : null;
+
+    // «Стеновое ограждение» = F44 + F114, «Кровельное» = F147 + F70 + F81.
+    // Эти разделы уже включают свои 2% внутри модулей.
+    const wallMaterials = wallCladding.totalCost != null ? wallCladding.totalCost + wallTrim.totalCost : null;
+    const roofMaterials =
+      roofCladding?.totalCost != null
+        ? roofCladding.totalCost + drainage.totalCost + roofTrim.totalCost
+        : null;
+
+    return computeCommercialSummary({
+      frameMaterials,
+      wallMaterials,
+      roofMaterials,
+      openingsCost: openingsCost.totalCost,
+      frameMissing: "связи (трубы, уголок, лист)",
+    });
+  }, [
+    frameTakeoff,
+    frameExtras,
+    frameFasteners,
+    purlinLayout,
+    wallCladding,
+    wallTrim,
+    roofCladding,
+    drainage,
+    roofTrim,
+    openingsCost,
+  ]);
 
   const summary = useMemo(() => {
     const steelMass_kg =
@@ -420,6 +477,17 @@ export function App() {
                 onChange={(e) => setOpenings({ ...openings, doorHeight_m: Number(e.target.value) })}
               />
             </div>
+          </label>
+
+          <label>
+            Окна, м² суммарно
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={openings.windowsArea_m2}
+              onChange={(e) => setOpenings({ ...openings, windowsArea_m2: Number(e.target.value) })}
+            />
           </label>
 
           <label>
@@ -797,69 +865,55 @@ export function App() {
 
       <section className="card summary-card">
         <h2>Итоговая сводка</h2>
+        <p className="hint">
+          Структура — как в коммерческой части исходной ведомости: три статьи материалов с
+          упаковкой 2%, проёмы отдельной строкой сверх неё.
+        </p>
         <dl className="result-list">
-          <dt>Металл (каркас + пластины + прогоны + стойки)</dt>
+          {commercial.lines.map((line) => (
+            <Fragment key={line.name}>
+              <dt>{line.name}</dt>
+              <dd>
+                {line.cost !== null
+                  ? Math.round(line.cost).toLocaleString("ru-RU") + " ₽"
+                  : "—"}
+                {line.missing && (
+                  <span className="incomplete"> без {line.missing}</span>
+                )}
+              </dd>
+            </Fragment>
+          ))}
+          <dt>Итого предложение</dt>
+          <dd className="summary-total">
+            {commercial.totalCost !== null
+              ? Math.round(commercial.totalCost).toLocaleString("ru-RU") + " ₽"
+              : "—"}
+            {commercial.lines.some((l) => l.missing) && (
+              <span className="incomplete"> — занижено, см. выше</span>
+            )}
+          </dd>
+          <dt className="group-heading">Справочно</dt>
+          <dd />
+          <dt>Металл (каркас, прогоны, стойки)</dt>
           <dd>
             {summary.steelMass_kg.toFixed(0)} кг
             {!summary.hasFullSteelMass && " (частично — см. предупреждения выше)"}
           </dd>
           <dt>Обшивка</dt>
+          <dd>{summary.claddingMass_kg.toFixed(0)} кг</dd>
+          <dt>Материалы без упаковки</dt>
           <dd>
-            {summary.claddingCost !== null
-              ? `${summary.claddingCost.toLocaleString("ru-RU")} ₽`
-              : "цена неизвестна"}
-            {summary.shares.cladding !== null && ` (${summary.shares.cladding.toFixed(0)}% — не зависит от климата)`}
-          </dd>
-          <dt>Каркас (металл)</dt>
-          <dd>
-            {frameTakeoff?.totalFrameCost != null
-              ? `${frameTakeoff.totalFrameCost.toLocaleString("ru-RU")} ₽`
-              : "цена неизвестна"}
-            {summary.shares.frame !== null && ` (${summary.shares.frame.toFixed(0)}% — зависит от климата)`}
-          </dd>
-          <dt>Прогоны</dt>
-          <dd>
-            {purlinLayout?.totalCost != null
-              ? `${purlinLayout.totalCost.toLocaleString("ru-RU")} ₽`
-              : "цена неизвестна"}
-            {summary.shares.purlin !== null && ` (${summary.shares.purlin.toFixed(0)}% — зависит от климата)`}
-          </dd>
-          <dt>Крепёж</dt>
-          <dd>
-            {frameFasteners
-              ? `${Math.round(frameFasteners.totalCost).toLocaleString("ru-RU")} ₽`
+            {commercial.materialsWithPackaging !== null
+              ? `${Math.round(commercial.materialsWithPackaging / 1.02).toLocaleString("ru-RU")} ₽`
               : "—"}
-            {summary.shares.fasteners !== null &&
-              ` (${summary.shares.fasteners.toFixed(0)}% — зависит от климата)`}
-          </dd>
-          <dt>Профили и уголки</dt>
-          <dd>
-            {Math.round((frameExtras?.totalCost ?? 0) + wallTrim.totalCost).toLocaleString("ru-RU")} ₽
-            {summary.shares.profiles !== null &&
-              ` (${summary.shares.profiles.toFixed(0)}% — не зависит от климата)`}
-          </dd>
-          <dt>Кровля (доборные)</dt>
-          <dd>
-            {Math.round(roofTrim.totalCost).toLocaleString("ru-RU")} ₽
-            {summary.shares.roofTrim !== null &&
-              ` (${summary.shares.roofTrim.toFixed(0)}% — не зависит от климата)`}
-          </dd>
-          <dt>Водосток</dt>
-          <dd>
-            {Math.round(drainage.totalCost).toLocaleString("ru-RU")} ₽
-            {summary.shares.drainage !== null &&
-              ` (${summary.shares.drainage.toFixed(0)}% — не зависит от климата)`}
-          </dd>
-          <dt>Известная стоимость материалов</dt>
-          <dd className="summary-total">
-            {summary.knownCost.toLocaleString("ru-RU")} ₽
-            {!summary.hasFullCost && " (не полная — часть позиций ещё не оценена)"}
           </dd>
         </dl>
         <p className="hint">
-          Не учтено: затяжки, вертикальные связи фахверка, утеплитель и пароизоляция, ГВЛ, цена
-          узловых пластин и горизонтальных связей (только масса), стойки фахверка (только масса),
-          монтаж. Это предварительная оценка, не коммерческое предложение.
+          В статью «Каркас» ещё не входят связи — трубы, уголок и лист, — поэтому она показана
+          неполной. Не учтено также: затяжки, вертикальные связи фахверка, утеплитель и
+          пароизоляция, ГВЛ, цена узловых пластин и горизонтальных связей (только масса), стойки
+          фахверка (только масса), проектные работы и монтаж. Это предварительная оценка, не
+          коммерческое предложение.
         </p>
       </section>
 

@@ -21,7 +21,64 @@ export const DEFAULT_OPENINGS: OpeningsInput = {
 
 /** Суммарная площадь проёмов (ворота + двери + окна), м² — вычитается из площади стен под обшивку. */
 export function computeOpeningsArea_m2(openings: OpeningsInput): number {
-  const gatesArea = openings.gatesCount * openings.gateWidth_m * openings.gateHeight_m;
-  const doorsArea = openings.doorsCount * openings.doorWidth_m * openings.doorHeight_m;
-  return gatesArea + doorsArea + openings.windowsArea_m2;
+  return (
+    gatesArea_m2(openings) + doorsArea_m2(openings) + openings.windowsArea_m2
+  );
+}
+
+function gatesArea_m2(o: OpeningsInput): number {
+  return o.gatesCount * o.gateWidth_m * o.gateHeight_m;
+}
+
+function doorsArea_m2(o: OpeningsInput): number {
+  return o.doorsCount * o.doorWidth_m * o.doorHeight_m;
+}
+
+export interface OpeningsCostItem {
+  name: string;
+  area_m2: number;
+  /** Цена за м² проёма — ворота и двери в исходнике тоже считаются по площади, не поштучно. */
+  unitPrice: number;
+  cost: number;
+}
+
+export interface OpeningsCost {
+  items: OpeningsCostItem[];
+  totalCost: number;
+}
+
+/**
+ * Цены проёмов, ₽/м². Закэшированы в обеих реальных ведомостях (лист
+ * "12м", ячейки N160/N162/N163) и совпадают.
+ *
+ * ВРЕМЕННОЕ РЕШЕНИЕ: как и в остальных разделах, взяты из кэша
+ * ведомости, а не из прайса, чтобы итог сходился с расчётом расчётчика.
+ */
+const OPENING_PRICES = {
+  windows: 6094.999999999999,
+  doors: 29462.999999999996,
+  gates: 40480,
+} as const;
+
+/**
+ * Стоимость проёмов — отдельная строка коммерческого предложения,
+ * которая не входит ни в материалы, ни в упаковку.
+ *
+ * В исходнике это блок "Проемы" (строки 160–163) с итогом в ячейке F160:
+ *
+ *   F160 = площадь_окон × цена + площадь_дверей × цена + площадь_ворот × цена
+ *
+ * Ворота и двери считаются по квадратуре так же, как окна.
+ *
+ * Контрольные значения: "22316" (окна 30 м², двери 2 м², ворота 16,8 м²)
+ * -> 921 840 ₽; "22318" (дверь 2 м², ворота 18 м²) -> 787 566 ₽.
+ */
+export function computeOpeningsCost(openings: OpeningsInput): OpeningsCost {
+  const items: OpeningsCostItem[] = [
+    { name: "Окна", area_m2: openings.windowsArea_m2, unitPrice: OPENING_PRICES.windows },
+    { name: "Двери", area_m2: doorsArea_m2(openings), unitPrice: OPENING_PRICES.doors },
+    { name: "Ворота", area_m2: gatesArea_m2(openings), unitPrice: OPENING_PRICES.gates },
+  ].map((i) => ({ ...i, cost: i.area_m2 * i.unitPrice }));
+
+  return { items, totalCost: items.reduce((sum, i) => sum + i.cost, 0) };
 }

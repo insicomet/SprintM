@@ -145,3 +145,10 @@ footer {
   color: var(--muted);
   font-size: 12px;
 }
+
+/* Пометка о неполной статье сметы — рядом с суммой, приглушённо. */
+.incomplete {
+  font-weight: 400;
+  font-size: 0.88em;
+  color: var(--muted);
+}
