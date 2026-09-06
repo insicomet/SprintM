@@ -4,7 +4,8 @@ import { computeRoofArea_m2, computeWallArea_m2 } from "./buildingEnvelope";
 describe("computeRoofArea_m2", () => {
   it("equals rafter length times building length", () => {
     const geometry = { span_m: 18, length_m: 30, height_m: 5, framePitch_m: 4.5, roofSlopeDeg: 15 };
-    const expected = (18 / Math.cos((15 * Math.PI) / 180)) * 30;
+    // π берётся как 3,14 — так же, как в исходной ведомости (см. frameGeometry).
+    const expected = (18 / Math.cos((15 * 3.14) / 180)) * 30;
     expect(computeRoofArea_m2(geometry)).toBeCloseTo(expected, 6);
   });
 

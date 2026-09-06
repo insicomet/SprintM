@@ -17,9 +17,13 @@ describe("computeFrameCount", () => {
 });
 
 describe("rafterLengthPerFrame_m", () => {
-  it("equals span/cos(slope)", () => {
+  it("equals span/cos(slope), using the source's own 3.14 for π", () => {
+    // Исходник переводит уклон в радианы как "15*3.14/180" (J14), давая
+    // cos = 0,9659601685 вместо 0,9659258263. Воспроизводим, чтобы длины
+    // совпадали с ведомостью; расхождение с настоящим π — 0,004%.
     const result = rafterLengthPerFrame_m({ span_m: 18, roofSlopeDeg: 15 });
-    expect(result).toBeCloseTo(18 / Math.cos((15 * Math.PI) / 180), 9);
+    expect(result).toBeCloseTo(18 / Math.cos((15 * 3.14) / 180), 9);
+    expect(result).toBeCloseTo(18 / Math.cos((15 * Math.PI) / 180), 2);
   });
 
   it("equals the span itself for a flat roof (0°)", () => {

@@ -1,7 +1,12 @@
 import type { FrameSelection } from "../frame/types";
 import { parsePgsName } from "../profiles/parseProfileName";
 import { findPgsProperties } from "../profiles/pgsPriceCatalog";
-import { columnLengthPerFrame_m, computeFrameCount, rafterLengthPerFrame_m } from "./frameGeometry";
+import {
+  columnLengthPerFrame_m,
+  computeFrameCount,
+  PROFILES_PER_MEMBER,
+  rafterLengthPerFrame_m,
+} from "./frameGeometry";
 import type { BuildingGeometry } from "./types";
 
 export interface FrameMemberTakeoff {
@@ -65,8 +70,10 @@ function takeoffMember(profileName: string, totalLength_m: number): FrameMemberT
 export function computeFrameTakeoff(geometry: BuildingGeometry, selection: FrameSelection): FrameTakeoff {
   const frameCount = computeFrameCount(geometry);
 
-  const columnTotalLength = frameCount * columnLengthPerFrame_m(geometry);
-  const beamTotalLength = frameCount * rafterLengthPerFrame_m(geometry);
+  // Сечение колонны и ригеля собирается из двух профилей — см.
+  // PROFILES_PER_MEMBER.
+  const columnTotalLength = frameCount * columnLengthPerFrame_m(geometry) * PROFILES_PER_MEMBER;
+  const beamTotalLength = frameCount * rafterLengthPerFrame_m(geometry) * PROFILES_PER_MEMBER;
 
   const column = takeoffMember(selection.column.profile, columnTotalLength);
   const beam = takeoffMember(selection.beam.profile, beamTotalLength);
