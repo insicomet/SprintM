@@ -105,10 +105,7 @@ export function App() {
     return computeHorizTiesMass_kg(span, climate.value.standard, length);
   }, [climate, span, length]);
 
-  const dowelFasteners = useMemo(
-    () => computeDowelFasteners(span, 2 * (span + length)),
-    [span, length],
-  );
+  const dowelFasteners = useMemo(() => computeDowelFasteners(2 * (span + length)), [span, length]);
 
   const openingsArea = useMemo(() => computeOpeningsArea_m2(openings), [openings]);
 
@@ -503,7 +500,6 @@ export function App() {
               <dt>Дюбель-гвоздь 6х60 (по периметру)</dt>
               <dd>
                 {Math.round(dowelFasteners.count)} шт — {dowelFasteners.mass_kg.toFixed(1)} кг (цена неизвестна)
-                {dowelFasteners.isEstimated ? ", плотность оценочная" : ""}
               </dd>
               <dt>Горизонтальные связи/распорки</dt>
               <dd>

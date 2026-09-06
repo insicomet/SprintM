@@ -57,57 +57,67 @@ function screw525Rate(span: Span): { rate: number; isEstimated: boolean } {
   return { rate: span < 12 ? 530 : 890, isEstimated: true };
 }
 
-/** Масса одного болта М16х50, кг — литеральное значение из файла "22318" (H83/H93). */
+/** Масса одного болта М16х50, кг — литеральное значение из файла "22318" (H93). */
 const BOLT_M16_UNIT_MASS_KG = 0.12;
 
 /**
- * Ставка "болтов М16х50 на одну раму" по пролёту — предоставлена
- * пользователем (рукописная заметка) и подтверждена: значение 30 для
- * группы 9/12/15м совпадает с буквальным коэффициентом в формуле файла
- * "22318" (лист "12м", ячейка O88 = "=276+30*(K90-2)/K90+...").
+ * "Болт М16х50 (на раму)" — формула из ячейки O88, одинаковая в обоих
+ * реальных проектах (файлы "22316" и "22318", лист "12м" — расчётчик
+ * всегда работает на листе с этим названием, независимо от фактического
+ * пролёта, поэтому остальные листы файла "22318" — шаблонные остатки и
+ * источником не служат):
+ *
+ *   на_раму = base + coef×(рам−2)/рам + 12×8/рам + 12×2/рам
+ *   всего   = на_раму × кол-во рам
+ *
+ * Подтверждено на двух реальных проектах:
+ *   пролёт 15м: base=276, coef=30, рам=7 -> 314,57 на раму (всего 2202)
+ *   пролёт 18м: base=308, coef=50, рам=8 -> 360,50 на раму (всего 2884)
+ *
+ * coef совпадает с рукописной запиской (30 для 9/12/15м, 50 для 18/21м) —
+ * то есть в записке именно этот коэффициент, а не итог на раму.
  */
-const BOLT_M16_RATE_BY_SPAN: Partial<Record<Span, number>> = {
+const BOLT_M16_COEF_BY_SPAN: Record<Span, number> = {
   9: 30,
   12: 30,
   15: 30,
   18: 50,
   21: 50,
+  // 24м в записке нет — берём как у 21м.
+  24: 50,
 };
 
-function boltM16Rate(span: Span): { rate: number; isEstimated: boolean } {
-  const known = BOLT_M16_RATE_BY_SPAN[span];
-  if (known !== undefined) return { rate: known, isEstimated: false };
-  // 24м ближе к 21м (50) — не подтверждено примером.
-  return { rate: 50, isEstimated: true };
+/** base известен только для 15м и 18м (два реальных проекта). */
+const BOLT_M16_BASE_BY_SPAN: Partial<Record<Span, number>> = {
+  15: 276,
+  18: 308,
+};
+
+function boltM16PerFrame(span: Span, frameCount: number): { perFrame: number; isEstimated: boolean } {
+  const knownBase = BOLT_M16_BASE_BY_SPAN[span];
+  // Для остальных пролётов base линейно экстраполируется по двум
+  // известным точкам (32 кг на 3 метра пролёта ≈ 10,67 на метр).
+  const base = knownBase ?? 276 + ((span - 15) * 32) / 3;
+  const coef = BOLT_M16_COEF_BY_SPAN[span];
+  const perFrame =
+    base + (coef * (frameCount - 2)) / frameCount + (12 * 8) / frameCount + (12 * 2) / frameCount;
+  return { perFrame, isEstimated: knownBase === undefined };
 }
 
-/** Масса одного болта М12х40, кг — литеральное значение из файла "22318" (H77/H87), одинаково во всех 5 листах. */
+/** Масса одного болта М12х40, кг — литеральное значение из файла "22318" (H87). */
 const BOLT_M12_UNIT_MASS_KG = 0.05;
 
 /**
- * Ставка "болтов М12х40 на одну раму" по пролёту — по одному реальному
- * примеру на пролёт из файла "22318" (кроме 15м — подтверждено дважды,
- * листы "12м" и "15", оба дают 16):
+ * Ставка "болтов М12х40 на одну раму" — "=16*K90" в обоих реальных
+ * проектах (пролёт 15м и пролёт 18м), то есть от пролёта не зависит.
  *
- *   12м -> 17, 15м -> 16, 18м -> 16, 21м -> 25
- *
- * В отличие от саморезов/болтов М16, ставка тут НЕ монотонна по пролёту
- * (17→16→16→25) — похоже на вручную вбитую в конкретном проекте
- * константу, а не на строгую функцию пролёта. Для 9м/24м данных нет.
+ * Шаблонные (нерабочие) листы файла "22318" дают другие значения — 17
+ * для 12м и 25 для 21м — но проектными данными они не подтверждены, и
+ * источником не считаются. Поэтому для 9/12/21/24м берём те же 16 с
+ * флагом boltM12RateIsEstimated.
  */
-const BOLT_M12_RATE_BY_SPAN: Partial<Record<Span, number>> = {
-  12: 17,
-  15: 16,
-  18: 16,
-  21: 25,
-};
-
-function boltM12Rate(span: Span): { rate: number; isEstimated: boolean } {
-  const known = BOLT_M12_RATE_BY_SPAN[span];
-  if (known !== undefined) return { rate: known, isEstimated: false };
-  // 9м ближе к 12м (17), 24м ближе к 21м (25) — не подтверждено примером.
-  return { rate: span < 12 ? 17 : 25, isEstimated: true };
-}
+const BOLT_M12_RATE_PER_FRAME = 16;
+const BOLT_M12_CONFIRMED_SPANS: readonly Span[] = [15, 18];
 
 /**
  * Крепёж каркаса "Фс11/Фс14" и "Фс12" — количество по формуле,
@@ -140,13 +150,16 @@ export function computeFrameFasteners(
   const screw525Count = frameCount * rate;
   const screw525Mass_kg = screw525Count * SCREW_525_UNIT_MASS_KG;
 
-  const { rate: boltRate, isEstimated: boltIsEstimated } = boltM16Rate(geometry.span_m);
-  const boltM16Count = frameCount * boltRate;
+  const { perFrame: boltM16PerFrameCount, isEstimated: boltIsEstimated } = boltM16PerFrame(
+    geometry.span_m,
+    frameCount,
+  );
+  const boltM16Count = frameCount * boltM16PerFrameCount;
   const boltM16Mass_kg = boltM16Count * BOLT_M16_UNIT_MASS_KG;
 
-  const { rate: boltM12RateValue, isEstimated: boltM12IsEstimated } = boltM12Rate(geometry.span_m);
-  const boltM12Count = frameCount * boltM12RateValue;
+  const boltM12Count = frameCount * BOLT_M12_RATE_PER_FRAME;
   const boltM12Mass_kg = boltM12Count * BOLT_M12_UNIT_MASS_KG;
+  const boltM12IsEstimated = !BOLT_M12_CONFIRMED_SPANS.includes(geometry.span_m);
 
   return {
     fc11_14Count,

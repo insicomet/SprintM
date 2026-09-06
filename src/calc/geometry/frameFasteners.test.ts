@@ -2,11 +2,18 @@ import { describe, expect, it } from "vitest";
 import { computeFrameFasteners } from "./frameFasteners";
 
 describe("computeFrameFasteners", () => {
-  it("matches the reference example from file '22316' (12м!C29/C30)", () => {
-    // span=18, height=5, frameCount=8 (CEILING(30/4.5+1,1)) -> Фс11,14=373.33, Фс12=746.67
+  it("matches real project '22316' (C29 = I17*(C8+2*C10)/0.6)", () => {
+    // span=18, height=5, frameCount=8 -> Фс11,14=373.33, Фс12=746.67
     const result = computeFrameFasteners({ span_m: 18, height_m: 5 }, 8);
     expect(result.fc11_14Count).toBeCloseTo(373.33333, 4);
     expect(result.fc12Count).toBeCloseTo(746.66667, 4);
+  });
+
+  it("matches real project '22318' (same formula, different inputs)", () => {
+    // span=15, height=5, frameCount=7 -> Фс11,14=291.67, Фс12=583.33
+    const result = computeFrameFasteners({ span_m: 15, height_m: 5 }, 7);
+    expect(result.fc11_14Count).toBeCloseTo(291.66667, 4);
+    expect(result.fc12Count).toBeCloseTo(583.33333, 4);
   });
 
   it("Фс12 is always exactly twice Фс11,14", () => {
@@ -59,59 +66,65 @@ describe("computeFrameFasteners", () => {
       expect(twentyFour.screw525RateIsEstimated).toBe(true);
     });
 
-    it("matches the exact reference value for span=18, 11 frames (file '22318', sheet '18')", () => {
-      // C85 = K90*634 = 11*634 = 6974
-      const result = computeFrameFasteners({ span_m: 18, height_m: 6 }, 11);
-      expect(result.screw525Count).toBe(6974);
+    it("matches real project '22316': span=18, 8 frames -> 5072 шт (=K90*634)", () => {
+      expect(computeFrameFasteners({ span_m: 18, height_m: 5 }, 8).screw525Count).toBe(5072);
+    });
+
+    it("matches real project '22318': span=15, 7 frames -> 4298 шт (=K90*614)", () => {
+      expect(computeFrameFasteners({ span_m: 15, height_m: 5 }, 7).screw525Count).toBe(4298);
     });
   });
 
-  describe("Болт М16х50 rate — per user's handwritten note (30 for 9/12/15м, 50 for 18/21м)", () => {
-    it.each([
-      [9, 30],
-      [12, 30],
-      [15, 30],
-      [18, 50],
-      [21, 50],
-    ] as const)("span %im -> rate %i per frame", (span, rate) => {
-      const result = computeFrameFasteners({ span_m: span, height_m: 5 }, 8);
-      expect(result.boltM16Count).toBe(8 * rate);
+  describe("Болт М16х50 — formula O88, verified on both real projects", () => {
+    it("matches real project '22318': span=15, 7 frames -> 2202 шт (314,57 на раму)", () => {
+      const result = computeFrameFasteners({ span_m: 15, height_m: 5 }, 7);
+      expect(result.boltM16Count).toBeCloseTo(2202, 6);
       expect(result.boltM16RateIsEstimated).toBe(false);
     });
 
-    it("falls back to the nearest known rate for 24m, flagged as estimated", () => {
-      const result = computeFrameFasteners({ span_m: 24, height_m: 6 }, 5);
-      expect(result.boltM16Count).toBe(5 * 50);
-      expect(result.boltM16RateIsEstimated).toBe(true);
+    it("matches real project '22316': span=18, 8 frames -> 2884 шт (360,5 на раму)", () => {
+      const result = computeFrameFasteners({ span_m: 18, height_m: 5 }, 8);
+      expect(result.boltM16Count).toBeCloseTo(2884, 6);
+      expect(result.boltM16RateIsEstimated).toBe(false);
+    });
+
+    it("flags spans without a confirmed base as estimated", () => {
+      for (const span of [9, 12, 21, 24] as const) {
+        const result = computeFrameFasteners({ span_m: span, height_m: 5 }, 8);
+        expect(result.boltM16RateIsEstimated).toBe(true);
+        expect(result.boltM16Count).toBeGreaterThan(0);
+      }
+    });
+
+    it("uses the note's coefficient: 30 for spans up to 15м, 50 from 18м", () => {
+      // При равном числе рам разница между пролётами 15 и 18 = разница
+      // base (32) плюс разница coef, взвешенная на (рам-2)/рам.
+      const at15 = computeFrameFasteners({ span_m: 15, height_m: 5 }, 8);
+      const at18 = computeFrameFasteners({ span_m: 18, height_m: 5 }, 8);
+      const perFrameDelta = (at18.boltM16Count - at15.boltM16Count) / 8;
+      expect(perFrameDelta).toBeCloseTo(32 + (20 * (8 - 2)) / 8, 9);
     });
   });
 
-  describe("Болт М12х40 rate — one real example per span in file '22318' (span 15м confirmed twice)", () => {
-    it.each([
-      [12, 17],
-      [15, 16],
-      [18, 16],
-      [21, 25],
-    ] as const)("span %im -> rate %i per frame", (span, rate) => {
-      const result = computeFrameFasteners({ span_m: span, height_m: 5 }, 11);
-      expect(result.boltM12Count).toBe(11 * rate);
+  describe("Болт М12х40 — '=16*K90' in both real projects, independent of span", () => {
+    it.each([15, 18] as const)("span %im is confirmed, 16 per frame", (span) => {
+      const result = computeFrameFasteners({ span_m: span, height_m: 5 }, 8);
+      expect(result.boltM12Count).toBe(8 * 16);
       expect(result.boltM12RateIsEstimated).toBe(false);
     });
 
-    it("falls back to the nearest known rate for 9m and 24m, flagged as estimated", () => {
-      const nine = computeFrameFasteners({ span_m: 9, height_m: 5 }, 5);
-      expect(nine.boltM12Count).toBe(5 * 17);
-      expect(nine.boltM12RateIsEstimated).toBe(true);
-
-      const twentyFour = computeFrameFasteners({ span_m: 24, height_m: 5 }, 5);
-      expect(twentyFour.boltM12Count).toBe(5 * 25);
-      expect(twentyFour.boltM12RateIsEstimated).toBe(true);
+    it("matches real project '22316': span=18, 8 frames -> 128 шт", () => {
+      expect(computeFrameFasteners({ span_m: 18, height_m: 5 }, 8).boltM12Count).toBe(128);
     });
 
-    it("matches the exact reference value for span=18, 11 frames (file '22318', sheet '18')", () => {
-      // C87 = 16*K90 = 16*11 = 176
-      const result = computeFrameFasteners({ span_m: 18, height_m: 6 }, 11);
-      expect(result.boltM12Count).toBe(176);
+    it("matches real project '22318': span=15, 7 frames -> 112 шт", () => {
+      expect(computeFrameFasteners({ span_m: 15, height_m: 5 }, 7).boltM12Count).toBe(112);
+    });
+
+    it("keeps the same rate for unconfirmed spans but flags them", () => {
+      const result = computeFrameFasteners({ span_m: 21, height_m: 5 }, 8);
+      expect(result.boltM12Count).toBe(8 * 16);
+      expect(result.boltM12RateIsEstimated).toBe(true);
     });
   });
 });
