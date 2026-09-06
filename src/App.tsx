@@ -55,6 +55,8 @@ export function App() {
   const [snowOverrideKpa, setSnowOverrideKpa] = useState(0);
   // «Спринт с СГ по Р» — вариант со шпренгельной затяжкой, только 24 м.
   const [trussedVariant, setTrussedVariant] = useState(false);
+  // Раздел «Перекрытие» — в ведомости он есть, но его итог обнулён.
+  const [mezzanine, setMezzanine] = useState(false);
 
   const project = useMemo(
     () =>
@@ -82,6 +84,7 @@ export function App() {
         extraTubeMass_t,
         postSpacing_m: postSpacing,
         trussedVariant,
+        mezzanine,
       }),
     [
       city,
@@ -107,6 +110,7 @@ export function App() {
       extraTubeMass_t,
       postSpacing,
       trussedVariant,
+      mezzanine,
     ],
   );
 
@@ -466,6 +470,17 @@ export function App() {
               </select>
             </label>
           )}
+
+          <label>
+            Перекрытие (раздел ведомости)
+            <select
+              value={mezzanine ? "есть" : "нет"}
+              onChange={(e) => setMezzanine(e.target.value === "есть")}
+            >
+              <option value="нет">нет</option>
+              <option value="есть">есть</option>
+            </select>
+          </label>
 
           <label>
             Снегозадержатель

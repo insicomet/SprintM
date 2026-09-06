@@ -7,6 +7,7 @@ import {
   type CladdingSectionTakeoff,
 } from "../cladding/claddingSections";
 import {
+  computeMezzanineItems,
   computeRoofUnpricedItems,
   computeWallUnpricedItems,
   type UnpricedSection,
@@ -103,6 +104,12 @@ export interface ProjectInputs {
    * В банке такие строки есть только для пролёта 24 м и с/в 1/3.
    */
   trussedVariant?: boolean;
+  /**
+   * Считать раздел «Перекрытие». В обеих реальных ведомостях количества
+   * там считаются всегда, но стоимость не заведена и итог равен нулю,
+   * поэтому по умолчанию раздел выключен.
+   */
+  mezzanine?: boolean;
 }
 
 export type ProjectResult = ReturnType<typeof computeProject>;
@@ -140,6 +147,7 @@ export function computeProject(inputs: ProjectInputs) {
     extraTubeMass_t,
     postSpacing_m,
     trussedVariant,
+    mezzanine,
   } = inputs;
 
   // ---- Климат -------------------------------------------------------
@@ -316,6 +324,9 @@ export function computeProject(inputs: ProjectInputs) {
     unpricedSections.push(
       computeRoofUnpricedItems(geometry, roofPanel_mm, purlinLayout.totalProfileLength_m),
     );
+  }
+  if (mezzanine && frameTakeoff) {
+    unpricedSections.push(computeMezzanineItems(geometry, frameTakeoff.frameCount));
   }
 
   // ---- Фахверк ------------------------------------------------------

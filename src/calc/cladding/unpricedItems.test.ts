@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { computeRoofUnpricedItems, computeWallUnpricedItems } from "./unpricedItems";
+import {
+  computeMezzanineItems,
+  computeRoofUnpricedItems,
+  computeWallUnpricedItems,
+} from "./unpricedItems";
 
 const g22316 = { span_m: 18, length_m: 30, height_m: 5 };
 const g22318 = { span_m: 15, length_m: 24, height_m: 5 };
@@ -57,5 +61,43 @@ describe("computeRoofUnpricedItems", () => {
       6,
     );
     expect(computeWallUnpricedItems(g22316).wouldAddCost).toBeGreaterThan(0);
+  });
+});
+
+describe("computeMezzanineItems", () => {
+  it("reproduces rows 46–51 and 127–132 of real project '22316'", () => {
+    const i = byName(computeMezzanineItems(g22316, 8));
+    expect(i["ПГС-S 300х80х3"].count).toBeCloseTo(288, 9);
+    expect(i["ПГС-S 300х80х1,5"].count).toBeCloseTo(390, 9);
+    expect(i["ПГС-S 300х80х2"].count).toBeCloseTo(60, 9);
+    expect(i["С-44 0,7 оц"].count).toBeCloseTo(594, 9);
+    expect(i["Фс11, Фс14"].count).toBeCloseTo(290, 9);
+    expect(i["Фс12"].count).toBeCloseTo(580, 9);
+    expect(i["Утепление"].count).toBeCloseTo(113.4, 6);
+    expect(i["Изоспан В"].count).toBeCloseTo(1296, 9);
+    expect(i["ГВЛ"].count).toBeCloseTo(1620, 9);
+    expect(i["Саморез 3,5x32(45)"].count).toBeCloseTo(48600, 9);
+    expect(i["Саморез 4,8x20"].count).toBeCloseTo(4752, 9);
+    expect(i["Саморез 5,5x25"].count).toBeCloseTo(10800, 9);
+  });
+
+  it("reproduces rows 46–51 and 127–132 of real project '22318'", () => {
+    const i = byName(computeMezzanineItems(g22318, 7));
+    expect(i["ПГС-S 300х80х3"].count).toBeCloseTo(210, 9);
+    expect(i["ПГС-S 300х80х1,5"].count).toBeCloseTo(264, 9);
+    expect(i["ПГС-S 300х80х2"].count).toBeCloseTo(50, 9);
+    expect(i["С-44 0,7 оц"].count).toBeCloseTo(396, 6);
+    expect(i["Фс11, Фс14"].count).toBeCloseTo(216.66666666666669, 6);
+    expect(i["Фс12"].count).toBeCloseTo(433.33333333333337, 6);
+    expect(i["Утепление"].count).toBeCloseTo(75.6, 6);
+    expect(i["Изоспан В"].count).toBeCloseTo(864, 9);
+    expect(i["ГВЛ"].count).toBeCloseTo(1080, 9);
+    expect(i["Саморез 5,5x25"].count).toBeCloseTo(7200, 9);
+  });
+
+  it("leaves the insulation unpriced, exactly as the bill does", () => {
+    const i = byName(computeMezzanineItems(g22316, 8));
+    expect(i["Утепление"].unitPrice).toBe(0);
+    expect(i["Утепление"].wouldCost).toBe(0);
   });
 });

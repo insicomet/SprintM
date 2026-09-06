@@ -11,7 +11,7 @@ export interface UnpricedItem {
 }
 
 export interface UnpricedSection {
-  section: "Стена" | "Кровля";
+  section: "Стена" | "Кровля" | "Перекрытие";
   items: UnpricedItem[];
   /** Сумма, которой сейчас НЕТ в итоге расчётчика. */
   wouldAddCost: number;
@@ -44,6 +44,16 @@ const PRICES = {
   linotherm: 69,
   izospanV: 42,
   izospanAM: 89.14,
+  // Раздел «Перекрытие» (строки 46–51 и 127–132).
+  pgsS300x80x3: 2020.2,
+  pgsS300x80x1_5: 1043.7,
+  pgsS300x80x2: 1370.25,
+  c44: 924.6114999999999,
+  fc11_14: 291,
+  fc12: 114,
+  screw35x32: 0.9199999999999999,
+  screw48x20: 2.3459999999999996,
+  screw55x25: 2.2885,
 } as const;
 
 function item(name: string, count: number, unit: string, unitPrice: number): UnpricedItem {
@@ -102,5 +112,58 @@ export function computeRoofUnpricedItems(
     item("Линотерм", purlinProfileLength_m, "п.м.", PRICES.linotherm),
     item("ИзоспанВ", izospan_m2, "м²", PRICES.izospanV),
     item("Изоспан АМ", izospan_m2, "м²", PRICES.izospanAM),
+  ]);
+}
+
+/**
+ * Раздел «Перекрытие» — строки 46–51 (несущее) и 127–132 (пирог).
+ *
+ * Количества считаются в ведомости всегда, независимо от того, есть в
+ * объекте перекрытие или нет, а колонка стоимости пуста целиком, поэтому
+ * «Итого перекрытие» (F53 и F134) в обоих проектах равны нулю.
+ *
+ *   ПГС-S 300х80х3   = 2 × пролёт × рам
+ *   ПГС-S 300х80х1,5 = (пролёт / 1,5 + 1) × длина
+ *   ПГС-S 300х80х2   = (рам − 2) × 2 × высота
+ *   С-44 0,7 оц      = пролёт × длина × 1,1
+ *   Фс11, Фс14       = (ПГС-S 300х80х3 + ПГС-S 300х80х2) / 2 / 0,6
+ *   Фс12             = 2 × Фс11
+ *   Утепление        = площадь × 0,2 × 1,05         (цена в ведомости 0)
+ *   Изоспан В        = площадь × 2 × 1,2
+ *   ГВЛ              = 3 × площадь
+ *   Саморез 3,5×32   = 30 × ГВЛ
+ *   Саморез 4,8×20   = 8 × С-44
+ *   Саморез 5,5×25   = 20 × площадь
+ *
+ * Проверено: "22316" (18×30, h5, 8 рам) — 288 / 390 / 60 п.м., 594 м²,
+ * 290 и 580 шт., 113,4 м³, 1296 и 1620 м², 48 600 / 4752 / 10 800 шт.;
+ * "22318" (15×24, h5, 7 рам) — 210 / 264 / 50, 396, 216,67 и 433,33,
+ * 75,6, 864 и 1080, 32 400 / 3168 / 7200.
+ */
+export function computeMezzanineItems(
+  geometry: Pick<BuildingGeometry, "span_m" | "length_m" | "height_m">,
+  frameCount: number,
+): UnpricedSection {
+  const footprint = geometry.span_m * geometry.length_m;
+
+  const pgs3 = 2 * geometry.span_m * frameCount;
+  const pgs2 = (frameCount - 2) * 2 * geometry.height_m;
+  const c44 = footprint * 1.1;
+  const fc11_14 = (pgs3 + pgs2) / 2 / 0.6;
+  const gvl = 3 * footprint;
+
+  return section("Перекрытие", [
+    item("ПГС-S 300х80х3", pgs3, "п.м.", PRICES.pgsS300x80x3),
+    item("ПГС-S 300х80х1,5", (geometry.span_m / 1.5 + 1) * geometry.length_m, "п.м.", PRICES.pgsS300x80x1_5),
+    item("ПГС-S 300х80х2", pgs2, "п.м.", PRICES.pgsS300x80x2),
+    item("С-44 0,7 оц", c44, "м²", PRICES.c44),
+    item("Фс11, Фс14", fc11_14, "шт", PRICES.fc11_14),
+    item("Фс12", 2 * fc11_14, "шт", PRICES.fc12),
+    item("Утепление", footprint * 0.2 * 1.05, "м³", 0),
+    item("Изоспан В", footprint * 2 * 1.2, "м²", PRICES.izospanV),
+    item("ГВЛ", gvl, "м²", PRICES.gvl),
+    item("Саморез 3,5x32(45)", 30 * gvl, "шт", PRICES.screw35x32),
+    item("Саморез 4,8x20", 8 * c44, "шт", PRICES.screw48x20),
+    item("Саморез 5,5x25", 20 * footprint, "шт", PRICES.screw55x25),
   ]);
 }
