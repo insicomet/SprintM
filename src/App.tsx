@@ -53,6 +53,9 @@ const settlementNames = getAllSettlementNames();
 
 const roofingTypes = roofingTypesRaw as { type: string; selfWeight_kg_m2: number }[];
 
+/** Коды «с/в», для которых в банке сечений ИНСИ есть просчитанные строки. */
+const SV_CODES = ["1/3", "2/2", "2/3", "2/4", "3/1", "3/2", "3/4", "4/1", "4/3", "5/1", "5/3"];
+
 // Накладные расходы раздела «Каркас» — 2%, как и во всех остальных
 // разделах ведомости (ячейки C31 и C99). В модулях обшивки, водостока
 // и доборных элементов они уже учтены внутри.
@@ -80,14 +83,31 @@ export function App() {
   const [tubeStrutCount, setTubeStrutCount] = useState(3);
   const [strutTube, setStrutTube] = useState<StrutTube>("80х3");
   const [extraTubeMass_t, setExtraTubeMass] = useState(0.432);
+  // Шаг рам вручную (вывод!D9): расчётчик задаёт его при некратной длине.
+  const [framePitchOverride, setFramePitchOverride] = useState(0);
+  // Прогон под ограждение (вывод!D27) и мин. шаг прогонов (вывод!D25).
+  const [railingPurlin, setRailingPurlin] = useState(false);
+  const [minStepMm, setMinStepMm] = useState(0);
+  // Код "с/в" вручную — только для сверки с файлом расчётчика.
+  const [svOverride, setSvOverride] = useState("");
+  // Блок банка сечений (подбор!W9) — в исходнике это ОТДЕЛЬНАЯ величина от
+  // γn (вывод!D7): в "22316" γn = 1, а сечения взяты из блока k = 0,8.
+  const [bankK, setBankK] = useState<"auto" | ResponsibilityLevel>("auto");
 
   const climate = useMemo(() => {
     try {
-      return { ok: true as const, value: computeSvCode(city) };
+      const value = computeSvCode(city);
+      // Ручное переопределение кода — чтобы можно было сверить расчёт с
+      // файлом расчётчика, где с/в взят по его таблице «снегветер».
+      return {
+        ok: true as const,
+        value: svOverride ? { ...value, standard: svOverride } : value,
+        overridden: Boolean(svOverride),
+      };
     } catch (e) {
       return { ok: false as const, error: (e as Error).message };
     }
-  }, [city]);
+  }, [city, svOverride]);
 
   const frame = useMemo(() => {
     if (!climate.ok) return null;
@@ -95,14 +115,14 @@ export function App() {
       const result = findFrameSelection({
         span,
         height_m: height,
-        responsibility,
+        responsibility: bankK === "auto" ? responsibility : bankK,
         svCode: climate.value.standard,
       });
       return { ok: true as const, value: result };
     } catch (e) {
       return { ok: false as const, error: (e as Error).message };
     }
-  }, [climate, span, height, responsibility]);
+  }, [climate, span, height, responsibility, bankK]);
 
   const heightBucket = useMemo(() => {
     try {
@@ -127,10 +147,15 @@ export function App() {
       span_m: span,
       length_m: length,
       height_m: height,
-      framePitch_m: frame?.ok && frame.value ? frame.value.framePitch_m : 6,
+      framePitch_m:
+        framePitchOverride > 0
+          ? framePitchOverride
+          : frame?.ok && frame.value
+            ? frame.value.framePitch_m
+            : 6,
       roofSlopeDeg: defaultRoofSlopeDeg(span),
     }),
-    [span, length, height, frame],
+    [span, length, height, frame, framePitchOverride],
   );
 
   const frameTakeoff = useMemo(() => {
@@ -212,19 +237,31 @@ export function App() {
         gammaN: responsibility,
         maxStep_mm: maxPurlinStep,
         snowGuardPurlin: snowGuards,
+        railingPurlin,
+        minStep_mm: minStepMm,
         family: purlinFamilyForRoofing(roofingType),
         insulationThickness_mm: insulationThicknessForRoofing(roofingType),
       },
       geometry.length_m,
     );
-  }, [climate, geometry, maxPurlinStep, responsibility, roofingType, snowGuards]);
+  }, [
+    climate,
+    geometry,
+    maxPurlinStep,
+    responsibility,
+    roofingType,
+    snowGuards,
+    railingPurlin,
+    minStepMm,
+  ]);
 
   const purlinLayout = useMemo(() => {
     if (!purlin) return null;
     return computePurlinLayout(purlin, geometry.span_m, geometry.length_m, {
       snowGuardPurlin: snowGuards,
+      railingPurlin,
     });
-  }, [purlin, geometry, snowGuards]);
+  }, [purlin, geometry, snowGuards, railingPurlin]);
 
   // Строки ведомости, у которых количество считается, а стоимость не заведена.
   const unpricedSections = useMemo(() => {
@@ -453,13 +490,31 @@ export function App() {
           </label>
 
           <label>
-            Уровень ответственности
+            Уровень ответственности γn (нагрузки)
             <select
               value={responsibility}
               onChange={(e) => setResponsibility(Number(e.target.value) as ResponsibilityLevel)}
             >
-              <option value={1.0}>II (k = 1,0)</option>
-              <option value={0.8}>III (k = 0,8)</option>
+              <option value={1.0}>II (γn = 1,0)</option>
+              <option value={0.8}>III (γn = 0,8)</option>
+            </select>
+          </label>
+
+          <label>
+            Блок банка сечений k
+            <select
+              value={String(bankK)}
+              onChange={(e) =>
+                setBankK(
+                  e.target.value === "auto"
+                    ? "auto"
+                    : (Number(e.target.value) as ResponsibilityLevel),
+                )
+              }
+            >
+              <option value="auto">как γn</option>
+              <option value="1">k = 1,0</option>
+              <option value="0.8">k = 0,8</option>
             </select>
           </label>
 
@@ -472,6 +527,17 @@ export function App() {
                 </option>
               ))}
             </select>
+          </label>
+
+          <label>
+            Шаг рам, м (0 — из банка сечений)
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              value={framePitchOverride}
+              onChange={(e) => setFramePitchOverride(Number(e.target.value))}
+            />
           </label>
 
           <label>
@@ -494,6 +560,28 @@ export function App() {
               value={maxStepOverrideMm}
               onChange={(e) => setMaxStepOverrideMm(Number(e.target.value))}
             />
+          </label>
+
+          <label>
+            Мин. шаг прогонов, мм (0 — без ограничения)
+            <input
+              type="number"
+              min="0"
+              step="50"
+              value={minStepMm}
+              onChange={(e) => setMinStepMm(Number(e.target.value))}
+            />
+          </label>
+
+          <label>
+            Прогон под ограждение
+            <select
+              value={railingPurlin ? "есть" : "нет"}
+              onChange={(e) => setRailingPurlin(e.target.value === "есть")}
+            >
+              <option value="нет">нет</option>
+              <option value="есть">есть</option>
+            </select>
           </label>
 
           <label>
@@ -635,6 +723,18 @@ export function App() {
             />
           </label>
           <label>
+            Код «с/в» вручную (для сверки с расчётчиком)
+            <select value={svOverride} onChange={(e) => setSvOverride(e.target.value)}>
+              <option value="">из нашей базы</option>
+              {SV_CODES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
             Снегозадержатель
             <select
               value={snowGuards ? "есть" : "нет"}
@@ -667,7 +767,10 @@ export function App() {
             <dd>
               {climate.value.raw}
               {climate.value.raw !== climate.value.standard && (
-                <> &rarr; нормализован к {climate.value.standard}</>
+                <> &rarr; {climate.overridden ? "задан вручную" : "нормализован"}: {climate.value.standard}</>
+              )}
+              {climate.overridden && (
+                <span className="incomplete"> — не из нашей базы</span>
               )}
             </dd>
           </dl>
@@ -1100,11 +1203,10 @@ export function App() {
           </dd>
         </dl>
         <p className="hint">
-          В статью «Каркас» ещё не входят связи — трубы, уголок и лист, — поэтому она показана
-          неполной. Не учтено также: затяжки, вертикальные связи фахверка, утеплитель и
-          пароизоляция, ГВЛ, цена узловых пластин и горизонтальных связей (только масса), стойки
-          фахверка (только масса), проектные работы и монтаж. Это предварительная оценка, не
-          коммерческое предложение.
+          Не учтено: затяжки, вертикальные связи фахверка, стойки фахверка (только масса),
+          проектные работы и монтаж. Утеплитель, пароизоляция и ГВЛ показаны отдельной карточкой —
+          в ведомости расчётчика у них нет цены, и в итог они не входят. Это предварительная
+          оценка, не коммерческое предложение.
         </p>
       </section>
 
