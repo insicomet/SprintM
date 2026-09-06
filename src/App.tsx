@@ -139,9 +139,10 @@ export function App() {
   }, [frame, geometry, heightBucket]);
 
   const frameFasteners = useMemo(() => {
-    if (!frameTakeoff) return null;
-    return computeFrameFasteners(geometry, frameTakeoff.frameCount);
-  }, [frameTakeoff, geometry]);
+    if (!frameTakeoff || !frame?.ok || !frame.value) return null;
+    // База формулы болтов М16 — «Болты в раме» выбранной строки банка.
+    return computeFrameFasteners(geometry, frameTakeoff.frameCount, frame.value.bolts.totalInFrame);
+  }, [frameTakeoff, geometry, frame]);
 
   const frameExtras = useMemo(() => {
     if (!frameTakeoff) return null;
@@ -156,7 +157,7 @@ export function App() {
   }, [climate, span, length]);
 
   const bracing = useMemo(() => {
-    if (!frameTakeoff) return null;
+    if (!frameTakeoff || !frame?.ok || !frame.value) return null;
     return computeBracing({
       span_m: span,
       length_m: geometry.length_m,
@@ -167,8 +168,9 @@ export function App() {
       strutTube,
       extraTubeMass_t,
       windowFramingPerimeter_m: windowFramingPerimeter_m(openings),
+      gussetMassPerFrame_kg: frame.value.massGussetPlates_kg,
     });
-  }, [frameTakeoff, span, geometry, tubeStrutCount, strutTube, extraTubeMass_t, openings]);
+  }, [frameTakeoff, frame, span, geometry, tubeStrutCount, strutTube, extraTubeMass_t, openings]);
 
   const drainage = useMemo(() => computeDrainage(geometry), [geometry]);
 
@@ -316,7 +318,6 @@ export function App() {
   const summary = useMemo(() => {
     const steelMass_kg =
       (frameTakeoff?.totalFrameMass_kg ?? 0) +
-      (frameTakeoff?.gussetPlatesMass_kg ?? 0) +
       (frameFasteners?.totalMass_kg ?? 0) +
       (bracing?.totalMass_kg ?? 0) +
       (frameExtras?.totalMass_kg ?? 0) +
@@ -326,7 +327,6 @@ export function App() {
     const claddingMass_kg = wallCladding.totalMass_kg + (roofCladding?.totalMass_kg ?? 0);
     const hasFullSteelMass =
       frameTakeoff?.totalFrameMass_kg !== null &&
-      frameTakeoff?.gussetPlatesMass_kg !== null &&
       frameFasteners !== null &&
       bracing?.totalMass_kg != null &&
       purlinLayout?.totalMass_kg !== null &&
@@ -734,12 +734,6 @@ export function App() {
                   ? ` — ${frameTakeoff.beam.totalMass_kg.toFixed(0)} кг`
                   : " — масса неизвестна (нет в прайс-листе)"}
               </dd>
-              <dt>Узловые пластины</dt>
-              <dd>
-                {frameTakeoff.gussetPlatesMass_kg !== null
-                  ? `${frameTakeoff.gussetPlatesMass_kg.toFixed(0)} кг (оценка ИНСИ, состав не расшифрован)`
-                  : "нет данных для этой комбинации"}
-              </dd>
               {frameExtras?.items.map((item) => (
                 <Fragment key={item.name}>
                   <dt>{item.name}</dt>
@@ -784,7 +778,6 @@ export function App() {
                 {frameTakeoff.totalFrameMass_kg !== null
                   ? `${(
                       frameTakeoff.totalFrameMass_kg +
-                      (frameTakeoff.gussetPlatesMass_kg ?? 0) +
                       (frameFasteners?.totalMass_kg ?? 0) +
                       (frameExtras?.totalMass_kg ?? 0) +
                       (bracing?.totalMass_kg ?? 0)

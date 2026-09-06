@@ -59,12 +59,21 @@ describe("computeBracing", () => {
     expect(items["Лист (фасонки)"].cost).toBeCloseTo(229524.81999999998, 4);
   });
 
-  it("reports the section incomplete when the gusset weight for that span is unknown", () => {
-    const result = computeBracing({ ...project22316, span_m: 21 });
+  it("takes the gusset weight from the section bank when it is given", () => {
+    // 22316: строка банка 18м / k=0,8 / с/в 4/1 даёт 264 кг на раму.
+    const result = computeBracing({ ...project22316, gussetMassPerFrame_kg: 264 });
+    expect(byName(result)["Лист (фасонки)"].mass_t).toBeCloseTo(2.112, 9);
+    // Другая строка банка — другая масса, и таблица по пролёту её не перебивает.
+    const other = computeBracing({ ...project22316, gussetMassPerFrame_kg: 258 });
+    expect(byName(other)["Лист (фасонки)"].mass_t).toBeCloseTo((8 * 258) / 1000, 9);
+  });
+
+  it("reports the section incomplete when there is no gusset weight at all", () => {
+    const result = computeBracing({ ...project22316, span_m: 21, gussetMassPerFrame_kg: null });
     expect(byName(result)["Лист (фасонки)"].mass_t).toBeNull();
     expect(result.totalCost).toBeNull();
     expect(result.totalMass_kg).toBeNull();
-    expect(result.missing).toContain("21");
+    expect(result.missing).toContain("узловых пластин");
     // Остальные две строки при этом посчитаны.
     expect(byName(result)["Уголок"].cost).not.toBeNull();
   });

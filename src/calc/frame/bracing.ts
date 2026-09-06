@@ -28,8 +28,12 @@ const PRICE_per_t = {
 } as const;
 
 /**
- * «Вес фасонок на раму», кг (ячейка M87 — вбита вручную).
- * Известны только два пролёта из наших проектов.
+ * «Вес фасонок на раму», кг (ячейка M87 ведомости — вбита вручную).
+ *
+ * Это «металлоемкость узловых пластин» ВЫБРАННОЙ строки банка сечений:
+ * "22316" (18м, k=0,8, с/в 4/1) — 264 в банке и 264 в ведомости;
+ * "22318" (15м, k=1,0, с/в 4/1) — 238 и 238. Поэтому основной источник —
+ * банк, а эта таблица остаётся запасной на случай, когда строки нет.
  */
 const GUSSET_MASS_PER_FRAME_kg: Partial<Record<Span, number>> = {
   15: 238,
@@ -59,6 +63,8 @@ export interface BracingInput {
   extraTubeMass_t?: number;
   /** Периметр обрамления оконных проёмов, п.м (L156): 2 × (длина + ширина) × кол-во. */
   windowFramingPerimeter_m?: number;
+  /** «Металлоемкость узловых пластин» из выбранной строки банка сечений, кг на раму. */
+  gussetMassPerFrame_kg?: number | null;
 }
 
 export interface BracingItem {
@@ -106,9 +112,10 @@ export interface BracingTakeoff {
  * ЧТО ЗАДАЁТСЯ ВРУЧНУЮ И ПРАВИЛА ДЛЯ ЭТОГО НЕТ:
  *   · слагаемое 0,432 / 0,795 т — зависимости от габаритов не видно;
  *   · размер трубы распорок (80х3 против 60х3);
- *   · их количество (3 в обоих проектах);
- *   · «вес фасонок на раму» — известен только для пролётов 15 и 18 м.
- * Без последнего строка «Лист» не считается, и раздел остаётся неполным.
+ *   · их количество (3 в обоих проектах).
+ *
+ * «Вес фасонок на раму» руки не требует: это «металлоемкость узловых
+ * пластин» выбранной строки банка сечений (см. gussetMassPerFrame_kg).
  *
  * Шаг горизонтальной связи взят как пролёт/4: в ведомостях он вписан
  * числом (4,5 при пролёте 18 и 3,75 при пролёте 15), и оба раза это
@@ -152,8 +159,8 @@ export function computeBracing(input: BracingInput): BracingTakeoff {
   const angleMass_t =
     (input.frameCount - 2) * input.span_m * 2 * ANGLE_MASS_t_per_m["63х5"];
 
-  const gusset_kg = GUSSET_MASS_PER_FRAME_kg[input.span_m];
-  const plateMass_t = gusset_kg === undefined ? null : (input.frameCount * gusset_kg) / 1000;
+  const gusset_kg = input.gussetMassPerFrame_kg ?? GUSSET_MASS_PER_FRAME_kg[input.span_m] ?? null;
+  const plateMass_t = gusset_kg === null ? null : (input.frameCount * gusset_kg) / 1000;
 
   const items: BracingItem[] = [
     {
@@ -185,6 +192,6 @@ export function computeBracing(input: BracingInput): BracingTakeoff {
       ? null
       : items.reduce((s, i) => s + (i.mass_t ?? 0), 0) * 1000,
     totalCost: incomplete ? null : items.reduce((s, i) => s + (i.cost ?? 0), 0),
-    missing: incomplete ? `вес фасонок на раму для пролёта ${input.span_m} м` : undefined,
+    missing: incomplete ? "вес узловых пластин (нет в банке сечений)" : undefined,
   };
 }

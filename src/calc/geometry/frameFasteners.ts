@@ -70,6 +70,17 @@ const SCREW_525_RATE_BY_SPAN: Partial<Record<Span, number>> = {
  * только для двух пролётов и для остальных экстраполируется линейно.
  */
 const BOLT_M16_COEF_BY_SPAN: Record<Span, number> = { 9: 30, 12: 30, 15: 30, 18: 50, 21: 50, 24: 50 };
+/**
+ * Первое слагаемое формулы болтов М16 на раму — это «Болты в раме» из
+ * ВЫБРАННОЙ строки банка сечений, а не константа по пролёту.
+ *
+ * Подтверждено на обоих проектах: "22316" (18м, k=0,8, с/в 4/1) — в банке
+ * 308, и в ведомости O88 = 308+50*(рам−2)/рам+…; "22318" (15м, k=1,0,
+ * с/в 4/1) — в банке 276, и O88 = 276+30*(рам−2)/рам+…
+ *
+ * Эти же значения оставлены запасным вариантом на случай, когда строка
+ * банка не передана.
+ */
 const BOLT_M16_BASE_BY_SPAN: Partial<Record<Span, number>> = { 15: 276, 18: 308 };
 
 /** Ставка болтов М12х40 — "=16*K90" в обоих реальных проектах, от пролёта не зависит. */
@@ -82,10 +93,10 @@ function screw525Rate(span: Span): number {
   return SCREW_525_RATE_BY_SPAN[span] ?? (span < 12 ? 530 : 890);
 }
 
-function boltM16PerFrame(span: Span, frameCount: number): number {
-  // Для неподтверждённых пролётов base экстраполируется по двум
-  // известным точкам (32 на 3 метра пролёта ≈ 10,67 на метр).
-  const base = BOLT_M16_BASE_BY_SPAN[span] ?? 276 + ((span - 15) * 32) / 3;
+function boltM16PerFrame(span: Span, frameCount: number, boltsInFrame?: number): number {
+  // Без строки банка base экстраполируется по двум известным точкам
+  // (32 на 3 метра пролёта ≈ 10,67 на метр) — заведомо приблизительно.
+  const base = boltsInFrame ?? BOLT_M16_BASE_BY_SPAN[span] ?? 276 + ((span - 15) * 32) / 3;
   const coef = BOLT_M16_COEF_BY_SPAN[span];
   return base + (coef * (frameCount - 2)) / frameCount + (12 * 8) / frameCount + (12 * 2) / frameCount;
 }
@@ -115,14 +126,17 @@ function boltM16PerFrame(span: Span, frameCount: number): number {
 export function computeFrameFasteners(
   geometry: Pick<BuildingGeometry, "span_m" | "length_m" | "height_m"> & { span_m: Span },
   frameCount: number,
+  /** «Болты в раме» выбранной строки банка сечений — база формулы М16. */
+  boltsInFrame?: number,
 ): FrameFastenersTakeoff {
   const { span_m, length_m, height_m } = geometry;
+  // Ставка саморезов по-прежнему подтверждена только на двух пролётах.
   const isEstimated = !CONFIRMED_SPANS.includes(span_m);
 
   const fc11_14Count = (frameCount * (span_m + 2 * height_m)) / 0.6;
   const dowelCount = (2 * (span_m + length_m)) / 0.5 + 1;
   const boltM12Count = frameCount * BOLT_M12_RATE_PER_FRAME;
-  const boltM16Count = frameCount * boltM16PerFrame(span_m, frameCount);
+  const boltM16Count = frameCount * boltM16PerFrame(span_m, frameCount, boltsInFrame);
 
   const counts: [keyof typeof FASTENER_UNITS, number][] = [
     ["fc11_14", fc11_14Count],
