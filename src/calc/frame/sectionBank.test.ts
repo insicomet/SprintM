@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { findFrameSelection, getAllFrameSelections, snapHeight } from "./sectionBank";
+import {
+  findFrameSelection,
+  getAllFrameSelections,
+  heightLimitsForSpan,
+  isHeightSupported,
+  snapHeight,
+} from "./sectionBank";
 
 describe("sectionBank", () => {
   it("loads all 396 extracted rows", () => {
@@ -59,6 +65,41 @@ describe("sectionBank", () => {
     it("throws when height exceeds the last threshold", () => {
       expect(() => snapHeight(12, 6.3)).toThrow();
       expect(() => snapHeight(24, 9.1)).toThrow();
+    });
+  });
+
+  describe("heightLimitsForSpan", () => {
+    // Примечание подборщика рядом с полем высоты (лист «вывод», E6):
+    // «пролет 21 до высоты 6,2м; пролет 21,1-24 высота до 9 м».
+    it("stops at 6,2 m for every span up to 21 m", () => {
+      for (const span of [9, 12, 15, 18, 21] as const) {
+        const limits = heightLimitsForSpan(span);
+        expect(limits.max_m, `пролёт ${span}`).toBe(6.2);
+        expect(limits.minBucket_m).toBe(3.6);
+        expect(limits.buckets_m).toEqual([3.6, 4.8, 6]);
+      }
+    });
+
+    it("goes up to 9 m for the 24 m span, and starts at the 6 m bucket", () => {
+      const limits = heightLimitsForSpan(24);
+      expect(limits.max_m).toBe(9);
+      expect(limits.minBucket_m).toBe(6);
+      expect(limits.buckets_m).toEqual([6, 7, 8, 9]);
+    });
+
+    it("agrees with snapHeight on both sides of every limit", () => {
+      for (const span of [9, 12, 15, 18, 21, 24] as const) {
+        const { max_m } = heightLimitsForSpan(span);
+        expect(isHeightSupported(span, max_m)).toBe(true);
+        expect(() => snapHeight(span, max_m)).not.toThrow();
+        expect(isHeightSupported(span, max_m + 0.1)).toBe(false);
+        expect(() => snapHeight(span, max_m + 0.1)).toThrow();
+      }
+    });
+
+    it("does not forbid a low building on the 24 m span — it just counts as 6 m", () => {
+      expect(isHeightSupported(24, 4)).toBe(true);
+      expect(snapHeight(24, 4)).toBe(6);
     });
   });
 

@@ -83,12 +83,49 @@ export function snapHeight(span: Span, height_m: number): number {
   const match = buckets.find(([maxHeight]) => height_m <= maxHeight);
   if (match === undefined) {
     const [lastMax] = buckets[buckets.length - 1];
+    const ru = (v: number) => String(v).replace(".", ",");
     throw new Error(
-      `Высота ${height_m}м для пролёта ${span}м превышает максимум банка сечений ` +
-        `(${lastMax}м) — в исходном файле ИНСИ такой случай помечен "нужен расчет".`,
+      `Высота ${ru(height_m)} м для пролёта ${span} м превышает максимум банка сечений ` +
+        `(${ru(lastMax)} м) — в исходном файле ИНСИ такой случай помечен «нужен расчет».`,
     );
   }
   return match[1];
+}
+
+/** Пределы высоты здания, которые держит банк сечений для одного пролёта. */
+export interface HeightLimits {
+  /** Наибольшая высота, при которой в банке ещё есть строки, м (включительно). */
+  max_m: number;
+  /** Наименьшая корзина банка, м: всё, что ниже, всё равно считается по ней. */
+  minBucket_m: number;
+  /** Корзины, доступные для этого пролёта, м. */
+  buckets_m: readonly number[];
+}
+
+/**
+ * Ограничение по высоте для пролёта — то самое примечание подборщика
+ * рядом с полем высоты: «пролет 21 до высоты 6,2м; пролет 21,1-24
+ * высота до 9 м» (лист «вывод», E6).
+ *
+ * Берётся из тех же порогов, по которым высота приводится к корзине,
+ * поэтому предел и подбор не могут разойтись: для пролётов 9…21 банк
+ * заканчивается на 6,2 м, для 24 м — на 9 м, и там же он НАЧИНАЕТСЯ
+ * с корзины 6 м (первые две ветки формулы при пролёте >21
+ * пропускаются). Здание 24 м высотой 4 м не запрещено — оно просто
+ * считается по шестиметровой корзине, как в исходнике.
+ */
+export function heightLimitsForSpan(span: Span): HeightLimits {
+  const buckets = span === 24 ? HEIGHT_BUCKETS_24 : HEIGHT_BUCKETS_9_21;
+  return {
+    max_m: buckets[buckets.length - 1][0],
+    minBucket_m: buckets[0][1],
+    buckets_m: buckets.map(([, bucket]) => bucket),
+  };
+}
+
+/** Держит ли банк такую высоту для такого пролёта. */
+export function isHeightSupported(span: Span, height_m: number): boolean {
+  return height_m <= heightLimitsForSpan(span).max_m;
 }
 
 export interface FrameSelectionQuery {

@@ -93,6 +93,19 @@ label {
   opacity: 0.85;
 }
 
+/* Значение вне допустимого диапазона: подпись под полем становится
+   сообщением об ошибке, а не подсказкой. */
+.field-hint.invalid {
+  color: var(--error);
+  opacity: 1;
+}
+
+input[aria-invalid="true"],
+input[aria-invalid="true"]:focus {
+  border-color: var(--error);
+  outline-color: var(--error);
+}
+
 /* Вычисляемое значение в форме — выглядит как поле, но не редактируется. */
 .readonly-field {
   padding: 8px 10px;

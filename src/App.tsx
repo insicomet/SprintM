@@ -2,6 +2,7 @@ import { Fragment, useMemo, useState } from "react";
 import { getAllSettlementNames, getSupportedSvCodes } from "./calc/climate/svCode";
 import { getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
 import type { StrutTube } from "./calc/frame/bracing";
+import { heightLimitsForSpan } from "./calc/frame/sectionBank";
 import { DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
 import { buildBill } from "./calc/bill/buildBill";
 import { computeProject } from "./calc/project/computeProject";
@@ -18,6 +19,16 @@ const roofingTypes = roofingTypesRaw as { type: string; selfWeight_kg_m2: number
 
 /** Коды «с/в», для которых в банке сечений ИНСИ есть просчитанные строки. */
 const SV_CODES = getSupportedSvCodes();
+
+/**
+ * Наименьшая высота, которую вообще пускаем в поле. Банк снизу не
+ * ограничен — всё, что ниже первой корзины, считается по ней, — но
+ * ангар ниже трёх метров смысла не имеет.
+ */
+const MIN_HEIGHT_M = 3;
+
+/** 6 → «6», 6.2 → «6,2»: в поле высоты дробная часть бывает, а нули не нужны. */
+const fmt = (v: number) => String(v).replace(".", ",");
 
 export function App() {
   const [city, setCity] = useState("Челябинск");
@@ -147,6 +158,12 @@ export function App() {
     summary,
   } = project;
 
+  // Ограничение из подборщика (лист «вывод», E6): «пролет 21 до высоты
+  // 6,2м; пролет 21,1-24 высота до 9 м». Берём его из банка сечений,
+  // чтобы поле и подбор не разошлись.
+  const heightLimits = heightLimitsForSpan(span);
+  const heightTooHigh = height > heightLimits.max_m;
+
   const bill = useMemo(() => buildBill(project), [project]);
 
   // Сколько ручных переопределений включено — чтобы свёрнутый блок не прятал их молча.
@@ -216,15 +233,21 @@ export function App() {
             Высота, м
             <input
               type="number"
-              min="3"
+              min={MIN_HEIGHT_M}
+              max={heightLimits.max_m}
               step="0.1"
               value={height}
+              aria-invalid={heightTooHigh || undefined}
               onChange={(e) => setHeight(Number(e.target.value))}
             />
-            <span className="field-hint">
-              {heightBucket !== null
-                ? `Расчётная корзина банка: ${heightBucket} м`
-                : "Выше максимума банка сечений"}
+            <span className={`field-hint${heightTooHigh ? " invalid" : ""}`}>
+              {heightTooHigh
+                ? `Банк сечений держит для пролёта ${span} м только до ${fmt(heightLimits.max_m)} м`
+                : heightBucket !== null && height < heightLimits.minBucket_m
+                  ? `Ниже наименьшей корзины — считается по ${fmt(heightBucket)} м`
+                  : heightBucket !== null
+                    ? `Расчётная корзина банка: ${fmt(heightBucket)} м · для пролёта ${span} м до ${fmt(heightLimits.max_m)} м`
+                    : `Для пролёта ${span} м банк держит до ${fmt(heightLimits.max_m)} м`}
             </span>
           </label>
 
