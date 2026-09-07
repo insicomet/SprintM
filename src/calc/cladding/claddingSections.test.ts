@@ -73,9 +73,10 @@ describe("computeRoofCladdingSection", () => {
   });
 
   it("takes the screw length from the panel thickness, not from a constant", () => {
-    // Таблички M103:M109 и M110:M115 ведомости идут парами в одном
-    // (перемешанном) порядке: 80→115, 100→140, 150→190, 120→160,
-    // 200→240, 250→285. Оба реальных проекта попадают в 140 и 190.
+    // Правило расчётчика: длина самореза = толщина панели + 40 мм,
+    // округлённая до ближайшего складского размера. На краях такого
+    // размера нет и берётся ближайший, на 5 мм короче: 80 → 115 и
+    // 250 → 285. Оба реальных проекта попадают в 140 и 190.
     const pairs: [number, string, number][] = [
       [80, "с/з 5,5х115", 43.1],
       [100, "с/з 5,5х140", 51.9],
@@ -90,5 +91,13 @@ describe("computeRoofCladdingSection", () => {
       const wall = byName(computeWallCladdingSection(g22316, 504, thickness));
       expect(wall[name].unitPrice, `стена ${thickness}`).toBeCloseTo(price, 6);
     }
+  });
+
+  it("names the screw by the +40 rule, without a price, for a thickness the table has no row for", () => {
+    // Цена такого самореза нам неизвестна — раздел должен показать
+    // прочерк, а не посчитаться дешевле на целую строку.
+    const items = byName(computeWallCladdingSection(g22316, 504, 60));
+    expect(items["с/з 5,5х100"].unitPrice).toBeNull();
+    expect(items["с/з 5,5х100"].cost).toBeNull();
   });
 });

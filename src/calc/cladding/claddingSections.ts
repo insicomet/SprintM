@@ -26,25 +26,28 @@ export interface CladdingSectionTakeoff {
 const OVERHEAD_RATE = 0.02;
 
 /**
- * Цена и масса крепежа панелей — закэшированы в обеих реальных
- * ведомостях и совпадают. Как и в остальных разделах, взяты из кэша
- * ведомости, а не из прайса, чтобы итог сходился с расчётом расчётчика.
- */
-/**
- * Саморез крепления сэндвич-панели подбирается по её толщине.
+ * Саморез крепления сэндвич-панели подбирается по её толщине:
+ * **длина самореза = толщина панели + 40 мм**, округлённая до ближайшего
+ * складского размера (правило подтверждено расчётчиком).
  *
- * В ведомости для этого лежат две параллельные таблички (лист «12м»):
+ * В ведомости под это лежат две параллельные таблички (лист «12м»):
  * панели в M103:M109 — 80, 100, 150, 120, 200, 250 — и саморезы в
- * M110:M115 — 115, 140, 190, 160, 240, 285. Порядок в обеих одинаково
- * перемешан (150 стоит перед 120), так что строки соответствуют друг
- * другу позиционно, а не по возрастанию: расчётчик ставит в строку
- * ссылку на нужную пару (B103 = M111, B139 = M112 в «22316»).
+ * M110:M115 — 115, 140, 190, 160, 240, 285, в том же (перемешанном)
+ * порядке. Расчётчик ставит в строку ссылку на нужную пару
+ * (B103 = M111 стена, B139 = M112 кровля в «22316»).
+ *
+ * Ровно +40 получается на четырёх толщинах из шести; на краях такого
+ * размера просто нет и берётся ближайший, на 5 мм короче: 80 → 115
+ * (не 120) и 250 → 285 (не 290).
  *
  * Оба реальных проекта попадают в одну и ту же пару — стена 100 мм даёт
  * 5,5х140, кровля 150 мм даёт 5,5х190 — поэтому раньше эти две длины
  * стояли константами. На выдуманных расчётах с панелями 80/120/200 мм
  * это сразу вылезло: 140-миллиметровым саморезом 200-миллиметровую
- * панель не закрепить. Цены — N110:N115 той же таблицы.
+ * панель не закрепить.
+ *
+ * Цены (N110:N115) взяты из кэша ведомости, а не из прайса, — как и во
+ * всех остальных разделах, чтобы итог сходился с расчётом расчётчика.
  */
 const PANEL_SCREW_BY_THICKNESS: Record<number, { name: string; unitPrice: number }> = {
   80: { name: "с/з 5,5х115", unitPrice: 43.1 },
@@ -57,11 +60,15 @@ const PANEL_SCREW_BY_THICKNESS: Record<number, { name: string; unitPrice: number
 /** Масса самореза — 0,005 кг во всех строках обеих ведомостей, от длины не зависит. */
 const PANEL_SCREW_MASS_kg = 0.005;
 
-function panelScrew(thickness_mm: number): { name: string; unitPrice: number; unitMass_kg: number } {
+function panelScrew(
+  thickness_mm: number,
+): { name: string; unitPrice: number | null; unitMass_kg: number } {
   const screw = PANEL_SCREW_BY_THICKNESS[thickness_mm];
+  // Толщины вне таблицы: длину знаем по правилу «+40», а цену — нет.
+  // Показываем прочерк, а не ноль, иначе раздел молча посчитается дешевле.
   return {
-    name: screw?.name ?? `с/з под панель ${thickness_mm} мм`,
-    unitPrice: screw?.unitPrice ?? 0,
+    name: screw?.name ?? `с/з 5,5х${thickness_mm + 40}`,
+    unitPrice: screw?.unitPrice ?? null,
     unitMass_kg: PANEL_SCREW_MASS_kg,
   };
 }
@@ -82,7 +89,7 @@ function buildSection(items: CladdingItem[]): CladdingSectionTakeoff {
 }
 
 function simpleItem(
-  spec: { name: string; unitPrice: number; unitMass_kg: number },
+  spec: { name: string; unitPrice: number | null; unitMass_kg: number },
   count: number,
   unit: string,
 ): CladdingItem {
@@ -92,7 +99,7 @@ function simpleItem(
     unit,
     unitPrice: spec.unitPrice,
     unitMass_kg: spec.unitMass_kg,
-    cost: count * spec.unitPrice,
+    cost: spec.unitPrice === null ? null : count * spec.unitPrice,
     mass_kg: count * spec.unitMass_kg,
   };
 }
