@@ -6,12 +6,24 @@ interface ProjectInputs {
   span_m: Span;
   length_m: number;
   height_m: number;
+  framePitch_m: number;
 }
 
-/** Реальный проект "22316" (Березовский): пролёт 18, длина 30, высота 5, 8 рам. */
-const project22316 = { geometry: { span_m: 18, length_m: 30, height_m: 5 } as ProjectInputs, frames: 8 };
-/** Реальный проект "22318" (Сургут): пролёт 15, длина 24, высота 5, 7 рам. */
-const project22318 = { geometry: { span_m: 15, length_m: 24, height_m: 5 } as ProjectInputs, frames: 7 };
+/** Реальный проект "22316" (Березовский): пролёт 18, длина 30, высота 5, шаг 4,5, 8 рам. */
+const project22316 = {
+  geometry: { span_m: 18, length_m: 30, height_m: 5, framePitch_m: 4.5 } as ProjectInputs,
+  frames: 8,
+};
+/** Реальный проект "22318" (Сургут): пролёт 15, длина 24, высота 5, шаг 4, 7 рам. */
+const project22318 = {
+  geometry: { span_m: 15, length_m: 24, height_m: 5, framePitch_m: 4 } as ProjectInputs,
+  frames: 7,
+};
+/** Реальный проект "22285" (Коркино): пролёт 18, длина 48, высота 6, шаг 4, 13 рам. */
+const project22285 = {
+  geometry: { span_m: 18, length_m: 48, height_m: 6, framePitch_m: 4 } as ProjectInputs,
+  frames: 13,
+};
 
 function counts(geometry: ProjectInputs, frames: number) {
   const result = computeFrameFasteners(geometry, frames);
@@ -83,7 +95,7 @@ describe("computeFrameFasteners", () => {
   });
 
   it("nuts and washers always match their bolt count", () => {
-    const result = computeFrameFasteners({ span_m: 21, length_m: 48, height_m: 6 }, 13);
+    const result = computeFrameFasteners({ span_m: 21, length_m: 48, height_m: 6, framePitch_m: 4 }, 13);
     const by = Object.fromEntries(result.items.map((i) => [i.name, i.count]));
     expect(by["Гайка М12"]).toBe(by["Болт М12х40"]);
     expect(by["Шайба 12"]).toBe(by["Болт М12х40"]);
@@ -92,7 +104,10 @@ describe("computeFrameFasteners", () => {
   });
 
   it("flags spans other than 15 and 18 as unconfirmed, except the dowel", () => {
-    const result = computeFrameFasteners({ span_m: 24, length_m: 48, height_m: 6 }, 13);
+    const result = computeFrameFasteners(
+      { span_m: 24, length_m: 48, height_m: 6, framePitch_m: 4 },
+      13,
+    );
     for (const item of result.items) {
       expect(item.isEstimated).toBe(item.name !== "Дюбель-гвоздь 6х60");
     }
@@ -104,5 +119,18 @@ describe("computeFrameFasteners", () => {
     const fc = (r: ReturnType<typeof computeFrameFasteners>) =>
       r.items.find((i) => i.name === "Фс11, Фс14")!.count;
     expect(fc(eight)).toBeCloseTo(fc(one) * 8, 6);
+  });
+
+  it("takes the М16 bolt coefficient from the frame pitch, not the span", () => {
+    // "22285" — тот же пролёт 18, что и у "22316", но шаг 4 вместо 4,5,
+    // и в ведомости стоит коэффициент 30 против 50. По пролёту это не
+    // объяснить; O88 = 292 + 30×11/13 + 12×8/13 + 12×2/13 -> 4246 болтов.
+    const korkino = computeFrameFasteners(project22285.geometry, project22285.frames, 292);
+    const bolts = korkino.items.find((i) => i.name === "Болт М16х50")!;
+    expect(bolts.count).toBeCloseTo(4246, 6);
+
+    // А "22316" с шагом 4,5 по-прежнему даёт 2884.
+    const berez = computeFrameFasteners(project22316.geometry, project22316.frames, 308);
+    expect(berez.items.find((i) => i.name === "Болт М16х50")!.count).toBeCloseTo(2884, 6);
   });
 });

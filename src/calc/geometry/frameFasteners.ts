@@ -60,17 +60,30 @@ const SCREW_525_RATE_BY_SPAN: Partial<Record<Span, number>> = {
 };
 
 /**
- * "Болт М16х50 (на раму)" — формула ячейки O88, одинаковая в обоих
+ * "Болт М16х50 (на раму)" — формула ячейки O88, одинаковая во всех трёх
  * реальных проектах:
  *
  *   на_раму = base + coef×(рам−2)/рам + 12×8/рам + 12×2/рам
  *
- * Подтверждено: пролёт 15м (base=276, coef=30, 7 рам -> 2202 шт всего),
- * пролёт 18м (base=308, coef=50, 8 рам -> 2884 шт всего). coef совпадает
- * с рукописной запиской (30 для 9/12/15м, 50 для 18/21м), base известен
- * только для двух пролётов и для остальных экстраполируется линейно.
+ * Коэффициент зависит от ШАГА РАМ, а не от пролёта:
+ *
+ *   "22318"  пролёт 15, шаг 4    -> 30
+ *   "22285"  пролёт 18, шаг 4    -> 30
+ *   "22316"  пролёт 18, шаг 4,5  -> 50
+ *
+ * Пролётом это не объясняется: на восемнадцати метрах встречаются оба
+ * значения. Раньше здесь стояла таблица по пролёту (30 для 9/12/15 м,
+ * 50 для 18/21 м) — она сошлась с рукописной запиской и с двумя первыми
+ * проектами по совпадению, а на "22285" разошлась на 220 болтов.
+ *
+ * Три точки — немного, поэтому граница «больше 4 м» остаётся вопросом
+ * расчётчику; но правило по шагу сходится на всех трёх, а по пролёту —
+ * только на двух.
  */
-const BOLT_M16_COEF_BY_SPAN: Record<Span, number> = { 9: 30, 12: 30, 15: 30, 18: 50, 21: 50, 24: 50 };
+const BOLT_M16_COEF_WIDE_PITCH = 50;
+const BOLT_M16_COEF_NARROW_PITCH = 30;
+/** Шаг рам, выше которого коэффициент болтов М16 меняется с 30 на 50. */
+const BOLT_M16_PITCH_THRESHOLD_M = 4;
 /**
  * Первое слагаемое формулы болтов М16 на раму — это «Болты в раме» из
  * ВЫБРАННОЙ строки банка сечений, а не константа по пролёту.
@@ -94,11 +107,19 @@ function screw525Rate(span: Span): number {
   return SCREW_525_RATE_BY_SPAN[span] ?? (span < 12 ? 530 : 890);
 }
 
-function boltM16PerFrame(span: Span, frameCount: number, boltsInFrame?: number): number {
+function boltM16PerFrame(
+  span: Span,
+  framePitch_m: number,
+  frameCount: number,
+  boltsInFrame?: number,
+): number {
   // Без строки банка base экстраполируется по двум известным точкам
   // (32 на 3 метра пролёта ≈ 10,67 на метр) — заведомо приблизительно.
   const base = boltsInFrame ?? BOLT_M16_BASE_BY_SPAN[span] ?? 276 + ((span - 15) * 32) / 3;
-  const coef = BOLT_M16_COEF_BY_SPAN[span];
+  const coef =
+    framePitch_m > BOLT_M16_PITCH_THRESHOLD_M
+      ? BOLT_M16_COEF_WIDE_PITCH
+      : BOLT_M16_COEF_NARROW_PITCH;
   return base + (coef * (frameCount - 2)) / frameCount + (12 * 8) / frameCount + (12 * 2) / frameCount;
 }
 
@@ -114,7 +135,7 @@ function boltM16PerFrame(span: Span, frameCount: number, boltsInFrame?: number):
  *   Саморез 5,5x25    = кол-во_рам × ставка(пролёт)
  *   Дюбель-гвоздь     = периметр / 0,5 + 1
  *   Болт М12х40       = кол-во_рам × 16
- *   Болт М16х50       = кол-во_рам × на_раму(пролёт, кол-во_рам)
+ *   Болт М16х50       = кол-во_рам × на_раму(шаг рам, кол-во_рам)
  *   Гайки и шайбы     = количеству соответствующих болтов
  *
  * "Фс" — это ФАСОНКА, а не крепёж (расчётчик прислал чертежи КМД):
@@ -139,7 +160,7 @@ function boltM16PerFrame(span: Span, frameCount: number, boltsInFrame?: number):
  * раздел целиком, а разделы смешивают крепёж с другими позициями.
  */
 export function computeFrameFasteners(
-  geometry: Pick<BuildingGeometry, "span_m" | "length_m" | "height_m"> & { span_m: Span },
+  geometry: Pick<BuildingGeometry, "span_m" | "length_m" | "height_m" | "framePitch_m"> & { span_m: Span },
   frameCount: number,
   /** «Болты в раме» выбранной строки банка сечений — база формулы М16. */
   boltsInFrame?: number,
@@ -151,7 +172,8 @@ export function computeFrameFasteners(
   const fc11_14Count = (frameCount * (span_m + 2 * height_m)) / 0.6;
   const dowelCount = (2 * (span_m + length_m)) / 0.5 + 1;
   const boltM12Count = frameCount * BOLT_M12_RATE_PER_FRAME;
-  const boltM16Count = frameCount * boltM16PerFrame(span_m, frameCount, boltsInFrame);
+  const boltM16Count =
+    frameCount * boltM16PerFrame(span_m, geometry.framePitch_m, frameCount, boltsInFrame);
 
   const counts: [keyof typeof FASTENER_UNITS, number][] = [
     ["fc11_14", fc11_14Count],

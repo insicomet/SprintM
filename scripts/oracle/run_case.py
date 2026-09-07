@@ -96,7 +96,8 @@ def run(case):
         "I141": sel["lines"],
         "C78": f'=(2*C9/1.4)*{1 if inp["snowGuards"] else 0}',
         "C85": f'=K90*{round(tr["screwRate"])}',
-        "O88": f'=({eng["E52"]}+{case["boltCoef"]}*(K90-2)/K90+12*8/K90+12*2/K90)',
+        # коэффициент болтов М16 — по шагу рам (см. frameFasteners.ts)
+        "O88": f'=({eng["E52"]}+{50 if sel["pitch"] > 4 else 30}*(K90-2)/K90+12*8/K90+12*2/K90)',
         "M87": eng["D57"],
         "L92": f'=SQRT({inp["span"]/4}*{inp["span"]/4}+O90*O90)',
         # погонный вес трубы распорок числом; само сечение выдаёт подборщик (вывод!D38)

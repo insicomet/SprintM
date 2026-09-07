@@ -143,3 +143,108 @@ describe("buildBill — «22318»", () => {
     expect(bill.totalWithPackaging).toBeCloseTo(4755155.532531397, 2);
   });
 });
+
+/**
+ * Третий реальный проект — «22285» (Коркино, 18 × 48, h6, шаг 4).
+ *
+ * Он появился позже двух первых и потому проверяет, а не подтверждает:
+ * ни одна формула по нему не снималась. Сошлись вся цепочка подбора
+ * (с/в 4/3, блок IV × 0,8, шаг 4, шаг прогонов 1510, ПГС300/20х80х3 и
+ * ПГС245/20х80х2,5, 2ПС 145х45х1,5, 292 болта, 258 кг фасонок, 3964,8 кг
+ * прогонов) и пять разделов ведомости из семи.
+ *
+ * Он же принёс два исправления: коэффициент болтов М16 берётся по шагу
+ * рам, а не по пролёту (на восемнадцати метрах здесь 30, а в «22316» 50),
+ * и подтвердил на третьем проекте формулу обрамления проёмов — 0,85596 т.
+ *
+ * Два раздела расходятся, и оба — из-за ячеек, которые расчётчик
+ * заполняет руками; см. вопросы расчётчику.
+ */
+const project22285: ProjectInputs = {
+  city: "Коркино",
+  span: 18,
+  length_m: 48,
+  height_m: 6,
+  gammaN: 1.0,
+  bankK: "auto",
+  roofingType: "С-П 150",
+  deckingMark: "С44-1000-0,7",
+  maxStepOverride_mm: 0,
+  minStep_mm: 0,
+  framePitchOverride_m: 0,
+  wallPanel_mm: 100,
+  roofPanel_mm: 150,
+  openings: {
+    gatesCount: 2, gateWidth_m: 4, gateHeight_m: 4.5,
+    doorsCount: 2, doorWidth_m: 1, doorHeight_m: 2,
+    windowsCount: 1, windowWidth_m: 46, windowHeight_m: 1,
+  },
+  snowGuards: false,
+  railingPurlin: false,
+  tubeStrutCount: 3,
+  postSpacing_m: 2,
+};
+
+describe("buildBill — «22285», третий реальный проект", () => {
+  const project = computeProject(project22285);
+  const bill = buildBill(project);
+  const t = totals(bill);
+
+  it("reproduces the selection chain without a single manual input", () => {
+    if (!project.climate.ok || !project.frame?.ok || !project.frame.value) {
+      throw new Error("подбор не состоялся");
+    }
+    const f = project.frame.value;
+    expect(project.climate.value.standard).toBe("4/3");
+    expect(project.bankBlock?.snowDistrict).toBe("IV");
+    expect(project.bankBlock?.bankK).toBe(0.8);
+    expect(project.geometry.framePitch_m).toBe(4);
+    expect(project.maxPurlinStep).toBe(2150);
+    expect(project.purlin?.step_mm).toBe(1510);
+    expect(f.beam.profile).toBe("ПГС300/20х80х3");
+    expect(f.column.profile).toBe("ПГС245/20х80х2,5");
+    expect(project.purlin?.profile.name).toBe("2ПС 145х45х1,5");
+    expect(f.bolts.totalInFrame).toBe(292);
+    expect(f.massGussetPlates_kg).toBe(258);
+    expect(project.purlinLayout?.totalMass_kg).toBeCloseTo(3964.8, 6);
+    expect(project.purlinLayout?.lineCount).toBe(14);
+    expect(project.effectiveStrutTube).toBe("60х3");
+  });
+
+  it("derives the openings framing the estimator wrote as 0,856 т", () => {
+    // вывод!E68 = 0,85596: ворота 350×2×1,05 + двери (4+4)×2×7,2×1,05
+    expect(project.effectiveExtraTubeMass_t).toBeCloseTo(0.85596, 9);
+  });
+
+  it("counts the М16 bolts by the frame pitch (4246, not 4466)", () => {
+    const bolts = bill.additional[0].rows.find((r) => r.name === "Болт М16х50")!;
+    expect(bolts.count).toBeCloseTo(4246, 6);
+  });
+
+  it("reproduces five of the seven section totals exactly", () => {
+    expect(t["F32"]).toBeCloseTo(2326851.691713581, 6); // Итого каркас
+    expect(t["F44"]).toBeCloseTo(87612.63157894737, 6); // Итого стены
+    expect(t["F70"]).toBeCloseTo(158523.73714285716, 6); // ИТОГО водосток
+    expect(t["F81"]).toBeCloseTo(108525.32352, 6); // Итого кровля
+    expect(t["F147"]).toBeCloseTo(3283632.3316898257, 6); // Итого кровля (доп.)
+  });
+
+  it("differs on the wall only by the gable allowance the estimator halved", () => {
+    // В «22316» и «22318» надбавка на фронтоны записана как пролёт×2×2,
+    // здесь — как пролёт×2, то есть 36 м² вместо 72. Ячейка вписана
+    // руками и правила для неё нет — вопрос расчётчику.
+    expect(project.envelope.wallArea).toBeCloseTo(782, 6); // в файле 746
+    const gap = t["F114"]! - 2243832.0162;
+    // 36 м² панели и саморезов к ним, с накладными
+    expect(gap).toBeCloseTo((36 * 2740 + (36 / 4) * 6 * 1.1 * 51.9) * 1.02, 4);
+  });
+
+  it("differs on the frame extras by two hand-typed cells that nearly cancel", () => {
+    // L156 (обрамление окон) в файле = 2×(48+1)×1 = 98 п.м, то есть по
+    // ДЛИНЕ ЗДАНИЯ, а не по ширине окна 46 — у нас 94. И металл в этом
+    // файле по другому снимку прайса: труба 137 430 против 136 050,
+    // уголок 166 750 против 172 500. Две ошибки почти гасят друг друга,
+    // поэтому итог расходится всего на 138 ₽ — совпадение, не точность.
+    expect(t["F100"]! - 1572690.0028402077).toBeCloseTo(138.25, 1);
+  });
+});
