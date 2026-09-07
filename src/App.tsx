@@ -3,6 +3,7 @@ import { getAllSettlementNames, getSupportedSvCodes } from "./calc/climate/svCod
 import { getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
 import type { StrutTube } from "./calc/frame/bracing";
 import { heightLimitsForSpan } from "./calc/frame/sectionBank";
+import { WIND_DISTRICTS, windPressureForDistrict_kPa } from "./calc/climate/manualClimate";
 import { DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
 import { buildBill } from "./calc/bill/buildBill";
 import { computeProject } from "./calc/project/computeProject";
@@ -32,6 +33,10 @@ const fmt = (v: number) => String(v).replace(".", ",");
 
 export function App() {
   const [city, setCity] = useState("Челябинск");
+  // Ручной ввод нагрузок — для площадок, которых нет в справочнике.
+  const [manualMode, setManualMode] = useState(false);
+  const [manualSnow, setManualSnow] = useState(1.5);
+  const [manualWind, setManualWind] = useState("II");
   const [span, setSpan] = useState<Span>(18);
   const [length, setLength] = useState(30);
   const [height, setHeight] = useState(5);
@@ -76,6 +81,9 @@ export function App() {
     () =>
       computeProject({
         city,
+        manualClimate: manualMode
+          ? { snowLoad_kPa: manualSnow, windDistrict: manualWind, label: city }
+          : undefined,
         span,
         length_m: length,
         height_m: height,
@@ -102,6 +110,9 @@ export function App() {
       }),
     [
       city,
+      manualMode,
+      manualSnow,
+      manualWind,
       span,
       length,
       height,
@@ -186,12 +197,12 @@ export function App() {
         <h2>Объект</h2>
         <div className="form-grid">
           <label className="span-2">
-            Город
+            {manualMode ? "Площадка" : "Город"}
             <input
-              list="settlements"
+              list={manualMode ? undefined : "settlements"}
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              placeholder="Начните вводить название"
+              placeholder={manualMode ? "Название для расчёта" : "Начните вводить название"}
             />
             <datalist id="settlements">
               {settlementNames.map((name) => (
@@ -199,9 +210,53 @@ export function App() {
               ))}
             </datalist>
             <span className="field-hint">
-              Из него берутся снеговая и ветровая нагрузки — от них зависят сечения.
+              {manualMode ? (
+                <>
+                  Нагрузки заданы вручную — из справочника ничего не берётся.{" "}
+                  <button type="button" className="linklike" onClick={() => setManualMode(false)}>
+                    вернуться к справочнику
+                  </button>
+                </>
+              ) : (
+                <>
+                  Из него берутся снеговая и ветровая нагрузки — от них зависят сечения.{" "}
+                  <button type="button" className="linklike" onClick={() => setManualMode(true)}>
+                    нет в справочнике — ввести вручную
+                  </button>
+                </>
+              )}
             </span>
           </label>
+
+          {manualMode && (
+            <>
+              <label>
+                Снеговая нагрузка Sg, кН/м²
+                <input
+                  type="number"
+                  min="0.1"
+                  step="0.05"
+                  value={manualSnow}
+                  onChange={(e) => setManualSnow(Number(e.target.value))}
+                />
+                <span className="field-hint">
+                  Снеговой район не спрашиваем: его выводит лестница нагрузок ИНСИ.
+                </span>
+              </label>
+
+              <label>
+                Ветровой район
+                <select value={manualWind} onChange={(e) => setManualWind(e.target.value)}>
+                  {WIND_DISTRICTS.map((d) => (
+                    <option key={d} value={d}>
+                      {d} — w₀ {windPressureForDistrict_kPa(d)} кН/м²
+                    </option>
+                  ))}
+                </select>
+                <span className="field-hint">По СП 20.13330, карта 2.</span>
+              </label>
+            </>
+          )}
 
           <label>
             Пролёт, м
@@ -634,7 +689,10 @@ export function App() {
             </dd>
             <dt>Снеговой район</dt>
             <dd>
-              {climate.value.city.snow.region} ({climate.value.city.snow.sgKpa} кПа)
+              {climate.value.city.snow.region ?? (
+                <span className="incomplete">задан нагрузкой</span>
+              )}{" "}
+              ({climate.value.city.snow.sgKpa} кПа)
               {project.snowOverridden && (
                 <span className="incomplete">
                   {" "}— в расчёт ушло {project.snowLoad_kPa} кПа, задано вручную

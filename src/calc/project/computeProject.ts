@@ -1,4 +1,5 @@
 import { computeSvCode, svCodeFromDistricts } from "../climate/svCode";
+import { manualSettlement, type ManualClimateInput } from "../climate/manualClimate";
 import {
   roofingSupplement_kPa,
   selectBankBlock,
@@ -74,6 +75,13 @@ export interface ProjectInputs {
   /** Код «с/в» вручную; пусто — из нашей климатической базы. */
   svOverride?: string;
   /**
+   * Нагрузки вручную вместо поиска города — когда города нет в
+   * справочнике или у него не проставлен ветровой район.
+   * Задаётся снеговая нагрузка и ветровой район; снеговой район,
+   * как и всегда, выводит лестница нагрузок.
+   */
+  manualClimate?: ManualClimateInput;
+  /**
    * Расчётная снеговая нагрузка вручную, кН/м²; 0 или пусто — из нашей базы.
    *
    * Нужна для сверки: подборщик берёт снег из своего листа «Города п.К»,
@@ -148,6 +156,7 @@ export function computeProject(inputs: ProjectInputs) {
     gammaN,
     bankK,
     svOverride,
+    manualClimate,
     snowLoadOverride_kPa,
     roofingType,
     deckingMark,
@@ -178,7 +187,10 @@ export function computeProject(inputs: ProjectInputs) {
     | { ok: false; error: string };
   let bankBlock: BankBlock | null = null;
   try {
-    const base = computeSvCode(city);
+    // Ручной ввод подменяет поиск города, дальше всё считается одинаково.
+    const base = manualClimate
+      ? { city: manualSettlement(manualClimate), raw: "", standard: "" }
+      : computeSvCode(city);
     const snow_kPa =
       snowLoadOverride_kPa != null && snowLoadOverride_kPa > 0
         ? snowLoadOverride_kPa
@@ -191,6 +203,14 @@ export function computeProject(inputs: ProjectInputs) {
     if (bankBlock && base.city.wind.region) {
       const byLadder = svCodeFromDistricts(bankBlock.snowDistrict, base.city.wind.region);
       value = { ...base, raw: byLadder.raw, standard: byLadder.standard };
+    } else if (manualClimate && !svOverride) {
+      // Без блока банка код «с/в» не из чего вывести: при ручном вводе
+      // справочного значения, на которое можно откатиться, просто нет.
+      throw new Error(
+        bankBlock
+          ? "Не задан ветровой район"
+          : "Снеговая нагрузка выходит за лестницу порогов ИНСИ — нужен расчёт конструктора",
+      );
     }
     climate = {
       ok: true,
