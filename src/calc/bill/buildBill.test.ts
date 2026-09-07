@@ -77,6 +77,7 @@ describe("buildBill — «22316»", () => {
     expect(t["F70"]).toBeCloseTo(92971.10571428572, 2); // ИТОГО водосток
     expect(t["F81"]).toBeCloseTo(151676.2614857143, 2); // Итого кровля
     expect(t["F100"]).toBeCloseTo(1053876.2881239487, 2); // Итого каркас (доп.)
+    expect(t["F114"]).toBeCloseTo(1502256.3264, 6); // Итого стена
     expect(t["F147"]).toBeCloseTo(2039506.3353061413, 2); // Итого кровля (доп.)
   });
 
@@ -108,12 +109,14 @@ describe("buildBill — «22316»", () => {
   });
 
   it("adds up to the bill's own bottom line, packaging included", () => {
-    // F148 = 4 595 638,95; F149 = 6 402 698,78; F151 = 6 530 752,75.
-    // Стеновая обшивка у нас на 0,8 м² меньше — см. описку с воротами,
-    // поэтому сверяем с этим зазором.
-    expect(bill.materialsTotal).toBeCloseTo(1807059.828, 2);
-    expect(bill.totalWithPackaging).toBeGreaterThan(6528000);
-    expect(bill.totalWithPackaging).toBeLessThan(6531000);
+    // Раньше здесь стоял зазор в 2 344 ₽: ворота 4 × 4,2 вычитались из
+    // стены целиком, тогда как в файле — как 4 × 4. Расчётчик подтвердил,
+    // что это правило («округляется в меньшую сторону», ширина тоже), и
+    // после его применения расчёт сходится с файлом до копейки.
+    expect(bill.materialsTotal).toBeCloseTo(1807059.8284754017, 6);
+    expect(bill.additionalTotal).toBeCloseTo(4595638.94983009, 6);
+    expect(bill.recommendedPrice).toBeCloseTo(6402698.778305491, 6);
+    expect(bill.totalWithPackaging).toBeCloseTo(6530752.753871601, 6);
   });
 
   it("reports the building mass in the same ballpark as the bill's 41 198 кг", () => {

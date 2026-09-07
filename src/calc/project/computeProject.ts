@@ -29,6 +29,7 @@ import { computeFrameTakeoff } from "../geometry/frameTakeoff";
 import { computeHorizTiesMass_kg } from "../geometry/horizTies";
 import {
   computeOpeningsArea_m2,
+  computeOpeningsDeduction_m2,
   computeOpeningsCost,
   windowFramingPerimeter_m,
   type OpeningsInput,
@@ -358,12 +359,14 @@ export function computeProject(inputs: ProjectInputs) {
 
   // ---- Ограждение ---------------------------------------------------
   const openingsArea = computeOpeningsArea_m2(openings);
+  // Из стены вычитаются размеры, округлённые вниз до целых метров.
+  const openingsDeduction = computeOpeningsDeduction_m2(openings);
   const openingsCost = computeOpeningsCost(openings);
 
   const grossWallArea = computeWallArea_m2(geometry);
   const envelope = {
     grossWallArea,
-    wallArea: Math.max(0, grossWallArea - openingsArea),
+    wallArea: Math.max(0, grossWallArea - openingsDeduction),
     roofArea: computeRoofArea_m2(geometry),
   };
 
@@ -514,6 +517,7 @@ export function computeProject(inputs: ProjectInputs) {
     purlin,
     purlinLayout,
     openingsArea,
+    openingsDeduction,
     openingsCost,
     envelope,
     wallCladding,

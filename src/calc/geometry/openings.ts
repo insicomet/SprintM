@@ -22,9 +22,45 @@ export const DEFAULT_OPENINGS: OpeningsInput = {
   windowHeight_m: 0,
 };
 
-/** Суммарная площадь проёмов (ворота + двери + окна), м² — вычитается из площади стен под обшивку. */
+/** Суммарная площадь проёмов (ворота + двери + окна), м² — по фактическим размерам. */
 export function computeOpeningsArea_m2(openings: OpeningsInput): number {
   return gatesArea_m2(openings) + doorsArea_m2(openings) + windowsArea_m2(openings);
+}
+
+/**
+ * Округление размера проёма для ВЫЧЕТА из площади стен — вниз до целых
+ * метров, и ширина, и высота (правило подтверждено расчётчиком).
+ *
+ * Отсюда та разница, которую я полгода считал опиской: в "22316" ворота
+ * 4 × 4,2 стоят в блоке проёмов как есть, а из стены вычитаются как
+ * 4 × 4 — то есть 16 м² вместо 16,8. В "22318" все размеры и так целые,
+ * поэтому там расхождения не видно.
+ */
+function floorToWholeMetres(size_m: number): number {
+  // Округляем до шестого знака перед отбрасыванием дробной части, иначе
+  // 3 м, пришедшие как 2,9999999, превратились бы в 2.
+  return Math.floor(Number(size_m.toFixed(6)));
+}
+
+/**
+ * Площадь проёмов, вычитаемая из площади стен под обшивку, м².
+ *
+ * Не равна computeOpeningsArea_m2: в ведомости вычет записан отдельной
+ * формулой с округлёнными размерами (лист "12м", C102), тогда как в
+ * блоке "Проемы" и в стоимости проёмы идут по фактическим размерам.
+ *
+ *   "22316": −1×30×1 − 2×1×1 − 4×4×1  →  30 + 2 + 16 = 48 м²
+ *            (ворота при этом 4 × 4,2 = 16,8 м² в блоке проёмов)
+ *   "22318": −3×3×2 − 1×2×1           →  18 + 2 = 20 м²
+ */
+export function computeOpeningsDeduction_m2(o: OpeningsInput): number {
+  const area = (count: number, width_m: number, height_m: number) =>
+    count * floorToWholeMetres(width_m) * floorToWholeMetres(height_m);
+  return (
+    area(o.gatesCount, o.gateWidth_m, o.gateHeight_m) +
+    area(o.doorsCount, o.doorWidth_m, o.doorHeight_m) +
+    area(o.windowsCount, o.windowWidth_m, o.windowHeight_m)
+  );
 }
 
 function gatesArea_m2(o: OpeningsInput): number {

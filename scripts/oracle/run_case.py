@@ -1,6 +1,11 @@
 """Гипотетический расчёт: подборщик и ведомость пересчитываются LibreOffice,
 те же исходные данные прогоняются через приложение, итоги сверяются."""
 import json, subprocess, sys, os, math, warnings, openpyxl
+
+
+def floor_m(size):
+    """Размер проёма для вычета из стены — вниз до целых метров."""
+    return int(math.floor(round(size, 6)))
 warnings.filterwarnings("ignore")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -105,10 +110,11 @@ def run(case):
         "J161": 1, "K161": 2, "L161": 0,
         "J162": o["doorWidth_m"], "K162": o["doorHeight_m"], "L162": o["doorsCount"],
         "J163": o["gateWidth_m"], "K163": o["gateHeight_m"], "L163": o["gatesCount"],
+        # из стены вычитаются размеры, округлённые вниз до целых метров
         "C102": (f'=((C8+C9)*2*(C10)+C8*2*2)'
-                 f'-{o["windowsCount"]}*{o["windowWidth_m"]}*{o["windowHeight_m"]}'
-                 f'-{o["doorsCount"]}*{o["doorWidth_m"]}*{o["doorHeight_m"]}'
-                 f'-{o["gatesCount"]}*{o["gateWidth_m"]}*{o["gateHeight_m"]}'),
+                 f'-{o["windowsCount"]}*{floor_m(o["windowWidth_m"])}*{floor_m(o["windowHeight_m"])}'
+                 f'-{o["doorsCount"]}*{floor_m(o["doorWidth_m"])}*{floor_m(o["doorHeight_m"])}'
+                 f'-{o["gatesCount"]}*{floor_m(o["gateWidth_m"])}*{floor_m(o["gateHeight_m"])}'),
         "E102": tr["wallPanelPrice"], "H102": tr["wallPanelMass"], "B102": f'СП {inp["wallPanel_mm"]}',
         "E138": tr["roofPanelPrice"], "H138": tr["roofPanelMass"], "B138": f'СП {inp["roofPanel_mm"]}',
         # саморез крепления панели — строка таблицы M110:M115 под толщину

@@ -153,20 +153,17 @@ describe("computeProject — реальный проект «22316»", () => {
     expect(line(r, "Окна, ворота, двери").cost).toBeCloseTo(921840, 4);
   });
 
-  it("differs from the bill only by the estimator's own gate slip", () => {
-    // Ведомость вычитает ворота из площади стен как 4 × 4 (C102), а в блоке
-    // «Проемы» те же ворота стоят 4 × 4,2. Мы считаем по 4 × 4,2 — честно,
-    // и получаем стену на 0,8 м² меньше.
-    expect(r.envelope.wallArea).toBeCloseTo(504 - 0.8, 6);
+  it("matches the bill on the wall too, gates included", () => {
+    // Ведомость вычитает ворота из площади стен как 4 × 4 (C102), тогда как
+    // в блоке «Проемы» те же ворота стоят 4 × 4,2. Я считал это опиской и
+    // держал зазор в 2 344 ₽; расчётчик подтвердил, что это правило —
+    // размеры проёма округляются вниз до целых, и ширина тоже.
+    expect(r.openingsArea).toBeCloseTo(48.8, 9); // фактическая площадь
+    expect(r.openingsDeduction).toBeCloseTo(48, 9); // то, что вычитается
+    expect(r.envelope.wallArea).toBeCloseTo(504, 6);
 
-    const wall = line(r, "Стеновое ограждение").cost!;
-    const gap = 1596258.6739806319 - wall;
-    expect(gap).toBeGreaterThan(2340);
-    expect(gap).toBeLessThan(2350);
-
-    // Тот же зазор — и в итоге, больше нигде расхождений нет.
-    const total = 6530752.753871601 + 921840;
-    expect(total - r.commercial.totalCost!).toBeCloseTo(gap, 6);
+    expect(line(r, "Стеновое ограждение").cost!).toBeCloseTo(1596258.6739806319, 6);
+    expect(r.commercial.totalCost!).toBeCloseTo(6530752.753871601 + 921840, 6);
   });
 });
 
