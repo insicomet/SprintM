@@ -121,16 +121,15 @@ describe("computeFrameFasteners", () => {
     expect(fc(eight)).toBeCloseTo(fc(one) * 8, 6);
   });
 
-  it("takes the М16 bolt coefficient from the frame pitch, not the span", () => {
-    // "22285" — тот же пролёт 18, что и у "22316", но шаг 4 вместо 4,5,
-    // и в ведомости стоит коэффициент 30 против 50. По пролёту это не
-    // объяснить; O88 = 292 + 30×11/13 + 12×8/13 + 12×2/13 -> 4246 болтов.
-    const korkino = computeFrameFasteners(project22285.geometry, project22285.frames, 292);
-    const bolts = korkino.items.find((i) => i.name === "Болт М16х50")!;
-    expect(bolts.count).toBeCloseTo(4246, 6);
-
-    // А "22316" с шагом 4,5 по-прежнему даёт 2884.
+  it("takes the М16 bolt coefficient from the span, as the estimator's note says", () => {
+    // «22316», пролёт 18 → коэффициент 50, всего 2884 болта.
     const berez = computeFrameFasteners(project22316.geometry, project22316.frames, 308);
     expect(berez.items.find((i) => i.name === "Болт М16х50")!.count).toBeCloseTo(2884, 6);
+
+    // «22285» — тот же пролёт 18, и по правилу тоже 50: 292 + 50×11/13 + … → 4466.
+    // В самом файле там стоит 30 (4246 болтов), но расчётчик посмотрела и
+    // сказала: «в 22285 должно быть 50, а не 30, там ошибка».
+    const korkino = computeFrameFasteners(project22285.geometry, project22285.frames, 292);
+    expect(korkino.items.find((i) => i.name === "Болт М16х50")!.count).toBeCloseTo(4466, 6);
   });
 });

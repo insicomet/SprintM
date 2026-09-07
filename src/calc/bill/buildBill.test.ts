@@ -216,9 +216,11 @@ describe("buildBill — «22285», третий реальный проект", 
     expect(project.effectiveExtraTubeMass_t).toBeCloseTo(0.85596, 9);
   });
 
-  it("counts the М16 bolts by the frame pitch (4246, not 4466)", () => {
+  it("counts the М16 bolts by the span — 4466 against the file's 4246", () => {
+    // В файле коэффициент 30 при пролёте 18 м; расчётчик подтвердила,
+    // что это ошибка и должно быть 50. Расходимся намеренно.
     const bolts = bill.additional[0].rows.find((r) => r.name === "Болт М16х50")!;
-    expect(bolts.count).toBeCloseTo(4246, 6);
+    expect(bolts.count).toBeCloseTo(4466, 6);
   });
 
   it("reproduces five of the seven section totals exactly", () => {
@@ -229,22 +231,19 @@ describe("buildBill — «22285», третий реальный проект", 
     expect(t["F147"]).toBeCloseTo(3283632.3316898257, 6); // Итого кровля (доп.)
   });
 
-  it("differs on the wall only by the gable allowance the estimator halved", () => {
+  it("differs on the wall by the gable allowance the file forgot to double", () => {
     // В «22316» и «22318» надбавка на фронтоны записана как пролёт×2×2,
-    // здесь — как пролёт×2, то есть 36 м² вместо 72. Ячейка вписана
-    // руками и правила для неё нет — вопрос расчётчику.
+    // здесь — как пролёт×2, то есть 36 м² вместо 72. Расчётчик: «в 22285
+    // тоже надо умножить на 2 для запаса, для пролётов от 12 м умножаем».
     expect(project.envelope.wallArea).toBeCloseTo(782, 6); // в файле 746
     const gap = t["F114"]! - 2243832.0162;
-    // 36 м² панели и саморезов к ним, с накладными
     expect(gap).toBeCloseTo((36 * 2740 + (36 / 4) * 6 * 1.1 * 51.9) * 1.02, 4);
   });
 
-  it("differs on the frame extras by two hand-typed cells that nearly cancel", () => {
-    // L156 (обрамление окон) в файле = 2×(48+1)×1 = 98 п.м, то есть по
-    // ДЛИНЕ ЗДАНИЯ, а не по ширине окна 46 — у нас 94. И металл в этом
-    // файле по другому снимку прайса: труба 137 430 против 136 050,
-    // уголок 166 750 против 172 500. Две ошибки почти гасят друг друга,
-    // поэтому итог расходится всего на 138 ₽ — совпадение, не точность.
-    expect(t["F100"]! - 1572690.0028402077).toBeCloseTo(138.25, 1);
+  it("differs on the frame extras by the bolts and two hand-typed cells", () => {
+    // 220 болтов с гайками и шайбами (коэффициент 30 вместо 50 в файле),
+    // обрамление окон и металл по другому снимку прайса: труба 137 430
+    // против 136 050, уголок 166 750 против 172 500.
+    expect(t["F100"]! - 1572690.0028402077).toBeCloseTo(9797.43, 1);
   });
 });
