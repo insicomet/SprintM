@@ -18,6 +18,7 @@ import {
   computeWallUnpricedItems,
   type UnpricedSection,
 } from "../cladding/unpricedItems";
+import { computeOpeningsFraming } from "../geometry/openingsFraming";
 import { facadePostCount } from "../facadePost/postCount";
 import { selectFacadePost } from "../facadePost/selectFacadePost";
 import { computeDrainage } from "../drainage/drainage";
@@ -104,8 +105,13 @@ export interface ProjectInputs {
    * (вывод!D38: шаг рам ≤ 4 м → 60х3, иначе 80х3).
    */
   strutTube?: StrutTube;
-  /** Ручное слагаемое в «Конструкциях из труб», т. */
-  extraTubeMass_t: number;
+  /**
+   * Слагаемое «Конструкций из труб» вручную, т. Пусто — считаем сами:
+   * это металл обрамления проёмов (вывод!E68), см. openingsFraming.
+   * Ручной ввод нужен, когда в проекте есть окна: их перемычки
+   * подборщик подбирает у себя, и этот расчёт мы ещё не разобрали.
+   */
+  extraTubeMass_t?: number;
   /** Шаг стоек фахверка, м — влияет только на подбор сечения стойки. */
   postSpacing_m: number;
   /**
@@ -281,6 +287,17 @@ export function computeProject(inputs: ProjectInputs) {
   const effectiveStrutTube: StrutTube =
     strutTube ?? ((derivedStrutTube as StrutTube | undefined) ?? "80х3");
 
+  // Слагаемое «Конструкций из труб», которое расчётчик вписывает руками:
+  // это металл обрамления проёмов из подборщика (вывод!E68).
+  const openingsFraming = computeOpeningsFraming({
+    gatesCount: openings.gatesCount,
+    gateWidth_m: openings.gateWidth_m,
+    doorsCount: openings.doorsCount,
+    framePitch_m: geometry.framePitch_m,
+    hasWindows: openings.windowsCount > 0 && openings.windowWidth_m > 0,
+  });
+  const effectiveExtraTubeMass_t = extraTubeMass_t ?? openingsFraming.total_t;
+
   const bracing =
     frameTakeoff && selection
       ? computeBracing({
@@ -291,7 +308,7 @@ export function computeProject(inputs: ProjectInputs) {
           frameCount: frameTakeoff.frameCount,
           tubeStrutCount,
           strutTube: effectiveStrutTube,
-          extraTubeMass_t,
+          extraTubeMass_t: effectiveExtraTubeMass_t,
           windowFramingPerimeter_m: windowFramingPerimeter_m(openings),
           gussetMassPerFrame_kg: selection.massGussetPlates_kg,
         })
@@ -507,6 +524,8 @@ export function computeProject(inputs: ProjectInputs) {
     unpricedSections,
     secondaryMembers,
     effectiveStrutTube,
+    openingsFraming,
+    effectiveExtraTubeMass_t,
     facadePost,
     facadePostLayout,
     commercial,

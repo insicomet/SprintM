@@ -48,10 +48,12 @@ export function App() {
   const [openings, setOpenings] = useState<OpeningsInput>(DEFAULT_OPENINGS);
   const [postSpacing, setPostSpacing] = useState(2);
   const [snowGuards, setSnowGuards] = useState(true);
-  // Ручные входы строки «Конструкции из труб» — правила для них в исходнике нет.
+  // Количество распорок в исходнике вбито руками; сечение выводится
+  // правилом подборщика, пустое значение — «по правилу».
   const [tubeStrutCount, setTubeStrutCount] = useState(3);
-  const [strutTube, setStrutTube] = useState<StrutTube>("80х3");
-  const [extraTubeMass_t, setExtraTubeMass] = useState(0.432);
+  const [strutTube, setStrutTube] = useState<StrutTube | "">("");
+  // 0 — выводим сами из проёмов (вывод!E68), см. openingsFraming.
+  const [extraTubeMass_t, setExtraTubeMass] = useState(0);
   // Шаг рам вручную (вывод!D9): расчётчик задаёт его при некратной длине.
   const [framePitchOverride, setFramePitchOverride] = useState(0);
   // Прогон под ограждение (вывод!D27) и мин. шаг прогонов (вывод!D25).
@@ -92,8 +94,8 @@ export function App() {
         snowGuards,
         railingPurlin,
         tubeStrutCount,
-        strutTube,
-        extraTubeMass_t,
+        strutTube: strutTube || undefined,
+        extraTubeMass_t: extraTubeMass_t || undefined,
         postSpacing_m: postSpacing,
         trussedVariant,
         mezzanine,
@@ -153,6 +155,8 @@ export function App() {
     drainage,
     unpricedSections,
     secondaryMembers,
+    effectiveStrutTube,
+    openingsFraming,
     facadePost,
     facadePostLayout,
     commercial,
@@ -492,17 +496,24 @@ export function App() {
                 value={tubeStrutCount}
                 onChange={(e) => setTubeStrutCount(Number(e.target.value))}
               />
-              <select value={strutTube} onChange={(e) => setStrutTube(e.target.value as StrutTube)}>
+              <select
+                value={strutTube}
+                onChange={(e) => setStrutTube(e.target.value as StrutTube | "")}
+              >
+                <option value="">по правилу подборщика</option>
                 <option value="60х3">60х3</option>
                 <option value="80х3">80х3</option>
                 <option value="120х3">120х3</option>
               </select>
             </div>
-            <span className="field-hint">В обоих реальных проектах — 3 шт.</span>
+            <span className="field-hint">
+              Количество в обоих реальных проектах — 3 шт.; сечение подборщик выводит по шагу рам
+              (≤ 4 м — 60х3, иначе 80х3), сейчас {effectiveStrutTube}.
+            </span>
           </label>
 
           <label>
-            Добавка к трубам, т
+            Обрамление проёмов, т
             <input
               type="number"
               min="0"
@@ -510,7 +521,13 @@ export function App() {
               value={extraTubeMass_t}
               onChange={(e) => setExtraTubeMass(Number(e.target.value))}
             />
-            <span className="field-hint">Слагаемое, вписанное в формулу руками. Правила нет.</span>
+            <span className={`field-hint${!openingsFraming.complete && extraTubeMass_t === 0 ? " invalid" : ""}`}>
+              {extraTubeMass_t > 0
+                ? `Задано вручную; по воротам и дверям вышло бы ${openingsFraming.total_t.toFixed(5)} т`
+                : openingsFraming.complete
+                  ? `0 — считаем сами: ${openingsFraming.total_t.toFixed(5)} т (ворота и двери)`
+                  : "В проекте есть окна: их перемычки подбирает подборщик — впишите его «МЕ окон, ворот, дверей» (вывод!E68)"}
+            </span>
           </label>
 
           <label>
@@ -730,8 +747,21 @@ export function App() {
             <dl className="result-list">
               <dt>Шаг рам</dt>
               <dd>{frame.value.framePitch_m} м</dd>
-              <dt>Болты М16 в раме</dt>
-              <dd>{frame.value.bolts.totalInFrame} шт.</dd>
+              <dt>Болты (по распоряжению №40)</dt>
+              <dd>
+                балки конёк {frame.value.bolts.beamRidge} · балки карниз{" "}
+                {frame.value.bolts.beamEave} · колонны опора {frame.value.bolts.columnBase} ·
+                колонны карниз {frame.value.bolts.columnEave} — всего{" "}
+                <strong>{frame.value.bolts.totalInFrame}</strong>
+              </dd>
+              <dt>Затяжка к карнизной фасонке, М16</dt>
+              <dd>4 шт. (200 кН)</dd>
+              <dt>Вес фасонок</dt>
+              <dd>
+                {frame.value.massGussetPlates_kg !== null
+                  ? `${frame.value.massGussetPlates_kg} кг на раму`
+                  : "нет в банке"}
+              </dd>
             </dl>
             <p className="hint">
               Затяжки, распорки, связи и стойки фахверка подборщик выводит правилами от пролёта,

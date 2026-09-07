@@ -42,8 +42,15 @@ def run(case):
     wb.save(f"engine_{name}.xlsx")
     recalc(f"{HERE}/engine_{name}.xlsx", f"{HERE}/out/engine_{name}.xlsx")
     e = openpyxl.load_workbook(f"out/engine_{name}.xlsx", data_only=True)["вывод"]
-    eng = {k: e[k].value for k in ["D3","D22","D23","D28","D33","D34","D35","D38","E52","D57","E24","D16","D13"]}
+    eng = {k: e[k].value for k in ["D3","D22","D23","D28","D33","D34","D35","D38","E52","D57","E24","E68","D16","D13"]}
     print("подборщик :", json.dumps(eng, ensure_ascii=False))
+
+    # Обрамление проёмов (вывод!E68) приложение выводит само, но окна
+    # ему пока не по силам — там отдаём число подборщика вручную.
+    if inp["openings"]["windowsCount"] and inp["openings"]["windowWidth_m"]:
+        inp["extraTubeMass_t"] = eng["E68"]
+    else:
+        inp.pop("extraTubeMass_t", None)
 
     a = app(inp); sel, tr = a["sel"], a["transcribe"]
     print("приложение:", json.dumps(sel, ensure_ascii=False))
@@ -61,6 +68,7 @@ def run(case):
         ("вес фасонок",   eng["D57"], sel["gusset"]),
         ("масса прогонов",eng["E24"], sel["purlinMass"]),
         ("распорки",      eng["D38"], sel["strutTube"]),
+        ("обрамление, т", eng["E68"], sel["extraTubeMass_t"]),
     ]
     bad_chain = 0
     for label, x, y in chain:
@@ -88,7 +96,7 @@ def run(case):
         "L92": f'=SQRT({inp["span"]/4}*{inp["span"]/4}+O90*O90)',
         # погонный вес трубы распорок числом; само сечение выдаёт подборщик (вывод!D38)
         "C96": f'=(4*(C10+0.5)*J87+{TUBE_MASS[eng["D38"]]}*K95*C9'
-               f'+(8*2)*L92*L85*1.1+(2*2)*L93*L85*1.1)+{inp["extraTubeMass_t"]}+J85*L156',
+               f'+(8*2)*L92*L85*1.1+(2*2)*L93*L85*1.1)+{eng["E68"]}+J85*L156',
         # уклон кровли: подборщик даёт 6° при пролёте >21 м, в шаблоне вбито 15°
         "J14": f'={6 if inp["span"] > 21 else 15}*3.14/180',
         "K95": inp["tubeStrutCount"],

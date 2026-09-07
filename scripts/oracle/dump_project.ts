@@ -23,6 +23,7 @@ console.log(JSON.stringify({
     lines: p.purlinLayout?.lineCount,
     frameCount: p.frameTakeoff?.frameCount,
     strutTube: p.effectiveStrutTube,
+    extraTubeMass_t: p.effectiveExtraTubeMass_t,
   },
   transcribe: {
     beamPrice: p.frameTakeoff?.beam.priceSale_perM, beamMass: p.frameTakeoff?.beam.massPerM_kg,

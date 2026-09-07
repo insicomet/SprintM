@@ -31,6 +31,10 @@ const project22316: ProjectInputs = {
   railingPurlin: false,
   tubeStrutCount: 3,
   strutTube: "80х3",
+  // Расчётчик вписывает это слагаемое в C96 округлённым до трёх знаков.
+  // Само число приложение теперь выводит само (обрамление проёмов,
+  // вывод!E68 = 0,43176) — здесь ставим его округление, чтобы итог сошёлся
+  // с файлом до копейки; разница округления — 33 ₽ на разделе.
   extraTubeMass_t: 0.432,
   postSpacing_m: 2,
 };
@@ -54,7 +58,7 @@ const project22318: ProjectInputs = {
   },
   snowGuards: false,
   strutTube: "60х3",
-  extraTubeMass_t: 0.795,
+  extraTubeMass_t: 0.795, // округление расчётчика от 0,79548
 };
 
 function totals(bill: ReturnType<typeof buildBill>) {
