@@ -22,6 +22,7 @@ console.log(JSON.stringify({
     gusset: p.frame.ok ? p.frame.value.massGussetPlates_kg : null,
     lines: p.purlinLayout?.lineCount,
     frameCount: p.frameTakeoff?.frameCount,
+    strutTube: p.effectiveStrutTube,
   },
   transcribe: {
     beamPrice: p.frameTakeoff?.beam.priceSale_perM, beamMass: p.frameTakeoff?.beam.massPerM_kg,

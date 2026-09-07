@@ -5,6 +5,7 @@ import {
   type BankBlock,
 } from "../climate/snowLadder";
 import { computeBracing, type StrutTube } from "../frame/bracing";
+import { selectSecondaryMembers } from "../frame/secondaryMembers";
 import { findFrameSelection, snapHeight } from "../frame/sectionBank";
 import {
   computeRoofCladdingSection,
@@ -98,7 +99,11 @@ export interface ProjectInputs {
   railingPurlin: boolean;
   /** Количество распорок из трубы (K95) — вбито вручную. */
   tubeStrutCount: number;
-  strutTube: StrutTube;
+  /**
+   * Труба распорок вручную. Пусто — по правилу подборщика
+   * (вывод!D38: шаг рам ≤ 4 м → 60х3, иначе 80х3).
+   */
+  strutTube?: StrutTube;
   /** Ручное слагаемое в «Конструкциях из труб», т. */
   extraTubeMass_t: number;
   /** Шаг стоек фахверка, м — влияет только на подбор сечения стойки. */
@@ -260,6 +265,22 @@ export function computeProject(inputs: ProjectInputs) {
 
   const frameExtras = frameTakeoff ? computeFrameExtras(geometry, frameTakeoff.frameCount) : null;
 
+  // Второстепенные сечения — затяжки, распорки, связи, стойки фахверка:
+  // подборщик выводит их формулами (вывод!D36:D41), см. secondaryMembers.
+  const secondaryMembers = bankBlock
+    ? selectSecondaryMembers({
+        span_m: span,
+        length_m,
+        height_m,
+        framePitch_m: geometry.framePitch_m,
+        snowDistrict: bankBlock.snowDistrict,
+        trussedVariant,
+      })
+    : null;
+  const derivedStrutTube = secondaryMembers?.derived.find((m) => m.name === "Распорки")?.section;
+  const effectiveStrutTube: StrutTube =
+    strutTube ?? ((derivedStrutTube as StrutTube | undefined) ?? "80х3");
+
   const bracing =
     frameTakeoff && selection
       ? computeBracing({
@@ -269,7 +290,7 @@ export function computeProject(inputs: ProjectInputs) {
           framePitch_m: geometry.framePitch_m,
           frameCount: frameTakeoff.frameCount,
           tubeStrutCount,
-          strutTube,
+          strutTube: effectiveStrutTube,
           extraTubeMass_t,
           windowFramingPerimeter_m: windowFramingPerimeter_m(openings),
           gussetMassPerFrame_kg: selection.massGussetPlates_kg,
@@ -484,6 +505,8 @@ export function computeProject(inputs: ProjectInputs) {
     roofTrim,
     drainage,
     unpricedSections,
+    secondaryMembers,
+    effectiveStrutTube,
     facadePost,
     facadePostLayout,
     commercial,

@@ -152,6 +152,7 @@ export function App() {
     roofTrim,
     drainage,
     unpricedSections,
+    secondaryMembers,
     facadePost,
     facadePostLayout,
     commercial,
@@ -675,22 +676,78 @@ export function App() {
         ) : frame?.ok === false ? (
           <p className="error">{frame.error}</p>
         ) : frame?.value ? (
-          <dl className="result-list">
-            <dt>Колонна</dt>
-            <dd>
-              {frame.value.column.profile} ({frame.value.column.utilizationPercent}% использования)
-            </dd>
-            <dt>Балка</dt>
-            <dd>
-              {frame.value.beam.profile} ({frame.value.beam.utilizationPercent}% использования)
-            </dd>
-            <dt>Прогоны</dt>
-            <dd>{frame.value.purlin ? frame.value.purlin.profile : "—"}</dd>
-            <dt>Шаг рам</dt>
-            <dd>{frame.value.framePitch_m} м</dd>
-            <dt>Болты М16 в раме</dt>
-            <dd>{frame.value.bolts.totalInFrame} шт.</dd>
-          </dl>
+          <>
+            <div className="table-scroll">
+              <table className="bill sections">
+                <thead>
+                  <tr>
+                    <th>Элемент</th>
+                    <th>Сечение</th>
+                    <th>Сталь</th>
+                    <th className="num">% использ.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Балки</td>
+                    <td>{frame.value.beam.profile}</td>
+                    <td>М.п.350</td>
+                    <td className="num">{frame.value.beam.utilizationPercent}</td>
+                  </tr>
+                  <tr>
+                    <td>Колонны</td>
+                    <td>{frame.value.column.profile}</td>
+                    <td>М.п.350</td>
+                    <td className="num">{frame.value.column.utilizationPercent}</td>
+                  </tr>
+                  <tr>
+                    <td>Прогоны</td>
+                    <td>{purlin?.profile.name ?? "—"}</td>
+                    <td>{purlin ? purlin.profile.series.replace("МП", "М.п.") : ""}</td>
+                    <td className="num">—</td>
+                  </tr>
+                  {secondaryMembers?.derived.map((m) => (
+                    <tr key={m.name}>
+                      <td>{m.name}</td>
+                      <td>
+                        {m.section ?? <span className="incomplete">{m.missing}</span>}
+                      </td>
+                      <td>{m.steel}</td>
+                      <td className="num">—</td>
+                    </tr>
+                  ))}
+                  {secondaryMembers?.fixed.map((m) => (
+                    <tr key={m.name}>
+                      <td>{m.name}</td>
+                      <td>{m.section}</td>
+                      <td>{m.steel}</td>
+                      <td className="num">—</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <dl className="result-list">
+              <dt>Шаг рам</dt>
+              <dd>{frame.value.framePitch_m} м</dd>
+              <dt>Болты М16 в раме</dt>
+              <dd>{frame.value.bolts.totalInFrame} шт.</dd>
+            </dl>
+            <p className="hint">
+              Затяжки, распорки, связи и стойки фахверка подборщик выводит правилами от пролёта,
+              шага рам, длины и снегового района — здесь они посчитаны по ним же. Пластины узлов
+              в подборщике вписаны константой.
+            </p>
+            {span > 21 && (
+              <p className="hint incomplete">
+                Стойку фахверка при пролёте больше 21 м подборщик считает отдельно на листе «24м» —
+                этот расчёт мы ещё не разобрали. И там же он просит горизонтальные связи{" "}
+                {secondaryMembers?.derived.find((m) => m.name === "Связи горизонтальные")?.section},
+                тогда как в формуле массы ведомости жёстко стоит труба 80х3: массу пока считаем по
+                ведомости. Оба места — вопрос расчётчику.
+              </p>
+            )}
+          </>
         ) : (
           <p className="error">
             Комбинация пролёт={span}м, высота={heightBucket}м, k=

@@ -235,8 +235,15 @@ footer {
 }
 
 /* Таблица шире карточки — уводим её в собственный скролл, а не в скролл страницы. */
-.bill-card {
+.bill-card,
+.table-scroll {
   overflow-x: auto;
+}
+
+/* Таблица подобранных сечений — уже ведомости, ей хватает меньшей ширины. */
+table.bill.sections {
+  min-width: 380px;
+  margin-bottom: 12px;
 }
 
 table.bill {
