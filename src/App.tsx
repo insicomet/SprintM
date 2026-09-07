@@ -1,12 +1,16 @@
 import { Fragment, useMemo, useState } from "react";
-import { getAllSettlementNames, getSupportedSvCodes } from "./calc/climate/svCode";
+import { findSettlement, getAllSettlementNames, getSupportedSvCodes } from "./calc/climate/svCode";
 import { getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
 import type { StrutTube } from "./calc/frame/bracing";
 import { heightLimitsForSpan } from "./calc/frame/sectionBank";
 import { WIND_DISTRICTS, windPressureForDistrict_kPa } from "./calc/climate/manualClimate";
+import { fileNameFor, parseSavedProject, serializeProject } from "./calc/project/saveLoad";
+import { parseTz } from "./calc/tz/parseTz";
+import { tzToInputs } from "./calc/tz/tzToInputs";
+import { readPdfText } from "./calc/tz/readPdfText";
 import { DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
 import { buildBill } from "./calc/bill/buildBill";
-import { computeProject } from "./calc/project/computeProject";
+import { computeProject, type ProjectInputs } from "./calc/project/computeProject";
 import { DECKING_MARKS, DEFAULT_DECKING_MARK } from "./calc/purlin/deckingSpan";
 import roofingTypesRaw from "./data/roofingSelfWeight.json";
 import { SPANS, type ResponsibilityLevel, type Span } from "./types/common";
@@ -76,6 +80,14 @@ export function App() {
   const [trussedVariant, setTrussedVariant] = useState(false);
   // Раздел «Перекрытие» — в ведомости он есть, но его итог обнулён.
   const [mezzanine, setMezzanine] = useState(false);
+  // Панель «Расчёт»: имя объекта, сообщение о последнем действии и
+  // список правок, которые понадобились при загрузке ТЗ.
+  const [projectTitle, setProjectTitle] = useState("");
+  const [fileMessage, setFileMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(
+    null,
+  );
+  const [tzAdjustments, setTzAdjustments] = useState<string[]>([]);
+  const [tzNotes, setTzNotes] = useState<string[]>([]);
 
   const project = useMemo(
     () =>
@@ -186,12 +198,197 @@ export function App() {
   const overrideCount =
     (snowOverrideKpa > 0 ? 1 : 0) + (svOverride ? 1 : 0) + (bankK !== "auto" ? 1 : 0);
 
+
+  // ---- Панель «Расчёт»: сохранить, открыть, загрузить ТЗ ----------------
+  const inputsSnapshot = () => project.inputs;
+
+  function saveToFile() {
+    const saved = serializeProject(inputsSnapshot(), projectTitle);
+    const url = URL.createObjectURL(
+      new Blob([JSON.stringify(saved, null, 2)], { type: "application/json" }),
+    );
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileNameFor(saved);
+    // Ссылку нужно вставить в документ: у открепленной браузер может
+    // проигнорировать имя файла и сохранить как «download».
+    document.body.append(a);
+    a.click();
+    a.remove();
+    // Отзываем ссылку не сразу: браузер ещё дочитывает blob, и на гонке
+    // теряется имя файла.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+    setProjectTitle(saved.title);
+    setFileMessage({ kind: "ok", text: `Сохранено: ${fileNameFor(saved)}` });
+  }
+
+  /** Разложить исходные данные обратно по полям формы. */
+  function applyInputs(next: ProjectInputs) {
+    setCity(next.city ?? "");
+    setManualMode(Boolean(next.manualClimate));
+    if (next.manualClimate) {
+      setManualSnow(next.manualClimate.snowLoad_kPa);
+      setManualWind(next.manualClimate.windDistrict);
+    }
+    setSpan(next.span);
+    setLength(next.length_m);
+    setHeight(next.height_m);
+    setResponsibility(next.gammaN);
+    setBankK(next.bankK);
+    setSvOverride(next.svOverride ?? "");
+    setSnowOverrideKpa(next.snowLoadOverride_kPa ?? 0);
+    setRoofingType(next.roofingType);
+    setDeckingMark(next.deckingMark);
+    setMaxStepOverrideMm(next.maxStepOverride_mm);
+    setMinStepMm(next.minStep_mm);
+    setFramePitchOverride(next.framePitchOverride_m);
+    setWallThickness(next.wallPanel_mm);
+    setRoofThickness(next.roofPanel_mm);
+    setOpenings(next.openings);
+    setSnowGuards(next.snowGuards);
+    setRailingPurlin(next.railingPurlin);
+    setTubeStrutCount(next.tubeStrutCount);
+    setStrutTube(next.strutTube ?? "");
+    setExtraTubeMass(next.extraTubeMass_t ?? 0);
+    setPostSpacing(next.postSpacing_m);
+    setTrussedVariant(Boolean(next.trussedVariant));
+    setMezzanine(Boolean(next.mezzanine));
+  }
+
+  async function openFile(file: File) {
+    const parsed = parseSavedProject(await file.text());
+    if (!parsed.ok) {
+      setFileMessage({ kind: "error", text: parsed.error });
+      return;
+    }
+    applyInputs(parsed.value.inputs);
+    setProjectTitle(parsed.value.title);
+    setTzAdjustments([]);
+    setTzNotes([]);
+    setFileMessage({ kind: "ok", text: `Открыт расчёт «${parsed.value.title}»` });
+  }
+
+  async function openTz(file: File) {
+    try {
+      const text = file.name.toLowerCase().endsWith(".pdf")
+        ? await readPdfText(file)
+        : await file.text();
+      const tz = parseTz(text);
+      const fill = tzToInputs(tz);
+
+      if (fill.span === undefined) {
+        setFileMessage({
+          kind: "error",
+          text: `Не удалось прочитать: ${tz.unread.join(", ") || "нет размеров здания"}`,
+        });
+        return;
+      }
+      // Города из ТЗ может не быть в справочнике — тогда сразу переводим
+      // форму в ручной ввод нагрузок, чтобы менеджер не гадал, почему
+      // расчёт пустой.
+      const extraNotes: string[] = [];
+      if (fill.city) {
+        setCity(fill.city);
+        const known = findSettlement(fill.city);
+        setManualMode(!known);
+        if (!known) {
+          extraNotes.push(
+            `«${fill.city}» нет в справочнике климата — задайте снеговую нагрузку ` +
+              `и ветровой район вручную в карточке «Объект»`,
+          );
+        }
+      }
+      setSpan(fill.span as Span);
+      if (fill.length_m !== undefined) setLength(fill.length_m);
+      if (fill.height_m !== undefined) setHeight(fill.height_m);
+      if (fill.gammaN !== undefined) setResponsibility(fill.gammaN as ResponsibilityLevel);
+      if (fill.wallPanel_mm !== undefined) setWallThickness(fill.wallPanel_mm);
+      if (fill.roofPanel_mm !== undefined) setRoofThickness(fill.roofPanel_mm);
+      if (fill.snowGuards !== undefined) setSnowGuards(fill.snowGuards);
+      setOpenings(fill.openings);
+      setProjectTitle(tz.number ? `ТЗ ${tz.number}` : "");
+      setTzAdjustments(fill.adjustments);
+      setTzNotes([...extraNotes, ...tz.notes, ...tz.unread.map((u) => `Не прочитано: ${u}`)]);
+      setFileMessage({
+        kind: "ok",
+        text: `Загружено ТЗ${tz.number ? ` № ${tz.number}` : ""}: поля заполнены`,
+      });
+    } catch (e) {
+      setFileMessage({ kind: "error", text: `Не удалось прочитать файл: ${(e as Error).message}` });
+    }
+  }
+
   return (
     <div className="page">
       <header>
         <h1>СпринтМ</h1>
         <p className="subtitle">Предварительный расчёт ангара ИНСИ — подбор сечений рамы</p>
       </header>
+
+      <section className="card toolbar-card">
+        <h2>Расчёт</h2>
+        <div className="form-grid">
+          <label className="span-2">
+            Название
+            <input
+              value={projectTitle}
+              onChange={(e) => setProjectTitle(e.target.value)}
+              placeholder="Например, ТЗ 22326 — Увильды"
+            />
+          </label>
+        </div>
+        <div className="toolbar">
+          <button type="button" onClick={saveToFile}>
+            Сохранить расчёт
+          </button>
+          <label className="file-button">
+            Открыть расчёт
+            <input
+              type="file"
+              accept=".json,application/json"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void openFile(f);
+                e.target.value = "";
+              }}
+            />
+          </label>
+          <label className="file-button">
+            Загрузить ТЗ
+            <input
+              type="file"
+              accept=".pdf,.txt"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void openTz(f);
+                e.target.value = "";
+              }}
+            />
+          </label>
+        </div>
+        {fileMessage && (
+          <p className={fileMessage.kind === "error" ? "error" : "hint"}>{fileMessage.text}</p>
+        )}
+        {tzAdjustments.length > 0 && (
+          <ul className="tz-notes">
+            {tzAdjustments.map((a) => (
+              <li key={a} className="incomplete">
+                {a}
+              </li>
+            ))}
+          </ul>
+        )}
+        {tzNotes.length > 0 && (
+          <details className="tz-extra">
+            <summary>Из задания, на что посмотреть глазами ({tzNotes.length})</summary>
+            <ul className="tz-notes">
+              {tzNotes.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+            </ul>
+          </details>
+        )}
+      </section>
 
       <section className="card">
         <h2>Объект</h2>

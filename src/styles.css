@@ -93,6 +93,57 @@ label {
   opacity: 0.85;
 }
 
+/* Панель «Расчёт»: сохранить, открыть, загрузить ТЗ. */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.toolbar button,
+.file-button {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.toolbar button:hover,
+.file-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Настоящий <input type=file> прячем — кликается подпись. */
+.file-button input {
+  display: none;
+}
+
+.toolbar-card .hint,
+.toolbar-card .error {
+  margin-top: 10px;
+}
+
+.tz-notes {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+details.tz-extra summary {
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+}
+
 /* Ссылка внутри подписи под полем — переключает режим, а не уводит со страницы. */
 .linklike {
   background: none;

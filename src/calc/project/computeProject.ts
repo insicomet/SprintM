@@ -510,6 +510,8 @@ export function computeProject(inputs: ProjectInputs) {
     cost != null && knownCost > 0 ? (cost / knownCost) * 100 : null;
 
   return {
+    /** Исходные данные как есть — чтобы расчёт можно было сохранить и открыть. */
+    inputs,
     climate,
     /** Пара «снеговой район + k», выбранная лестницей нагрузок ИНСИ. */
     bankBlock,
