@@ -81,27 +81,83 @@ export function selectBankBlock(
   roofingType: string,
   gammaN: ResponsibilityLevel,
 ): BankBlock | null {
+  const pick = pickBankBlock(snowLoad_kPa, roofingType, gammaN);
+  return pick && pick.fallback === null ? pick.block : null;
+}
+
+/**
+ * Ступень лестницы, взятая приблизительно, — почему и вместо чего.
+ *
+ * Лестница просчитана от 0,40 до 2,60 кПа (с надбавкой за покрытие).
+ * Выше неё в исходнике стоит «уточнить у главного конструктора», ниже
+ * нет вообще ничего. По указанию проектировщика в обоих случаях берём
+ * крайнюю просчитанную ступень и помечаем расчёт «требует проверки».
+ */
+export type LadderFallback =
+  | { kind: "выше"; threshold_kPa: number }
+  | { kind: "ниже"; threshold_kPa: number };
+
+export interface BankBlockPick {
+  block: BankBlock;
+  /** null — ступень нашлась точно; иначе взята крайняя просчитанная. */
+  fallback: LadderFallback | null;
+}
+
+/**
+ * Блок банка по нагрузке — с откатом на ближайшую просчитанную ступень.
+ *
+ * Отличается от selectBankBlock только тем, что не сдаётся на краях:
+ * нагрузка выше лестницы считается по последней ступени (V × 1,0,
+ * несущая 2,5 кПа), ниже лестницы — по первой (I × 1,0). Возвращает
+ * null по-прежнему только тогда, когда у покрытия нет надбавки, —
+ * там подставлять нечего, надбавка входит в саму искомую нагрузку.
+ */
+export function pickBankBlock(
+  snowLoad_kPa: number,
+  roofingType: string,
+  gammaN: ResponsibilityLevel,
+): BankBlockPick | null {
   const supplement = roofingSupplement_kPa(roofingType);
   if (supplement === null) return null;
   const lookup = snowLoad_kPa + supplement;
+
+  const computed = ladder["ступени"].filter((s) => stepBlock(s, gammaN) !== null);
+  if (computed.length === 0) return null;
 
   let step: LadderStep | null = null;
   for (const candidate of ladder["ступени"]) {
     if (candidate["порог_кПа"] <= lookup) step = candidate;
     else break;
   }
-  if (!step) return null;
 
+  const build = (s: LadderStep, fallback: LadderFallback | null): BankBlockPick => {
+    const block = stepBlock(s, gammaN);
+    if (!block) throw new Error("ступень без района — не должно случаться");
+    return {
+      block: { ...block, lookupLoad_kPa: lookup, roofingSupplement_kPa: supplement },
+      fallback,
+    };
+  };
+
+  if (step === null) {
+    const first = computed[0];
+    return build(first, { kind: "ниже", threshold_kPa: first["порог_кПа"] });
+  }
+  if (stepBlock(step, gammaN) !== null) return build(step, null);
+
+  const last = computed[computed.length - 1];
+  return build(last, { kind: "выше", threshold_kPa: last["порог_кПа"] });
+}
+
+/** Пара «район + k + несущая» одной ступени, или null, если ступень не просчитана. */
+function stepBlock(
+  step: LadderStep,
+  gammaN: ResponsibilityLevel,
+): Omit<BankBlock, "lookupLoad_kPa" | "roofingSupplement_kPa"> | null {
   const district = gammaN === 0.8 ? step["район_γn08"] : step["район_γn1"];
   const k = gammaN === 0.8 ? step["k_γn08"] : step["k_γn1"];
+  const capacity = step["несущая_кПа"];
   // Верхние ступени помечены «уточнить у главного конструктора».
-  if (district === null || k === null || step["несущая_кПа"] === null) return null;
-
-  return {
-    snowDistrict: district,
-    bankK: k as ResponsibilityLevel,
-    designLoad_kPa: step["несущая_кПа"],
-    lookupLoad_kPa: lookup,
-    roofingSupplement_kPa: supplement,
-  };
+  if (district === null || k === null || capacity === null) return null;
+  return { snowDistrict: district, bankK: k as ResponsibilityLevel, designLoad_kPa: capacity };
 }

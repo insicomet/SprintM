@@ -1,13 +1,8 @@
 import { describe, expect, it } from "vitest";
 import settlementsRaw from "../../data/settlementsClimate.json";
-import {
-  computeSvCode,
-  getAllSettlementNames,
-  qualifiedSettlementName,
-  svCodeFromDistricts,
-} from "../climate/svCode";
-import { selectBankBlock } from "../climate/snowLadder";
+import { getAllSettlementNames, qualifiedSettlementName } from "../climate/svCode";
 import { findFrameSelection } from "../frame/sectionBank";
+import { computeProject, type ProjectInputs } from "./computeProject";
 import type { SettlementClimate } from "../climate/types";
 import { SPANS, type ResponsibilityLevel, type Span } from "../../types/common";
 
@@ -21,47 +16,117 @@ function heightsFor(span: Span): number[] {
   return span === 24 ? HEIGHTS_24 : HEIGHTS_9_21;
 }
 
+/** Обычное здание — климат меняем, всё остальное держим постоянным. */
+const BASE: ProjectInputs = {
+  city: "",
+  span: 18,
+  length_m: 30,
+  height_m: 5,
+  gammaN: 1,
+  bankK: "auto",
+  roofingType: "С-П 150",
+  deckingMark: "С44-1000-0,7",
+  maxStepOverride_mm: 0,
+  minStep_mm: 0,
+  framePitchOverride_m: 0,
+  wallPanel_mm: 150,
+  roofPanel_mm: 150,
+  openings: {
+    gatesCount: 1,
+    gateWidth_m: 4,
+    gateHeight_m: 4,
+    doorsCount: 1,
+    doorWidth_m: 1,
+    doorHeight_m: 2,
+    windowsCount: 0,
+    windowWidth_m: 0,
+    windowHeight_m: 0,
+  },
+  snowGuards: true,
+  railingPurlin: false,
+  tubeStrutCount: 3,
+  postSpacing_m: 2,
+};
+
 /**
- * Покрытие справочника: до какой доли реальных городов расчёт вообще
- * доходит. Это не сверка с расчётчиком, а проверка полноты данных —
- * дыра здесь означает, что пользователю выпадет ошибка на живом городе.
+ * Покрытие справочника: доходит ли расчёт до каждого реального города.
  *
- * Идём тем же путём, что и приложение: снеговой район и k берём из
- * лестницы нагрузок ИНСИ, ветровой — из справочника по СП.
+ * Это не сверка с расчётчиком, а проверка полноты данных. С тех пор как
+ * проектировщик разрешил считать края «по ближайшей строке с пометкой
+ * „требует проверки“» (вопрос 04), дыра здесь означает уже не ошибку у
+ * пользователя, а расчёт, который молча ушёл в приблизительный.
  */
 describe("покрытие климатического справочника", () => {
-  const combos = new Set<string>();
-  const failed: string[] = [];
+  const results = settlements.map((s) => ({
+    name: qualifiedSettlementName(s),
+    project: computeProject({ ...BASE, city: qualifiedSettlementName(s) }),
+  }));
 
-  for (const s of settlements) {
-    try {
-      const base = computeSvCode(qualifiedSettlementName(s));
-      const snow = base.city.snow.sgKpa;
-      const wind = base.city.wind.region;
-      if (snow === null || !wind) throw new Error("нет снеговой нагрузки или ветрового района");
+  it("считает каждый город справочника без ошибок", () => {
+    const broken = results
+      .filter((r) => !r.project.climate.ok)
+      .map((r) => `${r.name}: ${r.project.climate.ok ? "" : r.project.climate.error}`);
+    expect(broken).toEqual([]);
 
-      for (const gammaN of [1.0, 0.8] as ResponsibilityLevel[]) {
-        const block = selectBankBlock(snow, "С-П 150", gammaN);
-        if (!block) throw new Error(`лестница не покрывает ${snow} кПа при γn=${gammaN}`);
-        const { standard } = svCodeFromDistricts(block.snowDistrict, wind);
-        combos.add(`${standard}|${block.bankK}`);
+    const noSections = results
+      .filter((r) => !r.project.frame?.ok || !r.project.frame.value)
+      .map((r) => r.name);
+    expect(noSections).toEqual([]);
+  });
+
+  it("помечает «требует проверки» ровно 47 городов на краю таблиц", () => {
+    const flagged = results.filter((r) => r.project.requiresCheck);
+    // 47 — это весь край справочника: Камчатка, Сахалин, Курилы, Кольский
+    // полуостров, Воркута, Черноморское побережье, Дагестан. Число здесь
+    // не «сколько получилось», а граница: если оно выросло, значит
+    // приблизительным стал считаться кто-то ещё.
+    expect(flagged.length).toBe(47);
+
+    const byKind = new Map<string, number>();
+    for (const r of flagged) {
+      for (const a of r.project.approximations) {
+        byKind.set(a.kind, (byKind.get(a.kind) ?? 0) + 1);
       }
-    } catch (e) {
-      failed.push(`${s.settlement}: ${(e as Error).message}`);
     }
-  }
+    expect(Object.fromEntries(byKind)).toEqual({
+      // Сочетание снега с ветром вне банка — Сахалин, Камчатка, Мурманск, юг.
+      "сочетание": 41,
+      // Нагрузка выше последней ступени лестницы (2,60 кПа).
+      "лестница": 13,
+      // Ветровой район не проставлен: Дербент, Избербаш, Багратионовск.
+      "ветер": 3,
+    });
+  });
 
-  it("says how many settlements the ИНСИ bank simply does not cover", () => {
-    // Не все города страны попадают в банк: Камчатка, Сахалин, Норильск,
-    // Черноморское побережье дают сочетания снег/ветер, которых у ИНСИ
-    // просто нет. Фиксируем факт, чтобы список не рос молча.
-    // eslint-disable-next-line no-console
-    console.log(`покрыто ${settlements.length - failed.length} из ${settlements.length}`);
-    expect(failed.length).toBeLessThanOrEqual(70);
-    expect(combos.size).toBeGreaterThan(0);
+  it("объясняет каждое допущение словами, а не кодом", () => {
+    for (const r of results) {
+      for (const a of r.project.approximations) {
+        expect(a.message.length).toBeGreaterThan(20);
+        expect(a.message).toMatch(/считаю по/);
+      }
+    }
+  });
+
+  it("остальные города считаются точно, без пометки", () => {
+    const exact = results.filter((r) => !r.project.requiresCheck);
+    expect(exact.length).toBe(settlements.length - 47);
+    for (const r of exact) expect(r.project.approximations).toEqual([]);
   });
 
   it("every combination the ladder can produce exists in the section bank", () => {
+    const combos = new Set<string>();
+    for (const gammaN of [1.0, 0.8] as ResponsibilityLevel[]) {
+      for (const s of settlements) {
+        const project = computeProject({
+          ...BASE,
+          gammaN,
+          city: qualifiedSettlementName(s),
+        });
+        if (!project.climate.ok || !project.bankBlock) continue;
+        combos.add(`${project.climate.value.standard}|${project.bankBlock.bankK}`);
+      }
+    }
+
     const holes: string[] = [];
     for (const combo of combos) {
       const [svCode, k] = combo.split("|");
@@ -80,9 +145,23 @@ describe("покрытие климатического справочника",
         }
       }
     }
-    // eslint-disable-next-line no-console
-    console.log(`комбинаций: ${combos.size}, дыр в банке: ${holes.length}\n` + holes.join("\n"));
     expect(holes).toEqual([]);
+    expect(combos.size).toBeGreaterThan(0);
+  });
+
+  it("Южно-Сахалинск считается целиком и назван приблизительным", () => {
+    // Самый тяжёлый случай справочника: он не проходит СРАЗУ по двум
+    // таблицам — 3,85 кПа снега выше лестницы, а сочетание 5/6 в банке
+    // не просчитано. Раньше здесь была ошибка и пустая ведомость.
+    const p = computeProject({ ...BASE, city: "Южно-Сахалинск, Сахалинская область" });
+    expect(p.climate.ok).toBe(true);
+    expect(p.requiresCheck).toBe(true);
+    expect(p.approximations.map((a) => a.kind).sort()).toEqual(["лестница", "сочетание"]);
+    expect(p.bankBlock?.snowDistrict).toBe("V");
+    expect(p.climate.ok && p.climate.value.standard).toBe("5/3");
+    // И, главное, ведомость действительно посчиталась.
+    expect(p.frame?.ok && p.frame.value).toBeTruthy();
+    expect(p.commercial.totalCost).toBeGreaterThan(0);
   });
 
   it("the settlement dropdown offers every settlement exactly once", () => {

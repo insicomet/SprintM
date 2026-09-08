@@ -19629,6 +19629,10 @@
     "wind": {
       "region": null,
       "w0Kpa": null,
+      "borderRegions": [
+        "IV",
+        "V"
+      ],
       "source": "СП 20.13330.2016 / СП 14.13330 / СП 131.13330 / СП 22.13330; сверено через ese.pro/tools/calculatory/klimaticheskie-nagruzki/",
       "status": "requires_verification"
     },
@@ -40085,6 +40089,11 @@
     "wind": {
       "region": null,
       "w0Kpa": null,
+      "borderRegions": [
+        "I",
+        "II",
+        "III"
+      ],
       "source": "СП 20.13330.2016 / СП 14.13330 / СП 131.13330 / СП 22.13330; сверено через ese.pro/tools/calculatory/klimaticheskie-nagruzki/",
       "status": "requires_verification"
     },
@@ -59103,6 +59112,10 @@
     "wind": {
       "region": null,
       "w0Kpa": null,
+      "borderRegions": [
+        "IV",
+        "V"
+      ],
       "source": "СП 20.13330.2016 / СП 14.13330 / СП 131.13330 / СП 22.13330; сверено через ese.pro/tools/calculatory/klimaticheskie-nagruzki/",
       "status": "requires_verification"
     },

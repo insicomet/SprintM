@@ -1,9 +1,13 @@
-import { computeSvCode, svCodeFromDistricts } from "../climate/svCode";
+import { findSettlement, svCodeFromDistrictsOrNearest } from "../climate/svCode";
 import { manualSettlement, type ManualClimateInput } from "../climate/manualClimate";
+import { resolveWindDistrict } from "../climate/windDistrict";
+import type { ClimateApproximation } from "../climate/approximation";
+import type { SettlementClimate, SvCodeResult } from "../climate/types";
 import {
+  pickBankBlock,
   roofingSupplement_kPa,
-  selectBankBlock,
   type BankBlock,
+  type LadderFallback,
 } from "../climate/snowLadder";
 import { computeBracing, type StrutTube } from "../frame/bracing";
 import { selectSecondaryMembers } from "../frame/secondaryMembers";
@@ -183,35 +187,67 @@ export function computeProject(inputs: ProjectInputs) {
   // Нагрузку берём свою, правило перевода — их. Ветровой район у них
   // читается по СП напрямую, как и у нас.
   let climate:
-    | { ok: true; value: ReturnType<typeof computeSvCode>; overridden: boolean }
+    | { ok: true; value: SvCodeResult; overridden: boolean }
     | { ok: false; error: string };
   let bankBlock: BankBlock | null = null;
+  /**
+   * Допущения, из-за которых расчёт помечается «требует проверки».
+   * По указанию проектировщика город на краю таблиц не отбрасывается:
+   * берётся ближайшая просчитанная строка, а несовпадение выносится сюда.
+   */
+  const approximations: ClimateApproximation[] = [];
   try {
     // Ручной ввод подменяет поиск города, дальше всё считается одинаково.
-    const base = manualClimate
-      ? { city: manualSettlement(manualClimate), raw: "", standard: "" }
-      : computeSvCode(city);
+    const found = manualClimate ? manualSettlement(manualClimate) : findSettlement(city);
+    if (!found) throw new Error(`Город "${city}" не найден в справочнике климата`);
+
     const snow_kPa =
       snowLoadOverride_kPa != null && snowLoadOverride_kPa > 0
         ? snowLoadOverride_kPa
-        : base.city.snow.sgKpa;
+        : found.snow.sgKpa;
 
-    bankBlock =
-      snow_kPa === null ? null : selectBankBlock(snow_kPa, roofingType, gammaN);
+    const pick = snow_kPa === null ? null : pickBankBlock(snow_kPa, roofingType, gammaN);
+    bankBlock = pick?.block ?? null;
+    if (pick?.fallback) approximations.push(ladderApproximation(pick.fallback, pick.block));
 
-    let value = base;
-    if (bankBlock && base.city.wind.region) {
-      const byLadder = svCodeFromDistricts(bankBlock.snowDistrict, base.city.wind.region);
-      value = { ...base, raw: byLadder.raw, standard: byLadder.standard };
-    } else if (manualClimate && !svOverride) {
-      // Без блока банка код «с/в» не из чего вывести: при ручном вводе
-      // справочного значения, на которое можно откатиться, просто нет.
+    // Ветровой район: из справочника, а у трёх пограничных городов —
+    // самый тяжёлый из тех, между которыми они стоят.
+    const wind = resolveWindDistrict(found);
+    if (wind?.border) {
+      approximations.push({
+        kind: "ветер",
+        message:
+          `Ветровой район не проставлен: город на границе ` +
+          `${wind.border.between.join(", ")} — считаю по ${wind.district}, самому тяжёлому.`,
+      });
+    }
+    const cityData: SettlementClimate = wind
+      ? { ...found, wind: { ...found.wind, region: wind.district, w0Kpa: wind.w0Kpa } }
+      : found;
+
+    let raw = "";
+    let standard = "";
+    if (bankBlock && wind) {
+      const code = svCodeFromDistrictsOrNearest(bankBlock.snowDistrict, wind.district);
+      raw = code.raw;
+      standard = code.standard;
+      if (code.nearest) {
+        approximations.push({
+          kind: "сочетание",
+          message:
+            `Сочетание «с/в» ${code.nearest.raw} в банке сечений не просчитано — ` +
+            `считаю по ближайшему ${code.nearest.used}.`,
+        });
+      }
+    } else if (!svOverride) {
       throw new Error(
         bankBlock
           ? "Не задан ветровой район"
-          : "Снеговая нагрузка выходит за лестницу порогов ИНСИ — нужен расчёт конструктора",
+          : "Не из чего вывести блок банка: нет снеговой нагрузки или надбавки за покрытие",
       );
     }
+
+    const value: SvCodeResult = { city: cityData, raw, standard };
     climate = {
       ok: true,
       value: svOverride ? { ...value, standard: svOverride } : value,
@@ -515,7 +551,19 @@ export function computeProject(inputs: ProjectInputs) {
     climate,
     /** Пара «снеговой район + k», выбранная лестницей нагрузок ИНСИ. */
     bankBlock,
-    /** Почему лестница не дала пару — если не дала. */
+    /**
+     * Допущения расчёта: точной строки для этого города в таблицах ИНСИ
+     * нет, взята ближайшая. Пустой список — расчёт точный.
+     */
+    approximations,
+    /** Расчёт построен на допущениях и подлежит проверке конструктором. */
+    requiresCheck: approximations.length > 0,
+    /**
+     * Почему лестница не дала пару — если не дала. Нагрузка вне лестницы
+     * сюда больше не попадает: край считается по крайней ступени (см.
+     * approximations). Остаются два случая — нет надбавки за покрытие и
+     * нет самой снеговой нагрузки.
+     */
     bankBlockMissing:
       bankBlock !== null
         ? null
@@ -573,5 +621,21 @@ export function computeProject(inputs: ProjectInputs) {
         profiles: shareOf((frameExtras?.totalCost ?? 0) + wallTrim.totalCost),
       },
     },
+  };
+}
+
+/** Человеческая формулировка отката на крайнюю ступень лестницы. */
+function ladderApproximation(fallback: LadderFallback, block: BankBlock): ClimateApproximation {
+  const ru = (v: number) => v.toFixed(2).replace(".", ",");
+  const load = ru(block.lookupLoad_kPa);
+  const edge = ru(fallback.threshold_kPa);
+  return {
+    kind: "лестница",
+    message:
+      fallback.kind === "выше"
+        ? `Нагрузка ${load} кПа выше последней ступени лестницы ИНСИ (${edge} кПа) — ` +
+          `считаю по ней: район ${block.snowDistrict}, k = ${block.bankK}.`
+        : `Нагрузка ${load} кПа ниже первой ступени лестницы ИНСИ (${edge} кПа) — ` +
+          `считаю по ней: район ${block.snowDistrict}, k = ${block.bankK}.`,
   };
 }

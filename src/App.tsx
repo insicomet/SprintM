@@ -153,6 +153,8 @@ export function App() {
 
   const {
     climate,
+    approximations,
+    requiresCheck,
     bankBlock,
     bankBlockMissing,
     frame,
@@ -324,6 +326,21 @@ export function App() {
         <h1>СпринтМ</h1>
         <p className="subtitle">Предварительный расчёт ангара ИНСИ — подбор сечений рамы</p>
       </header>
+
+      {requiresCheck && (
+        // Указание проектировщика по краям таблиц ИНСИ: считать по
+        // ближайшей строке, но обязательно предупреждать. Баннер стоит
+        // выше всех цифр — чтобы менеджер увидел его раньше, чем итог.
+        <div className="check-notice" role="status">
+          <strong>Требует проверки конструктором.</strong> Точной строки для этого города в
+          таблицах ИНСИ нет — расчёт идёт по ближайшей:
+          <ul>
+            {approximations.map((a) => (
+              <li key={a.kind}>{a.message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <section className="card toolbar-card">
         <h2>Расчёт</h2>
@@ -913,7 +930,7 @@ export function App() {
                 <span className="incomplete">
                   {bankBlockMissing === "покрытие"
                     ? "для этого покрытия в лестнице нет надбавки — блок банка не определить"
-                    : "нагрузка вне лестницы — нужен расчёт конструктора"}
+                    : "нет снеговой нагрузки — блок банка не определить"}
                 </span>
               )}
             </dd>
@@ -921,7 +938,15 @@ export function App() {
             <dd>
               {climate.value.raw}
               {climate.value.raw !== climate.value.standard && (
-                <> &rarr; {climate.overridden ? "задан вручную" : "нормализован"}: {climate.value.standard}</>
+                <>
+                  {" "}&rarr;{" "}
+                  {climate.overridden
+                    ? "задан вручную"
+                    : approximations.some((a) => a.kind === "сочетание")
+                      ? "в банке нет, взят ближайший"
+                      : "нормализован"}
+                  : {climate.value.standard}
+                </>
               )}
               {climate.overridden && (
                 <span className="incomplete"> — не из нашей базы</span>
@@ -931,6 +956,11 @@ export function App() {
         ) : (
           <p className="error">{climate.error}</p>
         )}
+        {approximations.map((a) => (
+          <p className="hint check-hint" key={a.kind}>
+            {a.message}
+          </p>
+        ))}
       </section>
 
       <section className="card">

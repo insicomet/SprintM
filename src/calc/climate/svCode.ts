@@ -111,17 +111,84 @@ export function normalizeSvCode(rawCode: string): string {
   return standard;
 }
 
+/**
+ * То же, но без исключения: если сочетания в банке нет, берётся
+ * ближайшее просчитанное, и об этом сообщается вызывающему.
+ *
+ * Так велел проектировщик по 47 непокрытым городам справочника: «считать
+ * по ближайшей строке с пометкой „требует проверки“». Ближайшее ищется
+ * сначала по снеговому району (он определяет сечения куда сильнее), потом
+ * по ветровому; при равном расстоянии берётся БОЛЬШИЙ район, то есть
+ * более тяжёлая сторона — приблизительный расчёт не должен оказаться
+ * легче настоящего.
+ *
+ * Примеры: «6/2» (Норильск и компания) → 5/2 → блок 5/3;
+ *          «3/5» (Черноморское побережье) → 3/3 → блок 3/2.
+ */
+export function normalizeSvCodeOrNearest(rawCode: SvCode): SvNormalization {
+  const exact = svMapping.combo_to_standard[rawCode];
+  if (exact !== undefined) return { standard: exact, nearest: null };
+
+  const [snow, wind] = rawCode.split("/").map(districtValue);
+  interface Candidate {
+    code: SvCode;
+    /** Ключ сравнения: чем меньше, тем ближе; последние два — «крупнее лучше». */
+    rank: [number, number, number, number];
+  }
+  let best: Candidate | null = null;
+  for (const code of Object.keys(svMapping.combo_to_standard)) {
+    const [s, w] = code.split("/").map(districtValue);
+    const candidate: Candidate = {
+      code,
+      rank: [Math.abs(s - snow), Math.abs(w - wind), -s, -w],
+    };
+    if (best === null || isCloser(candidate.rank, best.rank)) best = candidate;
+  }
+  if (best === null) throw new Error("Таблица сочетаний «с/в» пуста");
+
+  return {
+    standard: svMapping.combo_to_standard[best.code],
+    nearest: { raw: rawCode, used: best.code },
+  };
+}
+
+/** Лексикографическое сравнение ключей близости. */
+function isCloser(a: readonly number[], b: readonly number[]): boolean {
+  for (let i = 0; i < a.length; i += 1) {
+    if (a[i] !== b[i]) return a[i] < b[i];
+  }
+  return false;
+}
+
+/** Номер района как число: «1а» — это ступень ПЕРЕД «1», отсюда 0,5. */
+function districtValue(digit: string): number {
+  const base = Number.parseFloat(digit);
+  if (Number.isNaN(base)) return 0;
+  return /[аa]$/i.test(digit) ? base - 0.5 : base;
+}
+
+export interface SvNormalization {
+  /** Блок банка, по которому пойдёт подбор. */
+  standard: SvCode;
+  /** null — сочетание есть в банке; иначе какое взяли вместо какого. */
+  nearest: { raw: SvCode; used: SvCode } | null;
+}
+
 /** Все сочетания «с/в», для которых в банке ИНСИ есть просчитанные строки. */
 export function getSupportedSvCodes(): readonly string[] {
   return [...new Set(Object.values(svMapping.combo_to_standard))].sort();
 }
 
 /**
- * Покрывает ли банк сечений климат этого населённого пункта.
+ * Покрывает ли банк сечений климат этого населённого пункта ТОЧНО, без
+ * округления до соседней строки.
  *
- * По нашему справочнику (1096 городов) не покрыто 63: Камчатка, Сахалин,
- * Норильск, Воркута, Черноморское побережье и ещё несколько мест, где
- * сочетание снега и ветра выходит за просчитанную ИНСИ область.
+ * Из 1096 городов справочника точного сочетания нет у 44 (плюс три без
+ * ветрового района): Камчатка, Сахалин, Курилы, Кольский полуостров,
+ * Черноморское побережье. Расчёт для них теперь всё равно идёт — по
+ * ближайшей строке с пометкой «требует проверки», см.
+ * normalizeSvCodeOrNearest, — так что эта функция отвечает не «можно ли
+ * считать», а «будет ли расчёт точным».
  */
 export function isSettlementSupported(cityName: string): boolean {
   try {
@@ -185,4 +252,16 @@ export function svCodeFromDistricts(
 ): { raw: SvCode; standard: SvCode } {
   const raw = `${romanDistrictToDigit(snowDistrict)}/${romanDistrictToDigit(windDistrict)}`;
   return { raw, standard: normalizeSvCode(raw) };
+}
+
+/**
+ * То же, но с откатом на ближайшее сочетание банка (см.
+ * normalizeSvCodeOrNearest) — для городов на краю таблицы.
+ */
+export function svCodeFromDistrictsOrNearest(
+  snowDistrict: string,
+  windDistrict: string,
+): { raw: SvCode } & SvNormalization {
+  const raw = `${romanDistrictToDigit(snowDistrict)}/${romanDistrictToDigit(windDistrict)}`;
+  return { raw, ...normalizeSvCodeOrNearest(raw) };
 }

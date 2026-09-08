@@ -86,27 +86,38 @@ describe("computeProject с ручным вводом нагрузок", () => {
     expect(byHand.frame?.ok).toBe(true);
   });
 
-  it("does not paper over a gap in the bank itself", () => {
-    // Дербент: снег есть (I, 0,5 кПа), ветрового района в справочнике нет,
-    // поэтому по названию расчёт не идёт.
-    expect(computeProject({ ...base, city: "Дербент" }).climate.ok).toBe(false);
+  it("counts the edge of the bank by the nearest row, and says so", () => {
+    // Дербент: снег есть (I, 0,5 кПа), ветрового района в справочнике
+    // нет — город стоит между IV и V. По указанию проектировщика
+    // (вопрос 04) такой город больше не отбрасывается: берётся ближайшая
+    // строка, а расчёт помечается «требует проверки».
+    const byName = computeProject({ ...base, city: "Дербент" });
+    expect(byName.climate.ok).toBe(true);
+    expect(byName.requiresCheck).toBe(true);
+    expect(byName.approximations.map((a) => a.kind).sort()).toEqual(["ветер", "сочетание"]);
 
-    // Но и ручной ввод его не спасает: сочетание «снег I / ветер V» в
-    // банке ИНСИ не просчитано, и приложение говорит об этом прямо, а не
-    // подставляет соседнюю строку.
+    // Ручной ввод того же ветра даёт тот же результат — только пометка
+    // остаётся одна: район задан явно, гадать не о чем.
     const byHand = computeProject({
       ...base,
       manualClimate: { snowLoad_kPa: 0.5, windDistrict: "V", label: "Дербент" },
     });
-    expect(byHand.climate.ok).toBe(false);
-    if (byHand.climate.ok) throw new Error("ожидалась ошибка");
-    expect(byHand.climate.error).toMatch(/банк/i);
+    expect(byHand.climate.ok).toBe(true);
+    expect(byHand.approximations.map((a) => a.kind)).toEqual(["сочетание"]);
+    expect(byHand.climate.ok && byHand.climate.value.standard).toBe(
+      byName.climate.ok ? byName.climate.value.standard : "",
+    );
   });
 
-  it("says plainly when a hand-entered load is off the ladder", () => {
+  it("counts a hand-entered load above the ladder by its last step", () => {
     const r = computeProject({ ...base, manualClimate: { snowLoad_kPa: 4, windDistrict: "II" } });
-    expect(r.climate.ok).toBe(false);
-    if (r.climate.ok) throw new Error("ожидалась ошибка");
-    expect(r.climate.error).toMatch(/лестниц|конструктор/i);
+    expect(r.climate.ok).toBe(true);
+    expect(r.requiresCheck).toBe(true);
+    expect(r.approximations).toHaveLength(1);
+    expect(r.approximations[0].kind).toBe("лестница");
+    expect(r.approximations[0].message).toMatch(/выше последней ступени/);
+    // Считается по последней просчитанной ступени, а не по нагрузке 4 кПа.
+    expect(r.bankBlock?.snowDistrict).toBe("V");
+    expect(r.bankBlock?.designLoad_kPa).toBe(2.5);
   });
 });
