@@ -366,7 +366,7 @@ export function computeProject(inputs: ProjectInputs) {
           tubeStrutCount,
           strutTube: effectiveStrutTube,
           extraTubeMass_t: effectiveExtraTubeMass_t,
-          windowFramingPerimeter_m: windowFramingPerimeter_m(openings),
+          windowFramingPerimeter_m: windowFramingPerimeter_m(openings, geometry.framePitch_m),
           gussetMassPerFrame_kg: selection.massGussetPlates_kg,
         })
       : null;

@@ -89,19 +89,45 @@ describe("computeOpeningsCost", () => {
 });
 
 describe("windowFramingPerimeter_m", () => {
-  it("reproduces L156 of real project '22316': one 30×1 window -> 62 п.м", () => {
+  it("rounds the window up to the frame pitch, per the estimator's confirmed rule", () => {
+    // «22316»: окно 30 м при шаге 4,5. Расчётчик подтвердила, что 30 в
+    // самом файле — ошибка: «Там ошибка, обрамление должно быть 31,5м»
+    // (7 шагов × 4,5). Раньше мы брали 30 как есть, чтобы файл сходился
+    // до копейки; теперь считаем по правилу и с файлом на этой строке
+    // расходимся намеренно — см. buildBill.test.ts.
     expect(
-      windowFramingPerimeter_m({
-        ...DEFAULT_OPENINGS,
-        windowsCount: 1,
-        windowWidth_m: 30,
-        windowHeight_m: 1,
-      }),
-    ).toBeCloseTo(62, 9);
+      windowFramingPerimeter_m(
+        { ...DEFAULT_OPENINGS, windowsCount: 1, windowWidth_m: 30, windowHeight_m: 1 },
+        4.5,
+      ),
+    ).toBeCloseTo(2 * (31.5 + 1) * 1, 9);
+  });
+
+  it("matches L156 of '22318'/'22285' where the file's own rounding is already correct", () => {
+    // Окно 46 м при шаге 4 → 48 м (12 шагов). В этих двух файлах
+    // расчётчик уже вписала верное округлённое число, поэтому здесь
+    // правило и факт совпадают.
+    expect(
+      windowFramingPerimeter_m(
+        { ...DEFAULT_OPENINGS, windowsCount: 1, windowWidth_m: 46, windowHeight_m: 1 },
+        4,
+      ),
+    ).toBeCloseTo(2 * (48 + 1) * 1, 9);
+  });
+
+  it("never rounds below one full frame pitch, even for a window narrower than the pitch", () => {
+    // Окно у́же шага (4,3 м при шаге 6 м) всё равно требует обрамления
+    // на целый шаг — стойки стоят по рамам, а не по краю окна.
+    expect(
+      windowFramingPerimeter_m(
+        { ...DEFAULT_OPENINGS, windowsCount: 5, windowWidth_m: 4.3, windowHeight_m: 1 },
+        6,
+      ),
+    ).toBeCloseTo(2 * (6 + 1) * 5, 9);
   });
 
   it("is zero without windows ('22318')", () => {
-    expect(windowFramingPerimeter_m(DEFAULT_OPENINGS)).toBe(0);
+    expect(windowFramingPerimeter_m(DEFAULT_OPENINGS, 4)).toBe(0);
   });
 });
 

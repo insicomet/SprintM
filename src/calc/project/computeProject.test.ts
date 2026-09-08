@@ -129,11 +129,15 @@ describe("computeProject — реальный проект «22316»", () => {
   });
 
   it("reproduces the bracing (rows 96–98)", () => {
+    // Обрамление окна (уголок 80х4) считается по вопросу 01: расчётчик
+    // подтвердила, что в самом файле «22316» здесь ошибка — длина должна
+    // быть 31,5 м (7 шагов × 4,5), а не 30 как есть. Поэтому масса на
+    // 0,0288 т больше, чем в файле: 2×(31,5+1)×1 = 65 п.м вместо 62.
     const b = Object.fromEntries(r.bracing!.items.map((i) => [i.name, i]));
-    expect(b["Конструкции из труб"].mass_t).toBeCloseTo(3.1215465467132812, 9);
+    expect(b["Конструкции из труб"].mass_t).toBeCloseTo(3.1503465467132816, 9);
     expect(b["Уголок"].mass_t).toBeCloseTo(1.03896, 9);
     expect(b["Лист (фасонки)"].mass_t).toBeCloseTo(2.112, 9);
-    expect(r.bracing!.totalCost).toBeCloseTo(424686.4076803419 + 179220.6 + 290970.24, 4);
+    expect(r.bracing!.totalCost).toBeCloseTo(428604.64768034196 + 179220.6 + 290970.24, 4);
   });
 
   it("reproduces the wall and roof trim, drainage (F44, F81, F70)", () => {
@@ -148,7 +152,9 @@ describe("computeProject — реальный проект «22316»", () => {
   });
 
   it("reproduces three of the four commercial lines exactly", () => {
-    expect(line(r, "Каркас").cost).toBeCloseTo(2604657.303334706, 2);
+    // «Каркас» на 4 076,54 ₽ выше файла — тот же сдвиг обрамления окна,
+    // помноженный на оба раза применённые накладные 2% (раздел + сводка).
+    expect(line(r, "Каркас").cost).toBeCloseTo(2608733.840230706, 2);
     expect(line(r, "Кровельное ограждение").cost).toBeCloseTo(2329836.776556264, 2);
     expect(line(r, "Окна, ворота, двери").cost).toBeCloseTo(921840, 4);
   });
@@ -163,7 +169,9 @@ describe("computeProject — реальный проект «22316»", () => {
     expect(r.envelope.wallArea).toBeCloseTo(504, 6);
 
     expect(line(r, "Стеновое ограждение").cost!).toBeCloseTo(1596258.6739806319, 6);
-    expect(r.commercial.totalCost!).toBeCloseTo(6530752.753871601 + 921840, 6);
+    // Итог теперь на 4 076,54 ₽ выше файла — намеренное расхождение на
+    // строке обрамления окна (вопрос 01, ошибка подтверждена расчётчиком).
+    expect(r.commercial.totalCost!).toBeCloseTo(6534829.290767602 + 921840, 4);
   });
 });
 
