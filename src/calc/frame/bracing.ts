@@ -63,6 +63,23 @@ function horizBraceCoef(span_m: number): number {
   return span_m <= 12 ? 4 : 8;
 }
 
+/**
+ * Длина одной горизонтальной связи (гипотенуза) — тоже зависит от той же
+ * границы, что и их количество, и не совпадение: связей вдвое меньше,
+ * потому что каждая идёт на вдвое большее горизонтальное расстояние.
+ *
+ * Катет — не всегда пролёт/4. Подтверждено раздельно на двух реальных
+ * проектах, где катет и шаг рам не совпадают числом (иначе было бы не
+ * различить катет от шага под корнем):
+ *   «22285» (пролёт 18 > 12, шаг 4): L92 = √(4,5² + 4²) = 6,0208 —
+ *     катет 4,5 = пролёт/4, а не пролёт/2 (9).
+ *   «21987» (пролёт 12 ≤ 12, шаг 4,5): L92 = √(6² + 4,5²) = 7,5 —
+ *     катет 6 = пролёт/2, а не пролёт/4 (3).
+ */
+function horizBraceRun_m(span_m: number): number {
+  return span_m <= 12 ? span_m / 2 : span_m / 4;
+}
+
 export interface BracingInput {
   span_m: Span;
   length_m: number;
@@ -147,9 +164,10 @@ export interface BracingTakeoff {
  * «Вес фасонок на раму» руки не требует: это «металлоемкость узловых
  * пластин» выбранной строки банка сечений (см. gussetMassPerFrame_kg).
  *
- * Шаг горизонтальной связи взят как пролёт/4: в ведомостях он вписан
- * числом (4,5 при пролёте 18 и 3,75 при пролёте 15), и оба раза это
- * ровно четверть пролёта.
+ * Катет горизонтальной связи взят как пролёт/4 при пролёте больше 12 м
+ * и пролёт/2 при пролёте ≤ 12 м (см. horizBraceRun_m) — та же граница,
+ * что и у количества связей, и по той же причине: связей вдвое меньше,
+ * значит каждая перекрывает вдвое большее расстояние.
  */
 export function computeBracing(input: BracingInput): BracingTakeoff {
   const strutTube = input.strutTube ?? BRACE_TUBE;
@@ -158,7 +176,7 @@ export function computeBracing(input: BracingInput): BracingTakeoff {
   const windowPerimeter_m = input.windowFramingPerimeter_m ?? 0;
 
   const braceTube_t_per_m = TUBE_MASS_t_per_m[BRACE_TUBE];
-  const horizBraceLength_m = Math.hypot(input.span_m / 4, input.framePitch_m);
+  const horizBraceLength_m = Math.hypot(horizBraceRun_m(input.span_m), input.framePitch_m);
   const vertBraceLength_m = Math.hypot(input.height_m, input.framePitch_m);
 
   const tubeParts = [

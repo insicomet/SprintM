@@ -95,15 +95,38 @@ describe("computeBracing", () => {
       .breakdown!.find((p) => p.name === "Горизонтальные связи")!;
     const narrow = byName(computeBracing({ ...project22316, span_m: 12 }))["Конструкции из труб"]
       .breakdown!.find((p) => p.name === "Горизонтальные связи")!;
-    // При том же шаге рам единственная разница — коэффициент, ровно вдвое.
+    // При том же шаге рам разница — и коэффициент, и катет связи (см.
+    // следующий тест): при пролёте ≤ 12 м катет тоже другой, пролёт/2.
     expect(wide.mass_t).toBeCloseTo(
       16 * Math.hypot(15 / 4, 4.5) * 0.0072 * 1.1,
       12,
     );
     expect(narrow.mass_t).toBeCloseTo(
-      8 * Math.hypot(12 / 4, 4.5) * 0.0072 * 1.1,
+      8 * Math.hypot(12 / 2, 4.5) * 0.0072 * 1.1,
       12,
     );
+  });
+
+  it("runs the horizontal brace span/2, not span/4, once the span drops to 12 m or under", () => {
+    // Подтверждено раздельно на двух реальных проектах, где катет и шаг
+    // рам не совпадают числом:
+    //   «22285» (пролёт 18 > 12, шаг 4): L92 = √(4,5² + 4²) = 6,0208 —
+    //     катет 4,5 = пролёт/4.
+    //   «21987» (пролёт 12 ≤ 12, шаг 4,5): L92 = √(6² + 4,5²) = 7,5 —
+    //     катет 6 = пролёт/2, а не пролёт/4 (3).
+    const korkino = byName(
+      computeBracing({ ...project22318, span_m: 18, framePitch_m: 4 }),
+    )["Конструкции из труб"].breakdown!.find((p) => p.name === "Горизонтальные связи")!;
+    expect(Math.hypot(18 / 4, 4)).toBeCloseTo(6.0207972893961475, 9);
+    // Полный коэффициент 2×к(пролёт) = 2×8 = 16 при пролёте > 12 м.
+    expect(korkino.mass_t).toBeCloseTo(16 * 6.0207972893961475 * 0.0072 * 1.1, 9);
+
+    const cheboksary = byName(
+      computeBracing({ ...project22318, span_m: 12, framePitch_m: 4.5 }),
+    )["Конструкции из труб"].breakdown!.find((p) => p.name === "Горизонтальные связи")!;
+    expect(Math.hypot(12 / 2, 4.5)).toBeCloseTo(7.5, 9);
+    // Полный коэффициент 2×к(пролёт) = 2×4 = 8 при пролёте ≤ 12 м.
+    expect(cheboksary.mass_t).toBeCloseTo(8 * 7.5 * 0.0072 * 1.1, 9);
   });
 
   it("leaves out the window framing when there are no windows", () => {
