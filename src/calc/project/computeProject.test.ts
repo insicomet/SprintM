@@ -207,6 +207,104 @@ describe("computeProject — реальный проект «22318»", () => {
   });
 });
 
+/**
+ * Четвёртый реальный объект — «21923» (Москва, 12×24, h5, шаг 6), два
+ * ценовых варианта одного и того же здания: k=1,0 и k=0,8. Только
+ * ведомость, без подборщика — с/в известен напрямую (C5/D5 = 3/1),
+ * поэтому задан вручную, как и для «22316»/«22318».
+ *
+ * Проверяет банк сечений сразу в двух строках одной командой: обе
+ * ведомости совпали с нашим банком построчно — балка, колонна, болты в
+ * раме, вес фасонок, — при разных k. Хорошее независимое подтверждение
+ * банка отдельно от климата: с/в тот же, k разный, сечения разные, и оба
+ * варианта совпали.
+ */
+const project21923Base = {
+  city: "Москва",
+  svOverride: "3/1",
+  span: 12 as const,
+  length_m: 24,
+  height_m: 5,
+  gammaN: 1.0 as const,
+  roofingType: "С-П 150",
+  deckingMark: "С44-1000-0,7",
+  maxStepOverride_mm: 0,
+  minStep_mm: 0,
+  framePitchOverride_m: 0,
+  wallPanel_mm: 100,
+  roofPanel_mm: 150,
+  openings: {
+    gates: [{ count: 1, width_m: 4.5, height_m: 4 }],
+    doors: [],
+    windows: [{ count: 2, width_m: 4, height_m: 1 }],
+  },
+  railingPurlin: false,
+  // ТЗ, п.14 — этот объект заказан без организованного водостока вовсе,
+  // в обоих вариантах F70 = 0 в ведомости.
+  hasDrainage: false,
+  tubeStrutCount: 3,
+  postSpacing_m: 2,
+};
+
+describe("computeProject — реальный проект «21923», два варианта k", () => {
+  it("picks the estimator's own bank row at k=1,0 (heavier offer)", () => {
+    const r = computeProject({ ...project21923Base, bankK: 1.0, snowGuards: true });
+    const s = r.frame!.ok ? r.frame!.value : null;
+    expect(s!.beam.profile).toBe("ПГС300/20х80х2,5");
+    expect(s!.column.profile).toBe("ПГС300/20х80х2");
+    expect(s!.bolts.totalInFrame).toBe(260);
+    expect(s!.massGussetPlates_kg).toBe(227);
+    expect(r.frameTakeoff!.frameCount).toBe(5);
+  });
+
+  it("picks the estimator's own bank row at k=0,8 (lighter offer)", () => {
+    const r = computeProject({ ...project21923Base, bankK: 0.8, snowGuards: false });
+    const s = r.frame!.ok ? r.frame!.value : null;
+    expect(s!.beam.profile).toBe("ПГС245/20х80х2,5");
+    expect(s!.column.profile).toBe("ПГС245/20х80х2");
+    expect(s!.bolts.totalInFrame).toBe(276);
+    expect(s!.massGussetPlates_kg).toBe(237);
+  });
+
+  it("reproduces the wall/roof trim exactly, at both k — they don't depend on it", () => {
+    // F44 и F81 совпали в обоих вариантах: 49 818,95 ₽ и (в зависимости
+    // от снегозадержателя) 120 442,59 / 57 249,22 ₽.
+    const heavy = computeProject({ ...project21923Base, bankK: 1.0, snowGuards: true });
+    const light = computeProject({ ...project21923Base, bankK: 0.8, snowGuards: false });
+    expect(heavy.wallTrim.totalCost).toBeCloseTo(49818.94736842105, 4);
+    expect(light.wallTrim.totalCost).toBeCloseTo(49818.94736842105, 4);
+    expect(heavy.roofTrim.totalCost).toBeCloseTo(120442.59318857142, 3);
+    expect(light.roofTrim.totalCost).toBeCloseTo(57249.22176, 4);
+  });
+
+  it("reproduces the roof area exactly (F147/1,03 = 288 = пролёт × длина)", () => {
+    const r = computeProject({ ...project21923Base, bankK: 1.0, snowGuards: true });
+    expect(r.envelope.roofArea).toBeCloseTo(296.64, 6);
+  });
+
+  it("turns the drainage section off entirely, not just to a different size", () => {
+    const on = computeProject({ ...project21923Base, bankK: 1.0, snowGuards: true, hasDrainage: true });
+    const off = computeProject({ ...project21923Base, bankK: 1.0, snowGuards: true });
+    expect(on.drainage.totalCost).toBeGreaterThan(0);
+    expect(off.drainage.totalCost).toBe(0);
+    expect(off.drainage.items).toEqual([]);
+  });
+
+  it("leaves the gable-doubling boundary at span=12 unresolved — flagged, not guessed", () => {
+    // Ведомость этого объекта (C102) НЕ удваивает надбавку на фронтоны
+    // при пролёте ровно 12 м: =(C8+C9)*2*C10+C8*2, то есть один C8, не
+    // два. Мы удваиваем при span >= 12 (по прежнему ответу расчётчика
+    // «от 12 м умножаем на 2»), так что наша площадь стены здесь на
+    // 24 м² больше, чем в файле (408 против net 360, если бы совпадали
+    // проёмы). Раньше «22285» (пролёт 18) тоже не удваивал в файле, и
+    // расчётчик подтвердила, что это ошибка файла, — тот же файл-паттерн
+    // здесь может быть той же ошибкой, а может быть и границей ровно на
+    // 12 м. Не меняю код без ответа — см. вопрос расчётчику.
+    const r = computeProject({ ...project21923Base, bankK: 1.0, snowGuards: true });
+    expect(r.envelope.grossWallArea).toBe(408); // наше: перимитр 360 + фронтон 48 (удвоенный)
+  });
+});
+
 describe("computeProject — поведение вне сверки", () => {
   it("reaches the estimator's own с/в and k without any override", () => {
     // Наша база даёт Берёзовскому снег 1,5 кПа. Лестница ИНСИ: 1,5 + 0,1

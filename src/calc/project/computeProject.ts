@@ -26,7 +26,7 @@ import {
 import { computeOpeningsFraming } from "../geometry/openingsFraming";
 import { facadePostCount } from "../facadePost/postCount";
 import { selectFacadePost } from "../facadePost/selectFacadePost";
-import { computeDrainage } from "../drainage/drainage";
+import { computeDrainage, NO_DRAINAGE } from "../drainage/drainage";
 import { computeRoofArea_m2, computeWallArea_m2 } from "../geometry/buildingEnvelope";
 import { computeFrameExtras } from "../geometry/frameExtras";
 import { computeFrameFasteners } from "../geometry/frameFasteners";
@@ -112,6 +112,14 @@ export interface ProjectInputs {
   snowGuards: boolean;
   /** Прогон под ограждение (вывод!D27). */
   railingPurlin: boolean;
+  /**
+   * Организованный водосток (ТЗ, п.14) — раздел «Водосток». Пусто/true —
+   * как раньше, есть. false — раздела нет совсем, а не просто других
+   * размеров: «21923» (Москва) заказан без него, F70 = 0 в ведомости.
+   * Независим от snowGuards: у «21923» снегозадержатели в одном из двух
+   * вариантов есть, а водостока нет ни в одном.
+   */
+  hasDrainage?: boolean;
   /** Количество распорок из трубы (K95) — вбито вручную. */
   tubeStrutCount: number;
   /**
@@ -173,6 +181,7 @@ export function computeProject(inputs: ProjectInputs) {
     openings,
     snowGuards,
     railingPurlin,
+    hasDrainage = true,
     tubeStrutCount,
     strutTube,
     extraTubeMass_t,
@@ -437,7 +446,9 @@ export function computeProject(inputs: ProjectInputs) {
 
   const wallTrim = computeWallTrim(geometry);
   const roofTrim = computeRoofTrim(geometry, { snowGuards });
-  const drainage = computeDrainage(geometry);
+  // ТЗ, п.14 — водосток бывает не заказан вовсе («21923»: F70 = 0 в обоих
+  // вариантах), а не просто с другими размерами; тогда раздела нет совсем.
+  const drainage = hasDrainage ? computeDrainage(geometry) : NO_DRAINAGE;
 
   // Строки ведомости, у которых количество считается, а стоимость не заведена.
   const unpricedSections: UnpricedSection[] = [computeWallUnpricedItems(geometry)];

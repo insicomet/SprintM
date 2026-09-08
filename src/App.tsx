@@ -137,6 +137,8 @@ export function App() {
   const [framePitchOverride, setFramePitchOverride] = useState(0);
   // Прогон под ограждение (вывод!D27) и мин. шаг прогонов (вывод!D25).
   const [railingPurlin, setRailingPurlin] = useState(false);
+  // ТЗ, п.14 — бывает заказан без организованного водостока вовсе.
+  const [hasDrainage, setHasDrainage] = useState(true);
   const [minStepMm, setMinStepMm] = useState(0);
   // Код "с/в" вручную — только для сверки с файлом расчётчика.
   const [svOverride, setSvOverride] = useState("");
@@ -183,6 +185,7 @@ export function App() {
         openings,
         snowGuards,
         railingPurlin,
+        hasDrainage,
         tubeStrutCount,
         strutTube: strutTube || undefined,
         extraTubeMass_t: extraTubeMass_t || undefined,
@@ -212,6 +215,7 @@ export function App() {
       openings,
       snowGuards,
       railingPurlin,
+      hasDrainage,
       tubeStrutCount,
       strutTube,
       extraTubeMass_t,
@@ -319,6 +323,7 @@ export function App() {
     setOpenings(next.openings);
     setSnowGuards(next.snowGuards);
     setRailingPurlin(next.railingPurlin);
+    setHasDrainage(next.hasDrainage ?? true);
     setTubeStrutCount(next.tubeStrutCount);
     setStrutTube(next.strutTube ?? "");
     setExtraTubeMass(next.extraTubeMass_t ?? 0);
@@ -721,6 +726,20 @@ export function App() {
               <option value="нет">нет</option>
               <option value="есть">есть</option>
             </select>
+          </label>
+
+          <label>
+            Водосток
+            <select
+              value={hasDrainage ? "есть" : "нет"}
+              onChange={(e) => setHasDrainage(e.target.value === "есть")}
+            >
+              <option value="есть">есть</option>
+              <option value="нет">нет</option>
+            </select>
+            <span className="field-hint">
+              ТЗ, п.14. «Нет» убирает раздел «Водосток» из ведомости целиком.
+            </span>
           </label>
 
           <label>

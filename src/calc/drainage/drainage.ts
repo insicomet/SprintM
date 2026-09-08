@@ -11,6 +11,15 @@ export interface DrainageItem {
   cost: number;
 }
 
+/** Раздела «Водосток» нет в проекте (ТЗ, п.14: «нет»). */
+export const NO_DRAINAGE: DrainageTakeoff = {
+  items: [],
+  subtotalCost: 0,
+  overheadCost: 0,
+  totalCost: 0,
+  totalMass_kg: 0,
+};
+
 export interface DrainageTakeoff {
   items: DrainageItem[];
   subtotalCost: number;
