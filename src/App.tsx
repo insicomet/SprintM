@@ -8,7 +8,7 @@ import { fileNameFor, parseSavedProject, serializeProject } from "./calc/project
 import { parseTz } from "./calc/tz/parseTz";
 import { tzToInputs } from "./calc/tz/tzToInputs";
 import { readPdfText } from "./calc/tz/readPdfText";
-import { DEFAULT_OPENINGS, type OpeningsInput } from "./calc/geometry/openings";
+import { DEFAULT_OPENINGS, type OpeningGroup, type OpeningsInput } from "./calc/geometry/openings";
 import { buildBill } from "./calc/bill/buildBill";
 import { computeProject, type ProjectInputs } from "./calc/project/computeProject";
 import { DECKING_MARKS, DEFAULT_DECKING_MARK } from "./calc/purlin/deckingSpan";
@@ -34,6 +34,76 @@ const MIN_HEIGHT_M = 3;
 
 /** 6 → «6», 6.2 → «6,2»: в поле высоты дробная часть бывает, а нули не нужны. */
 const fmt = (v: number) => String(v).replace(".", ",");
+
+/**
+ * Один тип проёма (ворота/двери/окна) — список размеров вместо одного
+ * поля. Расчётчик подтвердила (вопрос 02): «когда размеров больше, чем
+ * слотов, я вручную добавляю слот» — здесь то же самое, кнопкой.
+ */
+function OpeningGroupsEditor({
+  label,
+  groups,
+  defaultGroup,
+  onChange,
+}: {
+  label: string;
+  groups: OpeningGroup[];
+  defaultGroup: OpeningGroup;
+  onChange: (next: OpeningGroup[]) => void;
+}) {
+  const update = (index: number, patch: Partial<OpeningGroup>) =>
+    onChange(groups.map((g, i) => (i === index ? { ...g, ...patch } : g)));
+  const remove = (index: number) => onChange(groups.filter((_, i) => i !== index));
+  const add = () => onChange([...groups, { ...defaultGroup }]);
+
+  return (
+    <div className="opening-type">
+      <div className="opening-type-head">
+        <span>{label}</span>
+        <button type="button" className="linklike" onClick={add}>
+          + добавить размер
+        </button>
+      </div>
+      {groups.length === 0 && <p className="hint">Нет ни одного проёма этого типа.</p>}
+      {groups.map((g, i) => (
+        <div className="inline-fields opening-row" key={i}>
+          <input
+            type="number"
+            min="0"
+            aria-label="количество"
+            value={g.count}
+            onChange={(e) => update(i, { count: Number(e.target.value) })}
+          />
+          <input
+            type="number"
+            min="0"
+            step="0.1"
+            aria-label="ширина, м"
+            value={g.width_m}
+            onChange={(e) => update(i, { width_m: Number(e.target.value) })}
+          />
+          <input
+            type="number"
+            min="0"
+            step="0.1"
+            aria-label="высота, м"
+            value={g.height_m}
+            onChange={(e) => update(i, { height_m: Number(e.target.value) })}
+          />
+          <button
+            type="button"
+            className="opening-remove"
+            onClick={() => remove(i)}
+            aria-label={`убрать размер ${label.toLowerCase()}`}
+            title="Убрать этот размер"
+          >
+            ×
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function App() {
   const [city, setCity] = useState("Челябинск");
@@ -597,94 +667,34 @@ export function App() {
 
       <section className="card">
         <h2>Проёмы</h2>
-        <p className="hint">Количество × ширина × высота, м. Вычитаются из площади стен.</p>
-        <div className="form-grid">
-          <label>
-            Ворота
-            <div className="inline-fields">
-              <input
-                type="number"
-                min="0"
-                value={openings.gatesCount}
-                onChange={(e) => setOpenings({ ...openings, gatesCount: Number(e.target.value) })}
-              />
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={openings.gateWidth_m}
-                onChange={(e) => setOpenings({ ...openings, gateWidth_m: Number(e.target.value) })}
-              />
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={openings.gateHeight_m}
-                onChange={(e) => setOpenings({ ...openings, gateHeight_m: Number(e.target.value) })}
-              />
-            </div>
-          </label>
-
-          <label>
-            Двери
-            <div className="inline-fields">
-              <input
-                type="number"
-                min="0"
-                value={openings.doorsCount}
-                onChange={(e) => setOpenings({ ...openings, doorsCount: Number(e.target.value) })}
-              />
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={openings.doorWidth_m}
-                onChange={(e) => setOpenings({ ...openings, doorWidth_m: Number(e.target.value) })}
-              />
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={openings.doorHeight_m}
-                onChange={(e) => setOpenings({ ...openings, doorHeight_m: Number(e.target.value) })}
-              />
-            </div>
-          </label>
-
-          <label>
-            Окна
-            <div className="inline-fields">
-              <input
-                type="number"
-                min="0"
-                value={openings.windowsCount}
-                onChange={(e) => setOpenings({ ...openings, windowsCount: Number(e.target.value) })}
-              />
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={openings.windowWidth_m}
-                onChange={(e) => setOpenings({ ...openings, windowWidth_m: Number(e.target.value) })}
-              />
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={openings.windowHeight_m}
-                onChange={(e) => setOpenings({ ...openings, windowHeight_m: Number(e.target.value) })}
-              />
-            </div>
-          </label>
-
-          <label>
-            Всего проёмов
-            <output className="readonly-field">{openingsArea.toFixed(1)} м²</output>
-            <span className="field-hint">
-              Стена под обшивку: {envelope.wallArea.toFixed(1)} из {envelope.grossWallArea.toFixed(1)} м²
-            </span>
-          </label>
+        <p className="hint">
+          Количество × ширина × высота, м. Несколько размеров одного типа — «+ добавить
+          размер»: так же, как расчётчик заводит лишний слот вручную. Вычитаются из площади стен.
+        </p>
+        <div className="opening-types">
+          <OpeningGroupsEditor
+            label="Ворота"
+            groups={openings.gates}
+            defaultGroup={{ count: 1, width_m: 4, height_m: 4.5 }}
+            onChange={(gates) => setOpenings({ ...openings, gates })}
+          />
+          <OpeningGroupsEditor
+            label="Двери"
+            groups={openings.doors}
+            defaultGroup={{ count: 1, width_m: 1, height_m: 2.1 }}
+            onChange={(doors) => setOpenings({ ...openings, doors })}
+          />
+          <OpeningGroupsEditor
+            label="Окна"
+            groups={openings.windows}
+            defaultGroup={{ count: 1, width_m: 3, height_m: 1 }}
+            onChange={(windows) => setOpenings({ ...openings, windows })}
+          />
         </div>
+        <p className="field-hint">
+          Всего проёмов: {openingsArea.toFixed(1)} м². Стена под обшивку:{" "}
+          {envelope.wallArea.toFixed(1)} из {envelope.grossWallArea.toFixed(1)} м²
+        </p>
       </section>
 
       <section className="card">

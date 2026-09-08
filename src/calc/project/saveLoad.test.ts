@@ -16,9 +16,9 @@ const inputs: ProjectInputs = {
   maxStepOverride_mm: 0, minStep_mm: 0, framePitchOverride_m: 0,
   wallPanel_mm: 100, roofPanel_mm: 150,
   openings: {
-    gatesCount: 1, gateWidth_m: 4, gateHeight_m: 4.2,
-    doorsCount: 1, doorWidth_m: 1, doorHeight_m: 2,
-    windowsCount: 1, windowWidth_m: 30, windowHeight_m: 1,
+    gates: [{ count: 1, width_m: 4, height_m: 4.2 }],
+    doors: [{ count: 1, width_m: 1, height_m: 2 }],
+    windows: [{ count: 1, width_m: 30, height_m: 1 }],
   },
   snowGuards: true, railingPurlin: false, tubeStrutCount: 3, postSpacing_m: 2,
 };
@@ -71,5 +71,64 @@ describe("сохранение и открытие расчёта", () => {
   it("opens a file written by an older format", () => {
     const old = { ...serializeProject(inputs), version: SAVE_FORMAT_VERSION - 1 };
     expect(parseSavedProject(JSON.stringify(old)).ok).toBe(true);
+  });
+
+  it("migrates the one-slot-per-type shape (format 1) into the group lists (format 2)", () => {
+    // Ровно тот файл, что был отправлен пользователю до вопроса 02:
+    // «Проёмы» там ещё в старой форме — одно число на тип, без списков.
+    const v1File = JSON.stringify({
+      format: "sprintm-project",
+      version: 1,
+      savedAt: "2026-09-07T14:11:30.773Z",
+      title: "ТЗ 22326 — Увильды 12×26×4",
+      inputs: {
+        city: "Увильды",
+        manualClimate: { snowLoad_kPa: 1.5, windDistrict: "II", label: "Увильды" },
+        span: 12, length_m: 26, height_m: 4,
+        gammaN: 1, bankK: "auto",
+        roofingType: "С-П 150", deckingMark: "С44-1000-0,7",
+        maxStepOverride_mm: 0, minStep_mm: 0, framePitchOverride_m: 0,
+        wallPanel_mm: 150, roofPanel_mm: 150,
+        openings: {
+          gatesCount: 1, gateWidth_m: 2.5, gateHeight_m: 2.5,
+          doorsCount: 2, doorWidth_m: 1.3, doorHeight_m: 2.1,
+          windowsCount: 5, windowWidth_m: 4.3, windowHeight_m: 1,
+        },
+        snowGuards: true, railingPurlin: false, tubeStrutCount: 3, postSpacing_m: 2,
+      },
+    });
+
+    const result = parseSavedProject(v1File);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.inputs.openings).toEqual({
+      gates: [{ count: 1, width_m: 2.5, height_m: 2.5 }],
+      doors: [{ count: 2, width_m: 1.3, height_m: 2.1 }],
+      windows: [{ count: 5, width_m: 4.3, height_m: 1 }],
+    });
+    // Всё остальное не тронуто — мигрирует только форма проёмов.
+    expect(result.value.inputs.span).toBe(12);
+    expect(result.value.inputs.manualClimate).toEqual({
+      snowLoad_kPa: 1.5, windDistrict: "II", label: "Увильды",
+    });
+  });
+
+  it("drops an empty slot when migrating a type that had nothing (0 count, 0×0)", () => {
+    const v1File = JSON.stringify({
+      format: "sprintm-project",
+      version: 1,
+      inputs: {
+        ...inputs,
+        openings: {
+          gatesCount: 1, gateWidth_m: 4, gateHeight_m: 4.2,
+          doorsCount: 1, doorWidth_m: 1, doorHeight_m: 2,
+          windowsCount: 0, windowWidth_m: 0, windowHeight_m: 0,
+        },
+      },
+    });
+    const result = parseSavedProject(v1File);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.inputs.openings.windows).toEqual([]);
   });
 });

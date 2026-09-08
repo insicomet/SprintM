@@ -30,6 +30,8 @@
  * значение подборщика (вывод!E68) вводится вручную.
  */
 
+import type { OpeningGroup } from "./openings";
+
 /** Вес одних ворот по ширине, кг (Лист1!Q23:Q24). */
 const GATE_MASS_kg = { under6: 350, over6: 450 } as const;
 /** Погонный вес перемычки двери, кг/м — в формуле O25 стоит числом. */
@@ -40,8 +42,8 @@ const ALLOWANCE = 1.05;
 const WIDE_GATE_m = 6;
 
 export interface OpeningsFramingInput {
-  gatesCount: number;
-  gateWidth_m: number;
+  /** Размеры ворот — классификация «до/свыше 6 м» у каждого своя. */
+  gates: readonly OpeningGroup[];
   doorsCount: number;
   /** Шаг рам, м (вывод!F8 → Лист1!B7). */
   framePitch_m: number;
@@ -59,9 +61,13 @@ export interface OpeningsFramingMass {
 }
 
 export function computeOpeningsFraming(input: OpeningsFramingInput): OpeningsFramingMass {
-  const perGate_kg =
-    input.gateWidth_m > WIDE_GATE_m ? GATE_MASS_kg.over6 : GATE_MASS_kg.under6;
-  const gates_kg = perGate_kg * input.gatesCount * ALLOWANCE;
+  // Несколько размеров ворот — обычные и широкие вперемешку — каждый
+  // считается своим весом (Лист1!O23/O24 — это ДВЕ строки исходника,
+  // ровно под этот случай), а не средним по всем воротам сразу.
+  const gates_kg = input.gates.reduce((sum, g) => {
+    const perGate_kg = g.width_m > WIDE_GATE_m ? GATE_MASS_kg.over6 : GATE_MASS_kg.under6;
+    return sum + perGate_kg * g.count * ALLOWANCE;
+  }, 0);
   const doors_kg =
     (input.framePitch_m + 4) * input.doorsCount * DOOR_LINTEL_kg_per_m * ALLOWANCE;
 

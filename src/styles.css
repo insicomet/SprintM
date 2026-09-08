@@ -480,3 +480,49 @@ details.overrides .badge {
   margin: 8px 0 0;
   color: var(--warn-text);
 }
+
+/* ---- Проёмы: список размеров на тип ---- */
+
+.opening-types {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.opening-type-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.opening-type-head .linklike {
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.opening-row {
+  margin-bottom: 6px;
+}
+
+.opening-remove {
+  flex: 0 0 auto;
+  width: 32px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.opening-remove:hover {
+  color: var(--error);
+  border-color: var(--error);
+}

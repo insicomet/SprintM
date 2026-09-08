@@ -35,9 +35,9 @@ const base: Omit<ProjectInputs, "city" | "span" | "length_m" | "height_m"> = {
   wallPanel_mm: 120,
   roofPanel_mm: 200,
   openings: {
-    gatesCount: 0, gateWidth_m: 0, gateHeight_m: 0,
-    doorsCount: 0, doorWidth_m: 0, doorHeight_m: 0,
-    windowsCount: 0, windowWidth_m: 0, windowHeight_m: 0,
+    gates: [],
+    doors: [],
+    windows: [],
   },
   snowGuards: false,
   railingPurlin: false,
@@ -63,9 +63,9 @@ const cases: { name: string; inputs: ProjectInputs; oracle: Oracle }[] = [
       ...base,
       city: "Тюмень", span: 21, length_m: 36, height_m: 6,
       openings: {
-        gatesCount: 2, gateWidth_m: 4, gateHeight_m: 4.2,
-        doorsCount: 2, doorWidth_m: 1, doorHeight_m: 2.1,
-        windowsCount: 1, windowWidth_m: 24, windowHeight_m: 1.5,
+        gates: [{ count: 2, width_m: 4, height_m: 4.2 }],
+    doors: [{ count: 2, width_m: 1, height_m: 2.1 }],
+    windows: [{ count: 1, width_m: 24, height_m: 1.5 }],
       },
       // Обрамление проёмов приложение выводит само, но перемычки окон
       // подборщик считает у себя — здесь берём его число (вывод!E68).
@@ -101,9 +101,9 @@ const cases: { name: string; inputs: ProjectInputs; oracle: Oracle }[] = [
       gammaN: 0.8, roofingType: "С-П 150", wallPanel_mm: 100, roofPanel_mm: 150,
       snowGuards: true,
       openings: {
-        gatesCount: 2, gateWidth_m: 3.5, gateHeight_m: 3.5,
-        doorsCount: 1, doorWidth_m: 1, doorHeight_m: 2,
-        windowsCount: 0, windowWidth_m: 0, windowHeight_m: 0,
+        gates: [{ count: 2, width_m: 3.5, height_m: 3.5 }],
+    doors: [{ count: 1, width_m: 1, height_m: 2 }],
+    windows: [],
       },
     },
     oracle: {
@@ -136,9 +136,9 @@ const cases: { name: string; inputs: ProjectInputs; oracle: Oracle }[] = [
       roofingType: "наше 150 мм", wallPanel_mm: 150, roofPanel_mm: 150,
       railingPurlin: true,
       openings: {
-        gatesCount: 1, gateWidth_m: 6, gateHeight_m: 5,
-        doorsCount: 2, doorWidth_m: 1, doorHeight_m: 2,
-        windowsCount: 1, windowWidth_m: 30, windowHeight_m: 1.2,
+        gates: [{ count: 1, width_m: 6, height_m: 5 }],
+    doors: [{ count: 2, width_m: 1, height_m: 2 }],
+    windows: [{ count: 1, width_m: 30, height_m: 1.2 }],
       },
       extraTubeMass_t: 1.1015919936,
     },
@@ -171,9 +171,9 @@ const cases: { name: string; inputs: ProjectInputs; oracle: Oracle }[] = [
       city: "Омск", span: 12, length_m: 24, height_m: 4,
       roofingType: "С-П 100", wallPanel_mm: 80, roofPanel_mm: 100,
       openings: {
-        gatesCount: 1, gateWidth_m: 4, gateHeight_m: 4,
-        doorsCount: 1, doorWidth_m: 1, doorHeight_m: 2,
-        windowsCount: 0, windowWidth_m: 0, windowHeight_m: 0,
+        gates: [{ count: 1, width_m: 4, height_m: 4 }],
+    doors: [{ count: 1, width_m: 1, height_m: 2 }],
+    windows: [],
       },
     },
     oracle: {
@@ -217,9 +217,9 @@ const cases: { name: string; inputs: ProjectInputs; oracle: Oracle }[] = [
         // ТЗ: ворота 2,5×2,5; двери 1×2,1 и 1,6×2,1; окна 3×1 ×2, 3,5×1 ×1, 6×1 ×2.
         // Приложение держит один размер на тип, поэтому двери и окна сведены
         // так, чтобы совпали и площадь, и округлённый вниз вычет из стены.
-        gatesCount: 1, gateWidth_m: 2.5, gateHeight_m: 2.5,
-        doorsCount: 2, doorWidth_m: 1.3, doorHeight_m: 2.1,
-        windowsCount: 5, windowWidth_m: 4.3, windowHeight_m: 1,
+        gates: [{ count: 1, width_m: 2.5, height_m: 2.5 }],
+    doors: [{ count: 2, width_m: 1.3, height_m: 2.1 }],
+    windows: [{ count: 5, width_m: 4.3, height_m: 1 }],
       },
       // Перемычки окон подборщик считает у себя — берём его число (вывод!E68).
       extraTubeMass_t: 0.9345317975,

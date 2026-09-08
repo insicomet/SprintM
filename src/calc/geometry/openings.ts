@@ -1,26 +1,40 @@
+/**
+ * Один размер проёма — количество, ширина, высота.
+ *
+ * До вопроса 02 приложение держало по одному размеру на тип проёма
+ * (ворота/двери/окна) и сводило разные размеры в один, сохраняя число и
+ * площадь. Расчётчик подтвердила, что сама она поступает иначе: «когда
+ * размеров больше, чем слотов, я вручную добавляю слот». Поэтому теперь
+ * каждый тип проёма — это СПИСОК таких размеров, а не одно число, — как
+ * и у неё.
+ */
+export interface OpeningGroup {
+  count: number;
+  width_m: number;
+  height_m: number;
+}
+
 export interface OpeningsInput {
-  gatesCount: number;
-  gateWidth_m: number;
-  gateHeight_m: number;
-  doorsCount: number;
-  doorWidth_m: number;
-  doorHeight_m: number;
-  windowsCount: number;
-  windowWidth_m: number;
-  windowHeight_m: number;
+  gates: OpeningGroup[];
+  doors: OpeningGroup[];
+  windows: OpeningGroup[];
 }
 
 export const DEFAULT_OPENINGS: OpeningsInput = {
-  gatesCount: 1,
-  gateWidth_m: 4,
-  gateHeight_m: 4.5,
-  doorsCount: 1,
-  doorWidth_m: 1,
-  doorHeight_m: 2.1,
-  windowsCount: 0,
-  windowWidth_m: 0,
-  windowHeight_m: 0,
+  gates: [{ count: 1, width_m: 4, height_m: 4.5 }],
+  doors: [{ count: 1, width_m: 1, height_m: 2.1 }],
+  windows: [],
 };
+
+/** Сумма count×width×height по списку размеров одного типа проёма, м². */
+function groupsArea_m2(groups: readonly OpeningGroup[]): number {
+  return groups.reduce((s, g) => s + g.count * g.width_m * g.height_m, 0);
+}
+
+/** Сумма количества по списку размеров одного типа проёма. */
+export function groupsCount(groups: readonly OpeningGroup[]): number {
+  return groups.reduce((s, g) => s + g.count, 0);
+}
 
 /** Суммарная площадь проёмов (ворота + двери + окна), м² — по фактическим размерам. */
 export function computeOpeningsArea_m2(openings: OpeningsInput): number {
@@ -42,6 +56,13 @@ function floorToWholeMetres(size_m: number): number {
   return Math.floor(Number(size_m.toFixed(6)));
 }
 
+function groupsDeduction_m2(groups: readonly OpeningGroup[]): number {
+  return groups.reduce(
+    (s, g) => s + g.count * floorToWholeMetres(g.width_m) * floorToWholeMetres(g.height_m),
+    0,
+  );
+}
+
 /**
  * Площадь проёмов, вычитаемая из площади стен под обшивку, м².
  *
@@ -52,27 +73,25 @@ function floorToWholeMetres(size_m: number): number {
  *   "22316": −1×30×1 − 2×1×1 − 4×4×1  →  30 + 2 + 16 = 48 м²
  *            (ворота при этом 4 × 4,2 = 16,8 м² в блоке проёмов)
  *   "22318": −3×3×2 − 1×2×1           →  18 + 2 = 20 м²
+ *
+ * При нескольких размерах на тип каждый размер округляется и вычитается
+ * отдельно — так же, как отдельными строками стоял бы каждый слот в
+ * ведомости.
  */
 export function computeOpeningsDeduction_m2(o: OpeningsInput): number {
-  const area = (count: number, width_m: number, height_m: number) =>
-    count * floorToWholeMetres(width_m) * floorToWholeMetres(height_m);
-  return (
-    area(o.gatesCount, o.gateWidth_m, o.gateHeight_m) +
-    area(o.doorsCount, o.doorWidth_m, o.doorHeight_m) +
-    area(o.windowsCount, o.windowWidth_m, o.windowHeight_m)
-  );
+  return groupsDeduction_m2(o.gates) + groupsDeduction_m2(o.doors) + groupsDeduction_m2(o.windows);
 }
 
 function gatesArea_m2(o: OpeningsInput): number {
-  return o.gatesCount * o.gateWidth_m * o.gateHeight_m;
+  return groupsArea_m2(o.gates);
 }
 
 function doorsArea_m2(o: OpeningsInput): number {
-  return o.doorsCount * o.doorWidth_m * o.doorHeight_m;
+  return groupsArea_m2(o.doors);
 }
 
 export function windowsArea_m2(o: OpeningsInput): number {
-  return o.windowsCount * o.windowWidth_m * o.windowHeight_m;
+  return groupsArea_m2(o.windows);
 }
 
 /**
@@ -111,11 +130,17 @@ function roundUpToFramePitch(width_m: number, framePitch_m: number): number {
  * чтобы «22316» сходился с файлом до копейки; теперь, когда сама
  * ошибка подтверждена, считаем по правилу и с «22316» расходимся
  * намеренно на этой строке — см. openings.test.ts и buildBill.test.ts.
+ *
+ * При нескольких размерах окон каждый считается своим слотом (своя
+ * ширина, своё округление) и складывается — как в ведомости, где
+ * второй размер занял бы вторую строку блока «Проемы».
  */
 export function windowFramingPerimeter_m(o: OpeningsInput, framePitch_m: number): number {
-  if (o.windowsCount <= 0) return 0;
-  const width_m = roundUpToFramePitch(o.windowWidth_m, framePitch_m);
-  return 2 * (width_m + o.windowHeight_m) * o.windowsCount;
+  return o.windows.reduce((sum, g) => {
+    if (g.count <= 0) return sum;
+    const width_m = roundUpToFramePitch(g.width_m, framePitch_m);
+    return sum + 2 * (width_m + g.height_m) * g.count;
+  }, 0);
 }
 
 export interface OpeningsCostItem {
@@ -152,7 +177,9 @@ const OPENING_PRICES = {
  *
  *   F160 = площадь_окон × цена + площадь_дверей × цена + площадь_ворот × цена
  *
- * Ворота и двери считаются по квадратуре так же, как окна.
+ * Ворота и двери считаются по квадратуре так же, как окна. Несколько
+ * размеров одного типа складываются по площади — цена от размера не
+ * зависит, только от площади и типа.
  *
  * Контрольные значения: "22316" (окна 30 м², двери 2 м², ворота 16,8 м²)
  * -> 921 840 ₽; "22318" (дверь 2 м², ворота 18 м²) -> 787 566 ₽.

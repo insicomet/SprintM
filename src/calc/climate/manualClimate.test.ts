@@ -50,9 +50,9 @@ const base: ProjectInputs = {
   wallPanel_mm: 100,
   roofPanel_mm: 150,
   openings: {
-    gatesCount: 1, gateWidth_m: 4, gateHeight_m: 4.2,
-    doorsCount: 1, doorWidth_m: 1, doorHeight_m: 2,
-    windowsCount: 0, windowWidth_m: 0, windowHeight_m: 0,
+    gates: [{ count: 1, width_m: 4, height_m: 4.2 }],
+    doors: [{ count: 1, width_m: 1, height_m: 2 }],
+    windows: [],
   },
   snowGuards: true,
   railingPurlin: false,

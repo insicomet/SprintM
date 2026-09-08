@@ -36,6 +36,7 @@ import {
   computeOpeningsArea_m2,
   computeOpeningsDeduction_m2,
   computeOpeningsCost,
+  groupsCount,
   windowFramingPerimeter_m,
   type OpeningsInput,
 } from "../geometry/openings";
@@ -347,11 +348,10 @@ export function computeProject(inputs: ProjectInputs) {
   // Слагаемое «Конструкций из труб», которое расчётчик вписывает руками:
   // это металл обрамления проёмов из подборщика (вывод!E68).
   const openingsFraming = computeOpeningsFraming({
-    gatesCount: openings.gatesCount,
-    gateWidth_m: openings.gateWidth_m,
-    doorsCount: openings.doorsCount,
+    gates: openings.gates,
+    doorsCount: groupsCount(openings.doors),
     framePitch_m: geometry.framePitch_m,
-    hasWindows: openings.windowsCount > 0 && openings.windowWidth_m > 0,
+    hasWindows: openings.windows.some((w) => w.count > 0 && w.width_m > 0),
   });
   const effectiveExtraTubeMass_t = extraTubeMass_t ?? openingsFraming.total_t;
 
