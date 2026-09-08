@@ -44,4 +44,17 @@ describe("computeWallArea_m2", () => {
       computeWallArea_m2({ ...base, roofSlopeDeg: 15 }),
     );
   });
+
+  it("does not double the gable allowance at span=12 exactly, only above it", () => {
+    // «21923» (Москва, пролёт 12) не удваивает в файле, и расчётчик
+    // подтвердила границу прямо: «Граница больше 12, начиная с 13, при
+    // пролёте 12м умножать не нужно».
+    const base = { span_m: 12, length_m: 24, height_m: 5, framePitch_m: 6, roofSlopeDeg: 15 };
+    // (12+24)×2×5 + 12×2 = 360 + 24, не 360 + 48.
+    expect(computeWallArea_m2(base)).toBeCloseTo(384, 6);
+    expect(computeWallArea_m2({ ...base, span_m: 15 })).toBeCloseTo(
+      (15 + 24) * 2 * 5 + 15 * 2 * 2,
+      6,
+    );
+  });
 });

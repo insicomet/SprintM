@@ -92,27 +92,39 @@ def run(case):
         "B21": eng["D33"], "E21": tr["beamPrice"], "H21": tr["beamMass"],
         "B22": eng["D34"], "E22": tr["columnPrice"], "H22": tr["columnMass"],
         "B24": tr["purlinProfileName"], "E24": tr["purlinProfilePrice"], "H24": tr["purlinProfileMass"],
+        # Коэффициент связей/болтов М16 и удвоение фронтона — оба порога
+        # ОДИНАКОВО зависят от пролёта, но на разных сторонах границы:
+        # связи/болты — "≤ 12 м" даёт половину (расчётчик, вопрос 02/03),
+        # фронтон — "> 12 м" даёт удвоение (расчётчик, вопрос 21923).
+        # На пролёте 12 м ровно поэтому и там, и там — меньшее значение.
         "C24": f'={sel["lines"]//2}*2*2*C9+2*C9*{(1 if inp["snowGuards"] else 0)+(1 if inp["railingPurlin"] else 0)}',
         "I141": sel["lines"],
         "C78": f'=(2*C9/1.4)*{1 if inp["snowGuards"] else 0}',
         "C85": f'=K90*{round(tr["screwRate"])}',
         # коэффициент болтов М16 — по пролёту (см. frameFasteners.ts)
-        "O88": f'=({eng["E52"]}+{case["boltCoef"]}*(K90-2)/K90+12*8/K90+12*2/K90)',
+        "O88": (f'=({eng["E52"]}+{case["boltCoef"]}*(K90-2)/K90'
+                f'+12*{4 if inp["span"] <= 12 else 8}/K90+12*2/K90)'),
         "M87": eng["D57"],
         "L92": f'=SQRT({inp["span"]/4}*{inp["span"]/4}+O90*O90)',
         # погонный вес трубы распорок числом; само сечение выдаёт подборщик (вывод!D38)
-        "C96": f'=(4*(C10+0.5)*J87+{TUBE_MASS[eng["D38"]]}*K95*C9'
-               f'+(8*2)*L92*L85*1.1+(2*2)*L93*L85*1.1)+{eng["E68"]}+J85*L156',
+        "C96": (f'=(4*(C10+0.5)*J87+{TUBE_MASS[eng["D38"]]}*K95*C9'
+                f'+({4 if inp["span"] <= 12 else 8}*2)*L92*L85*1.1+(2*2)*L93*L85*1.1)'
+                f'+{eng["E68"]}+J85*L156'),
         # уклон кровли: подборщик даёт 6° при пролёте >21 м, в шаблоне вбито 15°
         "J14": f'={6 if inp["span"] > 21 else 15}*3.14/180',
         "K95": inp["tubeStrutCount"],
-        "L156": f'=2*({o["windowWidth_m"]}+K160)*L160',
+        # окно округляется вверх до кратного шагу рам, не берётся как есть
+        # (расчётчик, вопрос 01) — минимум один шаг, даже если окно у́же.
+        "L156": (f'=2*({max(1, math.ceil(o["windowWidth_m"] / sel["pitch"] - 1e-9)) * sel["pitch"]}'
+                 f'+K160)*L160'),
         "J160": o["windowWidth_m"], "K160": o["windowHeight_m"], "L160": o["windowsCount"],
         "J161": 1, "K161": 2, "L161": 0,
         "J162": o["doorWidth_m"], "K162": o["doorHeight_m"], "L162": o["doorsCount"],
         "J163": o["gateWidth_m"], "K163": o["gateHeight_m"], "L163": o["gatesCount"],
-        # из стены вычитаются размеры, округлённые вниз до целых метров
-        "C102": (f'=((C8+C9)*2*(C10)+C8*2*2)'
+        # из стены вычитаются размеры, округлённые вниз до целых метров;
+        # фронтон удваивается строго выше 12 м (расчётчик: «граница
+        # больше 12, начиная с 13, при пролёте 12м умножать не нужно»).
+        "C102": (f'=((C8+C9)*2*(C10)+C8*2{"*2" if inp["span"] > 12 else ""})'
                  f'-{o["windowsCount"]}*{floor_m(o["windowWidth_m"])}*{floor_m(o["windowHeight_m"])}'
                  f'-{o["doorsCount"]}*{floor_m(o["doorWidth_m"])}*{floor_m(o["doorHeight_m"])}'
                  f'-{o["gatesCount"]}*{floor_m(o["gateWidth_m"])}*{floor_m(o["gateHeight_m"])}'),
