@@ -85,6 +85,27 @@ describe("computeBracing", () => {
     expect(horiz.mass_t).toBeCloseTo(16 * Math.hypot(4.5, 4.5) * 0.0072 * 1.1, 12);
   });
 
+  it("halves the horizontal-brace coefficient at spans of 12 m and under", () => {
+    // Расчётчик (вопрос 02): «В расчётах 22316, 22318, 22285 пролёт больше
+    // 12 м, соответственно мы не можем поделить горизонтальные связи на 2
+    // по 6 м, а в расчётах 22326 и 22329 пролёт меньше 12 м, и поэтому
+    // получается по 2 горизонтальные связи с каждой стороны». Подтверждено
+    // на «22329» (Увильды, пролёт 12): коэффициент 4×2=8, не 8×2=16.
+    const wide = byName(computeBracing({ ...project22316, span_m: 15 }))["Конструкции из труб"]
+      .breakdown!.find((p) => p.name === "Горизонтальные связи")!;
+    const narrow = byName(computeBracing({ ...project22316, span_m: 12 }))["Конструкции из труб"]
+      .breakdown!.find((p) => p.name === "Горизонтальные связи")!;
+    // При том же шаге рам единственная разница — коэффициент, ровно вдвое.
+    expect(wide.mass_t).toBeCloseTo(
+      16 * Math.hypot(15 / 4, 4.5) * 0.0072 * 1.1,
+      12,
+    );
+    expect(narrow.mass_t).toBeCloseTo(
+      8 * Math.hypot(12 / 4, 4.5) * 0.0072 * 1.1,
+      12,
+    );
+  });
+
   it("leaves out the window framing when there are no windows", () => {
     const parts = byName(computeBracing(project22318))["Конструкции из труб"].breakdown!;
     expect(parts.some((p) => p.name.startsWith("Обрамление окон"))).toBe(false);

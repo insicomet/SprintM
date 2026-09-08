@@ -132,4 +132,24 @@ describe("computeFrameFasteners", () => {
     const korkino = computeFrameFasteners(project22285.geometry, project22285.frames, 292);
     expect(korkino.items.find((i) => i.name === "Болт М16х50")!.count).toBeCloseTo(4466, 6);
   });
+
+  it("halves the M16 bolt formula's extra term at spans of 12 m and under", () => {
+    // «22329» (Увильды, пролёт 12, шаг 6, 6 рам, банк 276): O88 в файле —
+    // 276 + 30×4/6 + 12×4/6 + 12×2/6 = 308. Расчётчик (вопрос 03):
+    // «это связанные вещи» с горизонтальными связями (bracing.test.ts) —
+    // «пролёт больше 12 м — не можем поделить связи на 2 по 6 м, а
+    // пролёт меньше 12 м — получается по 2 с каждой стороны».
+    const uvildy = computeFrameFasteners(
+      { span_m: 12, length_m: 26, height_m: 4, framePitch_m: 6 },
+      6,
+      276,
+    );
+    expect(uvildy.items.find((i) => i.name === "Болт М16х50")!.count).toBeCloseTo(308 * 6, 6);
+  });
+
+  it("keeps the wider extra term above 12 m, at the boundary", () => {
+    // Пролёт 15 (>12) — тот же коэффициент 8, что и в «22316»/«22318»/«22285».
+    const c = computeFrameFasteners(project22318.geometry, project22318.frames, 276);
+    expect(c.items.find((i) => i.name === "Болт М16х50")!.count).toBeCloseTo(2202, 6);
+  });
 });

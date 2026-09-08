@@ -62,9 +62,9 @@ const SCREW_525_RATE_BY_SPAN: Partial<Record<Span, number>> = {
 /**
  * "Болт М16х50 (на раму)" — формула ячейки O88:
  *
- *   на_раму = base + coef×(рам−2)/рам + 12×8/рам + 12×2/рам
+ *   на_раму = base + coef×(рам−2)/рам + 12×X/рам + 12×2/рам
  *
- * Коэффициент зависит от ПРОЛЁТА: 30 для 9/12/15 м, 50 для 18/21/24 м.
+ * Коэффициент coef зависит от ПРОЛЁТА: 30 для 9/12/15 м, 50 для 18/21/24 м.
  * Так в рукописной записке расчётчика, так в «22316» (18 м → 50) и
  * «22318» (15 м → 30).
  *
@@ -73,7 +73,17 @@ const SCREW_525_RATE_BY_SPAN: Partial<Record<Span, number>> = {
  * файлах. Расчётчик посмотрела и сказала: «в 22285 должно быть 50,
  * а не 30, там ошибка». Поэтому вернулись к пролёту, а «22285» на этой
  * строке расходится с нами намеренно — см. buildBill.test.ts.
+ *
+ * X — тоже от пролёта, но это не то же самое, что coef: X=8 при пролёте
+ * >12 м («22316»,«22318»,«22285»), X=4 при пролёте ≤12 м («22326»,
+ * «22329», Увильды). Расчётчик (вопрос 03): «это связанные вещи»
+ * — с тем же порогом, что и коэффициент горизонтальных связей в
+ * bracing.ts (horizBraceCoef): пролёт ≤12 м укладывается в один
+ * шестиметровый полупролёт с каждой стороны конька.
  */
+function boltM16ExtraCoef(span: Span): number {
+  return span <= 12 ? 4 : 8;
+}
 const BOLT_M16_COEF_BY_SPAN: Record<Span, number> = {
   9: 30, 12: 30, 15: 30, 18: 50, 21: 50, 24: 50,
 };
@@ -105,7 +115,12 @@ function boltM16PerFrame(span: Span, frameCount: number, boltsInFrame?: number):
   // (32 на 3 метра пролёта ≈ 10,67 на метр) — заведомо приблизительно.
   const base = boltsInFrame ?? BOLT_M16_BASE_BY_SPAN[span] ?? 276 + ((span - 15) * 32) / 3;
   const coef = BOLT_M16_COEF_BY_SPAN[span];
-  return base + (coef * (frameCount - 2)) / frameCount + (12 * 8) / frameCount + (12 * 2) / frameCount;
+  return (
+    base +
+    (coef * (frameCount - 2)) / frameCount +
+    (12 * boltM16ExtraCoef(span)) / frameCount +
+    (12 * 2) / frameCount
+  );
 }
 
 /**
