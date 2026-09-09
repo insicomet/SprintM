@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseOpeningsLine, parseTz, spanForWidth } from "./parseTz";
 import { TZ_22326 as tz22326 } from "./tz22326.fixture";
 import { TZ_22326_PDFJS } from "./tz22326.pdfjs.fixture";
+import { TZ_22330 as tz22330 } from "./tz22330.fixture";
 
 describe("parseOpeningsLine", () => {
   it("reads a line with several sizes and counts", () => {
@@ -19,6 +20,11 @@ describe("parseOpeningsLine", () => {
   it("accepts a latin x and a multiplication sign", () => {
     expect(parseOpeningsLine("4x4,2 - 2 шт")[0]).toEqual({ width_m: 4, height_m: 4.2, count: 2 });
     expect(parseOpeningsLine("3×3")[0]).toEqual({ width_m: 3, height_m: 3, count: 1 });
+  });
+
+  it("reads the count when it comes before the size, as in «22330»", () => {
+    // «Ворота: 2 шт 4х4 в продольной стене здания» — count-first, no dash.
+    expect(parseOpeningsLine("2 шт 4х4")).toEqual([{ width_m: 4, height_m: 4, count: 2 }]);
   });
 });
 
@@ -78,6 +84,41 @@ describe("parseTz — настоящее ТЗ 22326", () => {
 
   it("carries the customer's own paragraph across instead of dropping it", () => {
     expect(tz.notes.some((n) => n.includes("навес"))).toBe(true);
+  });
+});
+
+describe("parseTz — настоящее ТЗ 22330 (count-first ворота, продольная стена)", () => {
+  const tz = parseTz(tz22330);
+
+  it("reads the header, site and title without the leading item number", () => {
+    expect(tz.number).toBe("22330");
+    expect(tz.city).toBe("Тюмень");
+    expect(tz.title).toBe("Склад 15х42х7 Спринт");
+  });
+
+  it("reads the size straight onto a standard span", () => {
+    expect(tz.width_m).toBe(15);
+    expect(tz.length_m).toBe(42);
+    expect(tz.height_m).toBe(7);
+    expect(tz.span).toBe(15);
+  });
+
+  it("reads two gates, not one, and flags them onto the long wall", () => {
+    // «Ворота: 2 шт 4х4 в продольной стене здания» — count before the size,
+    // no dash before «шт»; before the count-first fix this silently
+    // dropped to count 1.
+    expect(tz.gates).toEqual([{ width_m: 4, height_m: 4, count: 2, onLongWall: true }]);
+    expect(tz.doors).toEqual([]);
+    expect(tz.windows).toEqual([]);
+  });
+
+  it("reads the responsibility level and the drainage line", () => {
+    expect(tz.gammaN).toBe(0.8);
+    expect(tz.drainageAndSnowGuards).toBe(false);
+  });
+
+  it("reads it whole — nothing is left unread", () => {
+    expect(tz.unread).toEqual([]);
   });
 });
 

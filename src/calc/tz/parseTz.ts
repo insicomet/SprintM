@@ -21,6 +21,12 @@ export interface TzOpening {
   /** Высота, м. */
   height_m: number;
   count: number;
+  /**
+   * Ворота на длинной (продольной) стене раздвигают свою раму — см.
+   * onLongWall в calc/geometry/openings.ts. Не имеет смысла для дверей
+   * и окон, поэтому заполняется только у ворот.
+   */
+  onLongWall?: boolean;
 }
 
 export interface ParsedTz {
@@ -119,7 +125,10 @@ function textAfter(
 }
 
 /**
- * Строка проёмов вида «1х3м - 2 шт, 1х3,5 - 1 шт, 1х6м - 2 шт».
+ * Строка проёмов вида «1х3м - 2 шт, 1х3,5 - 1 шт, 1х6м - 2 шт» — а
+ * иногда, как в «22330», количество стоит ПЕРЕД размером: «2 шт 4х4».
+ * Оба порядка встречаются в реальных ТЗ, поэтому ищем «N шт» и до, и
+ * после размера.
  *
  * В ТЗ размер пишется «высота х ширина»: двери «1х2,1м» — это метр в
  * ширину и 2,1 в высоту, ворота «2,5х2,5» — квадратные. Значит первое
@@ -128,12 +137,14 @@ function textAfter(
  */
 export function parseOpeningsLine(line: string): TzOpening[] {
   const out: TzOpening[] = [];
-  const re = /(\d+(?:[.,]\d+)?)\s*х\s*(\d+(?:[.,]\d+)?)\s*м?\s*(?:-\s*(\d+)\s*шт)?/g;
+  const re =
+    /(?:(\d+)\s*шт\s+)?(\d+(?:[.,]\d+)?)\s*х\s*(\d+(?:[.,]\d+)?)\s*м?\s*(?:-\s*(\d+)\s*шт)?/g;
   for (const m of normalize(line).matchAll(re)) {
-    const width_m = toNumber(m[1]);
-    const height_m = toNumber(m[2]);
+    const width_m = toNumber(m[2]);
+    const height_m = toNumber(m[3]);
     if (width_m === null || height_m === null) continue;
-    out.push({ width_m, height_m, count: m[3] ? Number(m[3]) : 1 });
+    const count = m[4] ?? m[1];
+    out.push({ width_m, height_m, count: count ? Number(count) : 1 });
   }
   return out;
 }
@@ -177,9 +188,18 @@ function parseOpeningsBlock(lines: string[]): Pick<ParsedTz, "gates" | "doors" |
 
   const sized = (i: number) => parseOpeningsLine(block[i]).length > 0;
 
-  // Ворота — на строке со своей подписью.
+  // Ворота — на строке со своей подписью. Стена (длинная/торец), если
+  // упомянута в той же строке, — общая пометка для всех ворот на ней.
   const gateAt = block.findIndex((l, i) => /Ворота/i.test(l) && sized(i));
-  if (gateAt >= 0) { out.gates = parseOpeningsLine(block[gateAt]); claimed.add(gateAt); }
+  if (gateAt >= 0) {
+    const onLongWall = /продольн|длинн(?:ой|ая)\s+сторон|длинн(?:ой|ая)\s+стен/i.test(block[gateAt])
+      ? true
+      : /торц|фронтон|коротк(?:ой|ая)\s+стен/i.test(block[gateAt])
+        ? false
+        : undefined;
+    out.gates = parseOpeningsLine(block[gateAt]).map((g) => ({ ...g, onLongWall }));
+    claimed.add(gateAt);
+  }
 
   // Окна — на строке с подписью либо на ближайшей следующей.
   const windowLabel = block.findIndex((l) => /Окна/i.test(l));
@@ -207,6 +227,7 @@ export function parseTz(text: string): ParsedTz {
 
   result.number = joined.match(/Расчет\s*№\s*(\d+)/i)?.[1];
   result.title = blockOf(lines, /Название объекта/i, /Наименование здания/i)
+    .replace(/^\s*\d+\.\s*/, "")
     .replace(/Название объекта/i, "")
     .replace(/\s+/g, " ")
     .trim() || undefined;
