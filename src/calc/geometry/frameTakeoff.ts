@@ -67,8 +67,12 @@ function takeoffMember(profileName: string, totalLength_m: number): FrameMemberT
  * Не включает прогоны (считаются отдельно, calc/purlin) и связи/затяжки/
  * узловые пластины/крепёж — это следующий шаг.
  */
-export function computeFrameTakeoff(geometry: BuildingGeometry, selection: FrameSelection): FrameTakeoff {
-  const frameCount = computeFrameCount(geometry);
+export function computeFrameTakeoff(
+  geometry: BuildingGeometry,
+  selection: FrameSelection,
+  widenedBays_m: readonly number[] = [],
+): FrameTakeoff {
+  const frameCount = computeFrameCount(geometry, widenedBays_m);
 
   // Сечение колонны и ригеля собирается из двух профилей — см.
   // PROFILES_PER_MEMBER.

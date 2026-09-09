@@ -14,6 +14,31 @@ describe("computeFrameCount", () => {
   it("gives exactly (length/pitch + 1) frames for an exact multiple", () => {
     expect(computeFrameCount({ length_m: 24, framePitch_m: 6 })).toBe(5);
   });
+
+  describe("с раздвинутыми под ворота пролётами", () => {
+    // «21755»: шаг рам 4,4, а 4,8 — шаг у ворот (ширина 4 м, раздвинуто
+    // до 4+0,8). Раздвинутый пролёт заменяет один стандартный шаг, а не
+    // добавляется поверх — тот же остаток длины делится дальше как обычно.
+    it("считает раздвинутый пролёт вместо одного стандартного шага", () => {
+      const withoutGate = computeFrameCount({ length_m: 60, framePitch_m: 4.4 });
+      const withGate = computeFrameCount({ length_m: 60, framePitch_m: 4.4 }, [4.8]);
+      // Один шаг стал длиннее — суммарная длина та же, а не (длина + 4,8).
+      expect(withGate).toBeLessThanOrEqual(withoutGate);
+    });
+
+    it("не меняет результат для пустого списка раздвинутых пролётов", () => {
+      expect(computeFrameCount({ length_m: 30, framePitch_m: 4.5 }, [])).toBe(
+        computeFrameCount({ length_m: 30, framePitch_m: 4.5 }),
+      );
+    });
+
+    it("учитывает несколько раздвинутых пролётов", () => {
+      // 24 м, шаг 6 -> 5 рам без ворот. Два раздвинутых пролёта по 6,8 м
+      // (не длиннее шага) съедают 13,6 м, остаток 10,4 м -> ceil(10,4/6)=2
+      // стандартных шага + 2 раздвинутых + 1 = 5.
+      expect(computeFrameCount({ length_m: 24, framePitch_m: 6 }, [6.8, 6.8])).toBe(5);
+    });
+  });
 });
 
 describe("rafterLengthPerFrame_m", () => {

@@ -45,11 +45,14 @@ function OpeningGroupsEditor({
   groups,
   defaultGroup,
   onChange,
+  showWallSide = false,
 }: {
   label: string;
   groups: OpeningGroup[];
   defaultGroup: OpeningGroup;
   onChange: (next: OpeningGroup[]) => void;
+  /** Только для ворот — раздвижка рамы актуальна лишь для них. */
+  showWallSide?: boolean;
 }) {
   const update = (index: number, patch: Partial<OpeningGroup>) =>
     onChange(groups.map((g, i) => (i === index ? { ...g, ...patch } : g)));
@@ -90,6 +93,16 @@ function OpeningGroupsEditor({
             value={g.height_m}
             onChange={(e) => update(i, { height_m: Number(e.target.value) })}
           />
+          {showWallSide && (
+            <select
+              aria-label="стена"
+              value={g.onLongWall ? "long" : "gable"}
+              onChange={(e) => update(i, { onLongWall: e.target.value === "long" })}
+            >
+              <option value="gable">торец</option>
+              <option value="long">длинная сторона</option>
+            </select>
+          )}
           <button
             type="button"
             className="opening-remove"
@@ -682,6 +695,7 @@ export function App() {
             groups={openings.gates}
             defaultGroup={{ count: 1, width_m: 4, height_m: 4.5 }}
             onChange={(gates) => setOpenings({ ...openings, gates })}
+            showWallSide
           />
           <OpeningGroupsEditor
             label="Двери"
@@ -699,6 +713,10 @@ export function App() {
         <p className="field-hint">
           Всего проёмов: {openingsArea.toFixed(1)} м². Стена под обшивку:{" "}
           {envelope.wallArea.toFixed(1)} из {envelope.grossWallArea.toFixed(1)} м²
+        </p>
+        <p className="field-hint">
+          Ворота на длинной стене раздвигают свою раму (шаг ≥ ширина ворот + 0,8 м) — на
+          торце раздвигать нечего, там рамы и так по краям здания.
         </p>
       </section>
 

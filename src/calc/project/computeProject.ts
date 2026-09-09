@@ -37,6 +37,7 @@ import {
   computeOpeningsDeduction_m2,
   computeOpeningsCost,
   groupsCount,
+  widenedGateBays_m,
   windowFramingPerimeter_m,
   type OpeningsInput,
 } from "../geometry/openings";
@@ -327,8 +328,11 @@ export function computeProject(inputs: ProjectInputs) {
   };
 
   // ---- Каркас -------------------------------------------------------
+  const widenedBays_m = widenedGateBays_m(openings.gates, geometry.framePitch_m);
   const frameTakeoff =
-    selection && heightBucket !== null ? computeFrameTakeoff(geometry, selection) : null;
+    selection && heightBucket !== null
+      ? computeFrameTakeoff(geometry, selection, widenedBays_m)
+      : null;
 
   // База формулы болтов М16 — «Болты в раме» выбранной строки банка.
   const frameFasteners =

@@ -12,6 +12,35 @@ export interface OpeningGroup {
   count: number;
   width_m: number;
   height_m: number;
+  /**
+   * Ворота на длинной стене раздвигают ту раму, у которой стоят — шаг там
+   * должен быть не меньше ширины ворот + 0,8 м, иначе рама перекроет
+   * проём (расчётчик: «раздвижка рамы встречается как в обычных
+   * спринтах, так и в нов.конструктиве, так что это общее правило»).
+   * На торце раздвигать нечего — там рамы и так по краям здания.
+   * Используется только для ворот; для дверей и окон не имеет смысла.
+   */
+  onLongWall?: boolean;
+}
+
+/** Минимальная надбавка к ширине ворот для раздвинутой рамы, м. */
+const GATE_FRAME_CLEARANCE_M = 0.8;
+
+/**
+ * Шаг каждой раздвинутой под ворота рамы, м — по одному значению на
+ * каждые ворота на длинной стене (`count` штук каждый).
+ *
+ * Если раздвинутый шаг выходит меньше стандартного (узкие ворота при
+ * широком шаге рам), раздвигать незачем — берём больший из двух.
+ */
+export function widenedGateBays_m(gates: readonly OpeningGroup[], framePitch_m: number): number[] {
+  const bays: number[] = [];
+  for (const gate of gates) {
+    if (!gate.onLongWall) continue;
+    const bay = Math.max(framePitch_m, gate.width_m + GATE_FRAME_CLEARANCE_M);
+    for (let i = 0; i < gate.count; i++) bays.push(bay);
+  }
+  return bays;
 }
 
 export interface OpeningsInput {

@@ -4,12 +4,42 @@ import {
   computeOpeningsCost,
   DEFAULT_OPENINGS,
   groupsCount,
+  widenedGateBays_m,
   windowFramingPerimeter_m,
   computeOpeningsDeduction_m2,
   type OpeningsInput,
 } from "./openings";
 
 const NO_OPENINGS: OpeningsInput = { gates: [], doors: [], windows: [] };
+
+describe("widenedGateBays_m", () => {
+  // «21755»: ворота шириной 4 м на длинной стене раздвигают свою раму
+  // до 4,8 м (ширина + 0,8), при стандартном шаге 4,4 м.
+  it("raздвигает раму под ворота на длинной стене до ширины + 0,8 м", () => {
+    const bays = widenedGateBays_m([{ count: 1, width_m: 4, height_m: 4, onLongWall: true }], 4.4);
+    expect(bays).toEqual([4.8]);
+  });
+
+  it("не трогает ворота на торце", () => {
+    const bays = widenedGateBays_m([{ count: 1, width_m: 4, height_m: 4, onLongWall: false }], 4.4);
+    expect(bays).toEqual([]);
+  });
+
+  it("не сужает раму, если стандартный шаг и так шире ворот+0,8", () => {
+    const bays = widenedGateBays_m([{ count: 1, width_m: 3, height_m: 3, onLongWall: true }], 6);
+    expect(bays).toEqual([6]);
+  });
+
+  it("даёт по одному раздвинутому пролёту на каждые ворота в группе", () => {
+    const bays = widenedGateBays_m([{ count: 2, width_m: 4, height_m: 4, onLongWall: true }], 4.4);
+    expect(bays).toEqual([4.8, 4.8]);
+  });
+
+  it("игнорирует ворота без указания стены (по умолчанию — торец)", () => {
+    const bays = widenedGateBays_m([{ count: 1, width_m: 4, height_m: 4 }], 4.4);
+    expect(bays).toEqual([]);
+  });
+});
 
 describe("computeOpeningsArea_m2", () => {
   it("sums gates, doors and windows area", () => {
