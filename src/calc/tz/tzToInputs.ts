@@ -21,6 +21,9 @@ export interface TzFill {
   roofPanel_mm?: number;
   openings: OpeningsInput;
   snowGuards?: boolean;
+  /** Тот же пункт 14 ТЗ, что и snowGuards — см. ParsedTz.drainageAndSnowGuards. */
+  hasDrainage?: boolean;
+  railingPurlin?: boolean;
   /** Что пришлось развернуть — показываем менеджеру. */
   adjustments: string[];
 }
@@ -53,6 +56,8 @@ export function tzToInputs(tz: ParsedTz): TzFill {
     wallPanel_mm: tz.wallInsulation_mm,
     roofPanel_mm: tz.roofInsulation_mm,
     snowGuards: tz.drainageAndSnowGuards,
+    hasDrainage: tz.drainageAndSnowGuards,
+    railingPurlin: tz.drainageAndSnowGuards,
     openings: {
       gates: tz.gates.map((o) => ({ ...o })),
       doors: tz.doors.map((o) => ({ ...o })),

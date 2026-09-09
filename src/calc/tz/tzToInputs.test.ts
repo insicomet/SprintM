@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseTz } from "./parseTz";
 import { TZ_22326 } from "./tz22326.fixture";
+import { TZ_22330 } from "./tz22330.fixture";
 import { tzToInputs } from "./tzToInputs";
 import {
   computeOpeningsArea_m2,
@@ -66,5 +67,24 @@ describe("tzToInputs — ТЗ 22326", () => {
     // нечего никогда: список правок теперь говорит только о развороте
     // окон в ленточные, а не о том, что где-то усреднили размеры.
     expect(fill.adjustments).toEqual(["Окна развёрнуты в ленточные: меньшая сторона принята за высоту"]);
+  });
+});
+
+describe("tzToInputs — ТЗ 22330 (пункт 14 «нет» разносится на все три поля)", () => {
+  const fill = tzToInputs(parseTz(TZ_22330));
+
+  it("reads the panel thickness from item 11, gates onto the long wall", () => {
+    expect(fill.wallPanel_mm).toBe(100);
+    expect(fill.roofPanel_mm).toBe(150);
+    expect(fill.openings.gates).toEqual([{ width_m: 4, height_m: 4, count: 2, onLongWall: true }]);
+  });
+
+  it("turns off snow guards, drainage and the roof railing purlin together", () => {
+    // Пункт 14 — одна строка на все три; «нет» должно выключить все три,
+    // а не только снегозадержатель (водосток раньше оставался включённым
+    // по умолчанию, даже когда в ТЗ прямо написано «нет»).
+    expect(fill.snowGuards).toBe(false);
+    expect(fill.hasDrainage).toBe(false);
+    expect(fill.railingPurlin).toBe(false);
   });
 });

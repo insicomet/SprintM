@@ -395,6 +395,8 @@ export function App() {
       if (fill.wallPanel_mm !== undefined) setWallThickness(fill.wallPanel_mm);
       if (fill.roofPanel_mm !== undefined) setRoofThickness(fill.roofPanel_mm);
       if (fill.snowGuards !== undefined) setSnowGuards(fill.snowGuards);
+      if (fill.hasDrainage !== undefined) setHasDrainage(fill.hasDrainage);
+      if (fill.railingPurlin !== undefined) setRailingPurlin(fill.railingPurlin);
       setOpenings(fill.openings);
       setProjectTitle(tz.number ? `ТЗ ${tz.number}` : "");
       setTzAdjustments(fill.adjustments);
