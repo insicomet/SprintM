@@ -17,6 +17,7 @@ export interface TzFill {
   length_m?: number;
   height_m?: number;
   gammaN?: number;
+  fireResistanceRating?: number;
   wallPanel_mm?: number;
   roofPanel_mm?: number;
   openings: OpeningsInput;
@@ -53,6 +54,7 @@ export function tzToInputs(tz: ParsedTz): TzFill {
     length_m: tz.length_m,
     height_m: tz.height_m,
     gammaN: tz.gammaN,
+    fireResistanceRating: tz.fireResistanceRating,
     wallPanel_mm: tz.wallInsulation_mm,
     roofPanel_mm: tz.roofInsulation_mm,
     snowGuards: tz.drainageAndSnowGuards,

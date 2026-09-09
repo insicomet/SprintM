@@ -352,6 +352,52 @@ describe("computeProject — поведение вне сверки", () => {
   });
 });
 
+describe("высота вне банка сечений — методика расчётчика", () => {
+  // Сверено на реальном проекте «22330» (пролёт 15, высота по ТЗ 7 м):
+  // на чертеже расчётчицы подписано «7,0(6,0) м» — сечение рамы подобрано
+  // по корзине 6,0 м, а не отклонено. Расчётчик подтвердила: в подборщик
+  // вводится максимально допустимая высота банка (для пролёта 15 это 6,2 м,
+  // что и снэпается в корзину 6,0), сечение колонны увеличивается вручную —
+  // требует проверки главным конструктором.
+  const base: ProjectInputs = { ...project22318, height_m: 7 };
+
+  it("caps height only for the frame section bank query, marks requiresCheck", () => {
+    const r = computeProject(base);
+    expect(r.heightBucket).toBe(6.0);
+    expect(r.frame!.ok).toBe(true);
+    expect(r.requiresCheck).toBe(true);
+    expect(r.approximations.some((a) => a.kind === "высота")).toBe(true);
+  });
+
+  it("keeps the real ТЗ height everywhere else — geometry is not capped", () => {
+    const capped = computeProject(base);
+    const notCapped = computeProject({ ...base, height_m: 6 });
+    // Реальная высота (7 м) уходит в геометрию, площадь стен и фахверк —
+    // поэтому расчёт при 7 м не совпадает с расчётом при явных 6 м, хотя
+    // сечение рамы в обоих случаях подобрано по одной и той же корзине 6,0.
+    expect(capped.geometry.framePitch_m).toBe(notCapped.geometry.framePitch_m);
+    expect(capped.envelope.wallArea).toBeGreaterThan(notCapped.envelope.wallArea);
+  });
+
+  it("does not cap height within the bank's limit", () => {
+    const r = computeProject({ ...base, height_m: 6 });
+    expect(r.heightBucket).toBe(6.0);
+    expect(r.approximations.some((a) => a.kind === "высота")).toBe(false);
+  });
+});
+
+describe("степень огнестойкости — информационное поле, на расчёт не влияет", () => {
+  // Расчётчик подтвердила: «Штрипс не считается ни в каком случае; степень
+  // огнестойкости на расчёт не влияет» — ни при каком значении, включая IV.
+  it.each([1, 2, 3, 4, 5])("rating %s changes nothing but is echoed in inputs", (rating) => {
+    const withRating = computeProject({ ...project22318, fireResistanceRating: rating });
+    const without = computeProject({ ...project22318, fireResistanceRating: undefined });
+    expect(withRating.commercial.totalCost).toBe(without.commercial.totalCost);
+    expect(withRating.approximations).toEqual(without.approximations);
+    expect(withRating.inputs.fireResistanceRating).toBe(rating);
+  });
+});
+
 describe("вариант «СГ по Р» (пролёт 24 м)", () => {
   const base24: ProjectInputs = {
     ...project22316,

@@ -78,6 +78,13 @@ describe("parseTz — настоящее ТЗ 22326", () => {
     expect(tz.drainageAndSnowGuards).toBe(true);
   });
 
+  it("reads the fire resistance rating from item 5 — «5-я степень»", () => {
+    // Не влияет на подбор сечений (подтверждено: подборщик!вывод!D19 не
+    // читается ни одной формулой), но в файле подсчёта материалов G9=4
+    // добавляет позицию «Штрипс (защита рам)» — нужна для отображения в КП.
+    expect(tz.fireResistanceRating).toBe(5);
+  });
+
   it("reads it whole — nothing is left unread", () => {
     expect(tz.unread).toEqual([]);
   });

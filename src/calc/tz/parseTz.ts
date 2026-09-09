@@ -42,6 +42,8 @@ export interface ParsedTz {
   length_m?: number;
   height_m?: number;
   gammaN?: ResponsibilityLevel;
+  /** Требуемая степень огнестойкости здания, п.5 (напр. «5-я степень» → 5). */
+  fireResistanceRating?: number;
   wallInsulation_mm?: number;
   roofInsulation_mm?: number;
   gates: TzOpening[];
@@ -274,6 +276,11 @@ export function parseTz(text: string): ParsedTz {
   result.length_m = numberAfter(lines, /Длина/i) ?? undefined;
   result.height_m = numberAfter(lines, /Высота до низа несущих/i) ?? undefined;
   if (result.width_m !== undefined) result.span = spanForWidth(result.width_m);
+
+  // Пункт 5 — «5-я степень» (подтверждено на «22326» и «22330»). На подбор
+  // сечений не влияет, но нужна для отображения в КП — см. ProjectInputs.fireResistanceRating.
+  const fireResistance = joined.match(/(\d)\s*-я\s*степень/i)?.[1];
+  if (fireResistance) result.fireResistanceRating = Number(fireResistance);
 
   // Толщина панели — из пункта 11 («Наружная - стены/кровля: … N мм»),
   // если там есть число; иначе из пункта 9 («Утепление стен/кровли»).

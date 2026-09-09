@@ -20,6 +20,7 @@ describe("tzToInputs — ТЗ 22326", () => {
     expect(fill.wallPanel_mm).toBe(150);
     expect(fill.roofPanel_mm).toBe(150);
     expect(fill.snowGuards).toBe(true);
+    expect(fill.fireResistanceRating).toBe(5);
   });
 
   it("turns the windows the right way up, one slot per size", () => {

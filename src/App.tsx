@@ -165,6 +165,9 @@ export function App() {
   const [trussedVariant, setTrussedVariant] = useState(false);
   // Раздел «Перекрытие» — в ведомости он есть, но его итог обнулён.
   const [mezzanine, setMezzanine] = useState(false);
+  // Степень огнестойкости (ТЗ, п.5) — на подбор сечений не влияет, только
+  // для отображения в КП; пусто — расчёт как есть, ничего не предполагаем.
+  const [fireResistanceRating, setFireResistanceRating] = useState<number | "">("");
   // Панель «Расчёт»: имя объекта, сообщение о последнем действии и
   // список правок, которые понадобились при загрузке ТЗ.
   const [projectTitle, setProjectTitle] = useState("");
@@ -205,6 +208,7 @@ export function App() {
         postSpacing_m: postSpacing,
         trussedVariant,
         mezzanine,
+        fireResistanceRating: fireResistanceRating || undefined,
       }),
     [
       city,
@@ -235,6 +239,7 @@ export function App() {
       postSpacing,
       trussedVariant,
       mezzanine,
+      fireResistanceRating,
     ],
   );
 
@@ -343,6 +348,7 @@ export function App() {
     setPostSpacing(next.postSpacing_m);
     setTrussedVariant(Boolean(next.trussedVariant));
     setMezzanine(Boolean(next.mezzanine));
+    setFireResistanceRating(next.fireResistanceRating ?? "");
   }
 
   async function openFile(file: File) {
@@ -392,6 +398,7 @@ export function App() {
       if (fill.length_m !== undefined) setLength(fill.length_m);
       if (fill.height_m !== undefined) setHeight(fill.height_m);
       if (fill.gammaN !== undefined) setResponsibility(fill.gammaN as ResponsibilityLevel);
+      if (fill.fireResistanceRating !== undefined) setFireResistanceRating(fill.fireResistanceRating);
       if (fill.wallPanel_mm !== undefined) setWallThickness(fill.wallPanel_mm);
       if (fill.roofPanel_mm !== undefined) setRoofThickness(fill.roofPanel_mm);
       if (fill.snowGuards !== undefined) setSnowGuards(fill.snowGuards);
@@ -598,7 +605,6 @@ export function App() {
             <input
               type="number"
               min={MIN_HEIGHT_M}
-              max={heightLimits.max_m}
               step="0.1"
               value={height}
               aria-invalid={heightTooHigh || undefined}
@@ -606,7 +612,8 @@ export function App() {
             />
             <span className={`field-hint${heightTooHigh ? " invalid" : ""}`}>
               {heightTooHigh
-                ? `Банк сечений держит для пролёта ${span} м только до ${fmt(heightLimits.max_m)} м`
+                ? `Выше банка сечений (до ${fmt(heightLimits.max_m)} м для пролёта ${span} м) — ` +
+                  `сечение рамы подобрано по максимально допустимой высоте, требует проверки конструктором`
                 : heightBucket !== null && height < heightLimits.minBucket_m
                   ? `Ниже наименьшей корзины — считается по ${fmt(heightBucket)} м`
                   : heightBucket !== null
@@ -625,6 +632,26 @@ export function App() {
               <option value={0.8}>III (γn = 0,8)</option>
             </select>
             <span className="field-hint">Идёт в нагрузки. Блок банка k подбирается сам.</span>
+          </label>
+
+          <label>
+            Степень огнестойкости
+            <select
+              value={fireResistanceRating}
+              onChange={(e) =>
+                setFireResistanceRating(e.target.value === "" ? "" : Number(e.target.value))
+              }
+            >
+              <option value="">Не задана</option>
+              <option value={1}>I</option>
+              <option value={2}>II</option>
+              <option value={3}>III</option>
+              <option value={4}>IV</option>
+              <option value={5}>V</option>
+            </select>
+            <span className="field-hint">
+              На подбор сечений не влияет (ТЗ, п.5) — только для отображения в КП.
+            </span>
           </label>
         </div>
       </section>
@@ -1623,6 +1650,12 @@ export function App() {
           </dd>
           <dt className="group-heading">Справочно</dt>
           <dd />
+          {fireResistanceRating !== "" && (
+            <>
+              <dt>Степень огнестойкости</dt>
+              <dd>{["I", "II", "III", "IV", "V"][fireResistanceRating - 1]}</dd>
+            </>
+          )}
           <dt>Металл (каркас, прогоны, стойки)</dt>
           <dd>
             {summary.steelMass_kg.toFixed(0)} кг

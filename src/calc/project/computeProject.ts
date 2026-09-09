@@ -11,7 +11,7 @@ import {
 } from "../climate/snowLadder";
 import { computeBracing, type StrutTube } from "../frame/bracing";
 import { selectSecondaryMembers } from "../frame/secondaryMembers";
-import { findFrameSelection, snapHeight } from "../frame/sectionBank";
+import { findFrameSelection, heightLimitsForSpan, snapHeight } from "../frame/sectionBank";
 import {
   computeRoofCladdingSection,
   computeWallCladdingSection,
@@ -149,6 +149,14 @@ export interface ProjectInputs {
    * поэтому по умолчанию раздел выключен.
    */
   mezzanine?: boolean;
+  /**
+   * Требуемая степень огнестойкости здания (ТЗ, п.5) — 1…5. Подтверждено
+   * расчётчиком: на расчёт не влияет и позиция «Штрипс (защита рам)» не
+   * считается ни в каком случае (формула `IF(G9=4,...)` в файле подсчёта
+   * материалов на практике не применяется) — поле чисто информационное,
+   * нужно только для отображения в коммерческом предложении.
+   */
+  fireResistanceRating?: number;
 }
 
 export type ProjectResult = ReturnType<typeof computeProject>;
@@ -207,6 +215,34 @@ export function computeProject(inputs: ProjectInputs) {
    * берётся ближайшая просчитанная строка, а несовпадение выносится сюда.
    */
   const approximations: ClimateApproximation[] = [];
+
+  // Высота выше предела банка сечений (подборщик!вывод!E6: «пролет 21 до
+  // высоты 6,2м...») — расчётчик подтвердила методику: в подборщик вводится
+  // максимально допустимая высота банка, сечение колонны увеличивается,
+  // результат проверяется главным конструктором. Сверено на реальном
+  // проекте «22330» (пролёт 15, высота по ТЗ 7 м): в файле расчётчика на
+  // чертеже подписано «7,0(6,0) м» — фактически подобрано по корзине 6,0 м,
+  // что и получается, если передать в банк капнутую высоту 6,2 м (последний
+  // порог для пролётов 9…21 снэпается в корзину 6,0). Капается только
+  // высота, что уходит в подбор сечения рамы (frame section bank) — все
+  // остальные величины (площадь обшивки, масса, лестница нагрузок и т.д.)
+  // считаются по РЕАЛЬНОЙ высоте ТЗ: во «втором файле» (подсчёт
+  // материалов) расчётчик вводит именно её, не капнутую.
+  const heightLimits = heightLimitsForSpan(span);
+  const heightExceedsBank = height_m > heightLimits.max_m;
+  const effectiveHeight_m = heightExceedsBank ? heightLimits.max_m : height_m;
+  if (heightExceedsBank) {
+    const ru = (v: number) => String(v).replace(".", ",");
+    approximations.push({
+      kind: "высота",
+      message:
+        `Высота ${ru(height_m)} м для пролёта ${span} м выше предела банка сечений ` +
+        `(${ru(heightLimits.max_m)} м). Для подбора сечения рамы принята максимально ` +
+        `допустимая высота банка — сечение колонны нужно увеличивать вручную. ` +
+        `Обязательно согласуйте с главным конструктором перед КП.`,
+    });
+  }
+
   try {
     // Ручной ввод подменяет поиск города, дальше всё считается одинаково.
     const found = manualClimate ? manualSettlement(manualClimate) : findSettlement(city);
@@ -280,7 +316,7 @@ export function computeProject(inputs: ProjectInputs) {
     try {
       const query = {
         span,
-        height_m,
+        height_m: effectiveHeight_m,
         responsibility: bankK === "auto" ? (bankBlock?.bankK ?? gammaN) : bankK,
         svCode: climate.value.standard,
       };
@@ -300,7 +336,7 @@ export function computeProject(inputs: ProjectInputs) {
 
   let heightBucket: number | null;
   try {
-    heightBucket = snapHeight(span, height_m);
+    heightBucket = snapHeight(span, effectiveHeight_m);
   } catch {
     heightBucket = null;
   }
