@@ -155,6 +155,27 @@ export function spanForWidth(width_m: number): Span | undefined {
 }
 
 
+/**
+ * Толщина сэндвич-панели обшивки из пункта 11 («Наружная - стены:
+ * Сэндвич-панель полимер / 100 мм, МВ»).
+ *
+ * В части ТЗ (напр. «22326») толщину панели пишут в пункте 9 «Утепление
+ * стен/кровли», и она читается оттуда. Но встречается и другой вариант
+ * (напр. «22330»): пункт 9 — это ноль (панель сама по себе уже
+ * утеплена, отдельного слоя нет), а фактическая толщина панели — только
+ * здесь, в пункте 11, текстом рядом с типом обшивки. Число там — на
+ * строке после подписи, а не на одной строке с ней.
+ */
+function panelThicknessFromCladding(lines: string[], label: RegExp): number | null {
+  const at = lines.findIndex((l) => label.test(l));
+  if (at < 0) return null;
+  for (let i = at; i < Math.min(at + 3, lines.length); i++) {
+    const m = lines[i].match(/(\d+(?:[.,]\d+)?)\s*мм/);
+    if (m) return toNumber(m[1]);
+  }
+  return null;
+}
+
 /** Строки пункта — от подписи `from` до подписи следующего пункта `until`. */
 function blockOf(lines: string[], from: RegExp, until: RegExp): string {
   const start = lines.findIndex((l) => from.test(l));
@@ -248,8 +269,20 @@ export function parseTz(text: string): ParsedTz {
   result.height_m = numberAfter(lines, /Высота до низа несущих/i) ?? undefined;
   if (result.width_m !== undefined) result.span = spanForWidth(result.width_m);
 
-  result.wallInsulation_mm = numberAfter(lines, /Утепление стен/i) ?? undefined;
-  result.roofInsulation_mm = numberAfter(lines, /Утепление кровли/i) ?? undefined;
+  // Толщина панели — из пункта 11 («Наружная - стены/кровля: … N мм»),
+  // если там есть число; иначе из пункта 9 («Утепление стен/кровли»).
+  // Оба пункта могут называть одно и то же число (тогда неважно, откуда
+  // взяли) или разное — тогда пункт 11 точнее: он про саму панель,
+  // тогда как пункт 9 в части ТЗ означает «утепление сверх панели»
+  // и бывает нулём даже при непустой обшивке (см. «22330»).
+  result.wallInsulation_mm =
+    panelThicknessFromCladding(lines, /Наружная\s*-\s*стены/i) ??
+    numberAfter(lines, /Утепление стен/i) ??
+    undefined;
+  result.roofInsulation_mm =
+    panelThicknessFromCladding(lines, /Наружная\s*-\s*кровля/i) ??
+    numberAfter(lines, /Утепление кровли/i) ??
+    undefined;
 
   Object.assign(result, parseOpeningsBlock(lines));
 

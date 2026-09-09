@@ -112,6 +112,17 @@ describe("parseTz — настоящее ТЗ 22330 (count-first ворота, �
     expect(tz.windows).toEqual([]);
   });
 
+  it("reads the panel thickness from item 11, not the zero in item 9", () => {
+    // Пункт 9 «Утепление стен/кровли» здесь — ноль (панель уже утеплена
+    // сама по себе), а настоящая толщина — в пункте 11 текстом:
+    // «Наружная - стены: Сэндвич-панель полимер / 100 мм, МВ» и
+    // «Наружная - кровля: Сэндвич-панель полимер / 150 мм». Раньше это
+    // читалось как 0/0 и панель безмолвно съезжала на первую по каталогу
+    // толщину в интерфейсе — расчёт шёл без цены («в прайсе нет»).
+    expect(tz.wallInsulation_mm).toBe(100);
+    expect(tz.roofInsulation_mm).toBe(150);
+  });
+
   it("reads the responsibility level and the drainage line", () => {
     expect(tz.gammaN).toBe(0.8);
     expect(tz.drainageAndSnowGuards).toBe(false);
