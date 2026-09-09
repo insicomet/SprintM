@@ -443,8 +443,8 @@ export function App() {
         // ближайшей строке, но обязательно предупреждать. Баннер стоит
         // выше всех цифр — чтобы менеджер увидел его раньше, чем итог.
         <div className="check-notice" role="status">
-          <strong>Требует проверки конструктором.</strong> Точной строки для этого города в
-          таблицах ИНСИ нет — расчёт идёт по ближайшей:
+          <strong>Требует проверки конструктором.</strong> Расчёт построен на допущениях —
+          проверьте перед КП:
           <ul>
             {approximations.map((a) => (
               <li key={a.kind}>{a.message}</li>
@@ -1045,11 +1045,13 @@ export function App() {
         ) : (
           <p className="error">{climate.error}</p>
         )}
-        {approximations.map((a) => (
-          <p className="hint check-hint" key={a.kind}>
-            {a.message}
-          </p>
-        ))}
+        {approximations
+          .filter((a) => a.kind !== "высота")
+          .map((a) => (
+            <p className="hint check-hint" key={a.kind}>
+              {a.message}
+            </p>
+          ))}
       </section>
 
       <section className="card">
