@@ -120,4 +120,43 @@ describe("sectionBank", () => {
       expect(result?.beam.profile).toBe("ПГС300/20х80х3");
     });
   });
+
+  describe("четыре опечатки исходной таблицы, исправленные по реальным проектам", () => {
+    // Расчётчик подтвердила: «в файлах указаны верные значения» — то есть
+    // расхождение было не в разных правилах подбора болтов/фасонок, а в
+    // паре ячеек нашей копии банка. Каждая строка сверена по балке/колонне
+    // (или по колонне/болтам/фасонкам, когда расходилась именно балка) с
+    // реальным файлом; расходящееся поле правилось только там, где было
+    // прямое подтверждение.
+
+    it("«21813» и «22102»: балка с/в 3/2, k=0,8 — толщина 2,5, не 2 (обе высоты)", () => {
+      const h48 = findFrameSelection({ span: 12, height_m: 4.8, responsibility: 0.8, svCode: "3/2" });
+      expect(h48?.beam.profile).toBe("ПГС245/20х80х2,5");
+      expect(h48?.column.profile).toBe("ПГС300/20х80х2");
+      expect(h48?.bolts.totalInFrame).toBe(260);
+      expect(h48?.massGussetPlates_kg).toBe(223);
+
+      const h6 = findFrameSelection({ span: 12, height_m: 6, responsibility: 0.8, svCode: "3/2" });
+      expect(h6?.beam.profile).toBe("ПГС245/20х80х2,5");
+      expect(h6?.column.profile).toBe("ПГС245/20х80х3");
+      expect(h6?.bolts.totalInFrame).toBe(244);
+      expect(h6?.massGussetPlates_kg).toBe(213);
+    });
+
+    it("«22069»: болты/фасонки с/в 3/2, k=1,0, высота 6 — 300/268, не 268/233", () => {
+      const result = findFrameSelection({ span: 12, height_m: 6, responsibility: 1.0, svCode: "3/2" });
+      expect(result?.beam.profile).toBe("ПГС300/20х80х2,5");
+      expect(result?.column.profile).toBe("ПГС245/20х80х2,5");
+      expect(result?.bolts.totalInFrame).toBe(300);
+      expect(result?.massGussetPlates_kg).toBe(268);
+    });
+
+    it("«21987»: болты/фасонки с/в 4/1, k=1,0, высота 6 — 276/233, не 268/227", () => {
+      const result = findFrameSelection({ span: 12, height_m: 6, responsibility: 1.0, svCode: "4/1" });
+      expect(result?.beam.profile).toBe("ПГС300/20х80х3");
+      expect(result?.column.profile).toBe("ПГС300/20х80х2,5");
+      expect(result?.bolts.totalInFrame).toBe(276);
+      expect(result?.massGussetPlates_kg).toBe(233);
+    });
+  });
 });
