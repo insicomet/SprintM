@@ -22,6 +22,20 @@ const settlementNames = getAllSettlementNames();
 
 const roofingTypes = roofingTypesRaw as { type: string; selfWeight_kg_m2: number }[];
 
+/**
+ * Типы покрытия «наше N мм» (послойная сборка — ГВЛ + утеплитель + Изоспан,
+ * без сэндвич-панели) — решение по объёму: этот релиз их не считает (см.
+ * артефакт вопросов расчётчику). В расчёте (roofingSelfWeight.json) они
+ * остаются — вдруг понадобятся, — но в выпадающем списке не нужны.
+ */
+const roofingTypesForUi = roofingTypes.filter((r) => !r.type.startsWith("наше "));
+
+/** «С-П 150» → 150. Не «С-П» (профлист, малоуклонная) — нет толщины панели. */
+function sandwichPanelThicknessOf(roofingType: string): number | null {
+  const m = /^С-П (\d+)$/.exec(roofingType);
+  return m ? Number(m[1]) : null;
+}
+
 /** Коды «с/в», для которых в банке сечений ИНСИ есть просчитанные строки. */
 const SV_CODES = getSupportedSvCodes();
 
@@ -661,35 +675,34 @@ export function App() {
         <div className="form-grid">
           <label className="span-2">
             Покрытие кровли
-            <select value={roofingType} onChange={(e) => setRoofingType(e.target.value)}>
-              {roofingTypes.map((r) => (
+            <select
+              value={roofingType}
+              onChange={(e) => {
+                const next = e.target.value;
+                setRoofingType(next);
+                // «С-П N» задаёт толщину панели сама — отдельного поля «мм» не нужно.
+                const thickness = sandwichPanelThicknessOf(next);
+                if (thickness !== null) setRoofThickness(thickness);
+              }}
+            >
+              {roofingTypesForUi.map((r) => (
                 <option key={r.type} value={r.type}>
                   {r.type} ({r.selfWeight_kg_m2} кг/м²)
                 </option>
               ))}
             </select>
             <span className="field-hint">
-              Влияет и на вес прогонов, и на надбавку к снеговой нагрузке.
+              Влияет и на вес прогонов, и на надбавку к снеговой нагрузке
+              {sandwichPanelThicknessOf(roofingType) !== null ? " — толщина панели отсюда же." : "."}
             </span>
           </label>
 
-          <label>
-            Сэндвич-панель стены, мм
+          <label className="span-2">
+            Покрытие стен
             <select value={wallThickness} onChange={(e) => setWallThickness(Number(e.target.value))}>
               {getSandwichPanelThicknesses().map((t) => (
                 <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            Сэндвич-панель кровли, мм
-            <select value={roofThickness} onChange={(e) => setRoofThickness(Number(e.target.value))}>
-              {getSandwichPanelThicknesses().map((t) => (
-                <option key={t} value={t}>
-                  {t}
+                  С-П {t}
                 </option>
               ))}
             </select>
