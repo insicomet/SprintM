@@ -366,7 +366,8 @@ export function App() {
     (snowOverrideKpa > 0 ? 1 : 0) +
     (svOverride ? 1 : 0) +
     (bankK !== "auto" ? 1 : 0) +
-    (columnOverride ? 1 : 0);
+    (columnOverride ? 1 : 0) +
+    (deckingMark !== DEFAULT_DECKING_MARK ? 1 : 0);
 
 
   // ---- Панель «Расчёт»: сохранить, открыть, загрузить ТЗ ----------------
@@ -801,20 +802,6 @@ export function App() {
             )}
           </label>
 
-          <label className="span-2">
-            Марка настила
-            <select value={deckingMark} onChange={(e) => setDeckingMark(e.target.value)}>
-              {DECKING_MARKS.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-            <span className="field-hint">
-              Ограничивает максимальный шаг прогонов
-              {maxPurlinStep !== null && maxStepOverrideMm === 0 ? `: сейчас ${maxPurlinStep} мм` : ""}
-            </span>
-          </label>
         </div>
       </section>
 
@@ -1071,6 +1058,22 @@ export function App() {
               <option value="1">k = 1,0</option>
               <option value="0.8">k = 0,8</option>
             </select>
+          </label>
+
+          <label>
+            Марка настила
+            <select value={deckingMark} onChange={(e) => setDeckingMark(e.target.value)}>
+              {DECKING_MARKS.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+            <span className="field-hint">
+              В обеих реальных ведомостях — всегда С44-1000-0,7. Менять есть смысл, только
+              если приложение пишет «ни один профиль не проходит по несущей способности»
+              {maxPurlinStep !== null && maxStepOverrideMm === 0 ? ` (сейчас держит ${maxPurlinStep} мм)` : ""}.
+            </span>
           </label>
 
           <label>
