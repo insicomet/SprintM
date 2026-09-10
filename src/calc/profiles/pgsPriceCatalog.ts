@@ -85,3 +85,19 @@ export function findPgsProperties(
     coating: preferred.coating,
   };
 }
+
+/**
+ * Профили ПГС банка сечений ("ПГС300/20х80х3" и т.п.), для которых в
+ * прайсе есть и масса, и цена — источник списка для ручного переопределения
+ * сечения (напр. когда высота здания вне банка и колонну нужно увеличить
+ * вручную — общей формулы для этого нет, см. вопрос расчётчику).
+ */
+export function getKnownPgsProfiles(): readonly string[] {
+  const names = new Set<string>();
+  for (const p of parsedCatalog) {
+    if (p.coating !== "Оцинк.") continue;
+    const t = String(p.t_mm).replace(".", ",");
+    names.add(`ПГС${p.h_mm}/20х${p.b_mm}х${t}`);
+  }
+  return [...names].sort((a, b) => a.localeCompare(b, "ru"));
+}

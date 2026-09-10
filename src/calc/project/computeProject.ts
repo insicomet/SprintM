@@ -157,6 +157,18 @@ export interface ProjectInputs {
    * нужно только для отображения в коммерческом предложении.
    */
   fireResistanceRating?: number;
+  /**
+   * Сечение колонны вручную — вместо того, что даёт банк сечений.
+   *
+   * Нужно для высоты вне банка: расчётчик подтвердила, что «увеличение
+   * сечения» — разовое инженерное решение по расчёту, не формула («Это
+   * совпадение», когда её спросили, не берёт ли она сечение балки).
+   * Общего правила нет, поэтому вместо угадывания — поле ручного ввода:
+   * остальная ведомость (масса, стоимость) пересчитывается под указанный
+   * профиль, болты и узловые пластины остаются по банку (не найдено, как
+   * они меняются при увеличении колонны).
+   */
+  columnOverride?: string;
 }
 
 export type ProjectResult = ReturnType<typeof computeProject>;
@@ -197,6 +209,7 @@ export function computeProject(inputs: ProjectInputs) {
     postSpacing_m,
     trussedVariant,
     mezzanine,
+    columnOverride,
   } = inputs;
 
   // ---- Климат -------------------------------------------------------
@@ -332,7 +345,24 @@ export function computeProject(inputs: ProjectInputs) {
       frame = { ok: false, error: (e as Error).message };
     }
   }
-  const selection = frame?.ok ? frame.value : null;
+  const bankSelection = frame?.ok ? frame.value : null;
+  const selection =
+    bankSelection && columnOverride
+      ? { ...bankSelection, column: { ...bankSelection.column, profile: columnOverride } }
+      : bankSelection;
+  if (bankSelection && columnOverride && columnOverride !== bankSelection.column.profile) {
+    approximations.push({
+      kind: "высота",
+      message:
+        `Сечение колонны задано вручную: ${columnOverride} (по банку сечений — ` +
+        `${bankSelection.column.profile}). Болты и узловые пластины остаются по банку — ` +
+        `как они меняются при увеличении сечения, не выяснено. Требует проверки конструктором.`,
+    });
+    // Возвращаем наружу (в т.ч. для UI) уже с учётом override — иначе
+    // карточка «Сечения рамы» показала бы старый профиль, а ведомость
+    // считала бы по новому: расхождение прямо в интерфейсе.
+    frame = { ok: true, value: selection ?? undefined };
+  }
 
   let heightBucket: number | null;
   try {

@@ -386,6 +386,52 @@ describe("высота вне банка сечений — методика р�
   });
 });
 
+describe("сечение колонны вручную — общей формулы «увеличения» нет", () => {
+  // Расчётчик прямо ответила «Это совпадение», когда её спросили, не берёт
+  // ли она сечение балки для увеличенной колонны — общего правила нет,
+  // поэтому вместо угадывания в приложении есть поле ручного ввода.
+  // Профили сверены на реальном «22330»: банк для пролёта 15, с/в 3/1,
+  // высоты-корзины 6,0, k=1,0 даёт колонну «ПГС300/20х80х2,5»; в реальной
+  // ведомости колонна — «ПГС300/20х80х3».
+  const base: ProjectInputs = { ...project22318, height_m: 7, bankK: 1.0, svOverride: "3/1" };
+
+  it("replaces the column profile and recomputes its mass and cost", () => {
+    const stock = computeProject(base);
+    const stockFrame = stock.frame && stock.frame.ok ? stock.frame.value! : null;
+    expect(stockFrame!.column.profile).toBe("ПГС300/20х80х2,5");
+
+    const overridden = computeProject({ ...base, columnOverride: "ПГС300/20х80х3" });
+    const overriddenFrame = overridden.frame && overridden.frame.ok ? overridden.frame.value! : null;
+    expect(overriddenFrame!.column.profile).toBe("ПГС300/20х80х3");
+    // Балка, болты и узловые пластины не меняются — только колонна.
+    expect(overriddenFrame!.beam.profile).toBe(stockFrame!.beam.profile);
+    expect(overriddenFrame!.bolts.totalInFrame).toBe(stockFrame!.bolts.totalInFrame);
+    // Профиль потолще — значит и масса, и стоимость колонны выше.
+    expect(overridden.frameTakeoff!.column.massPerM_kg).toBeGreaterThan(
+      stock.frameTakeoff!.column.massPerM_kg!,
+    );
+    expect(overridden.frameTakeoff!.totalFrameCost!).toBeGreaterThan(
+      stock.frameTakeoff!.totalFrameCost!,
+    );
+    expect(overridden.requiresCheck).toBe(true);
+    expect(overridden.approximations.some((a) => a.message.includes("ПГС300/20х80х3"))).toBe(
+      true,
+    );
+  });
+
+  it("does nothing when the override matches the bank's own profile", () => {
+    const r = computeProject({ ...base, columnOverride: "ПГС300/20х80х2,5" });
+    expect(r.approximations.some((a) => a.message.includes("задано вручную"))).toBe(false);
+  });
+
+  it("is a no-op without a frame selection", () => {
+    // Город не найден в справочнике климата — до подбора сечения дело не
+    // доходит вовсе (frame остаётся null), override просто не на что применить.
+    const r = computeProject({ ...base, city: "Такого города нет", columnOverride: "ПГС300/20х80х3" });
+    expect(r.frame).toBeNull();
+  });
+});
+
 describe("степень огнестойкости — информационное поле, на расчёт не влияет", () => {
   // Расчётчик подтвердила: «Штрипс не считается ни в каком случае; степень
   // огнестойкости на расчёт не влияет» — ни при каком значении, включая IV.

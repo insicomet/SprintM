@@ -3,6 +3,7 @@ import { findSettlement, getAllSettlementNames, getSupportedSvCodes } from "./ca
 import { getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
 import type { StrutTube } from "./calc/frame/bracing";
 import { heightLimitsForSpan } from "./calc/frame/sectionBank";
+import { getKnownPgsProfiles } from "./calc/profiles/pgsPriceCatalog";
 import { WIND_DISTRICTS, windPressureForDistrict_kPa } from "./calc/climate/manualClimate";
 import { fileNameFor, parseSavedProject, serializeProject } from "./calc/project/saveLoad";
 import { parseTz } from "./calc/tz/parseTz";
@@ -38,6 +39,9 @@ function sandwichPanelThicknessOf(roofingType: string): number | null {
 
 /** Коды «с/в», для которых в банке сечений ИНСИ есть просчитанные строки. */
 const SV_CODES = getSupportedSvCodes();
+
+/** Профили ПГС, для которых в прайсе есть и масса, и цена — список для ручного переопределения. */
+const KNOWN_PGS_PROFILES = getKnownPgsProfiles();
 
 /**
  * Наименьшая высота, которую вообще пускаем в поле. Банк снизу не
@@ -169,6 +173,10 @@ export function App() {
   const [minStepMm, setMinStepMm] = useState(0);
   // Код "с/в" вручную — только для сверки с файлом расчётчика.
   const [svOverride, setSvOverride] = useState("");
+  // Сечение колонны вручную — общей формулы для «увеличения» при высоте
+  // вне банка нет (расчётчик подтвердила: разовое инженерное решение,
+  // не правило), так что вместо угадывания — ручной выбор профиля.
+  const [columnOverride, setColumnOverride] = useState("");
   // Блок банка сечений (подбор!W9) — в исходнике это ОТДЕЛЬНАЯ величина от
   // γn (вывод!D7): в "22316" γn = 1, а сечения взяты из блока k = 0,8.
   const [bankK, setBankK] = useState<"auto" | ResponsibilityLevel>("auto");
@@ -223,6 +231,7 @@ export function App() {
         trussedVariant,
         mezzanine,
         fireResistanceRating: fireResistanceRating || undefined,
+        columnOverride: columnOverride || undefined,
       }),
     [
       city,
@@ -254,6 +263,7 @@ export function App() {
       trussedVariant,
       mezzanine,
       fireResistanceRating,
+      columnOverride,
     ],
   );
 
@@ -304,7 +314,10 @@ export function App() {
 
   // Сколько ручных переопределений включено — чтобы свёрнутый блок не прятал их молча.
   const overrideCount =
-    (snowOverrideKpa > 0 ? 1 : 0) + (svOverride ? 1 : 0) + (bankK !== "auto" ? 1 : 0);
+    (snowOverrideKpa > 0 ? 1 : 0) +
+    (svOverride ? 1 : 0) +
+    (bankK !== "auto" ? 1 : 0) +
+    (columnOverride ? 1 : 0);
 
 
   // ---- Панель «Расчёт»: сохранить, открыть, загрузить ТЗ ----------------
@@ -363,6 +376,7 @@ export function App() {
     setTrussedVariant(Boolean(next.trussedVariant));
     setMezzanine(Boolean(next.mezzanine));
     setFireResistanceRating(next.fireResistanceRating ?? "");
+    setColumnOverride(next.columnOverride ?? "");
   }
 
   async function openFile(file: File) {
@@ -978,6 +992,23 @@ export function App() {
               <option value="1">k = 1,0</option>
               <option value="0.8">k = 0,8</option>
             </select>
+          </label>
+
+          <label>
+            Сечение колонны вручную
+            <select value={columnOverride} onChange={(e) => setColumnOverride(e.target.value)}>
+              <option value="">по банку сечений</option>
+              {KNOWN_PGS_PROFILES.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            <span className="field-hint">
+              Для высоты вне банка — общей формулы «увеличения» нет, решение разовое.
+              Остальная ведомость (масса, стоимость) пересчитается под этот профиль; болты и
+              узловые пластины останутся по банку.
+            </span>
           </label>
         </div>
       </details>
