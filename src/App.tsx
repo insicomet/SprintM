@@ -1159,7 +1159,7 @@ export function App() {
           <p className="error">{climate.error}</p>
         )}
         {approximations
-          .filter((a) => a.kind !== "высота" && a.kind !== "обшивка")
+          .filter((a) => a.kind !== "высота")
           .map((a) => (
             <p className="hint check-hint" key={a.kind}>
               {a.message}

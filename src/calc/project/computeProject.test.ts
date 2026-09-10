@@ -478,8 +478,10 @@ describe("профлист вместо сэндвич-панели — рань
     expect(r.roofCladding!.items[0].name).toContain("Профлист С-44");
     expect(r.wallCladding.totalCost).toBeGreaterThan(0);
     expect(r.roofCladding!.totalCost).toBeGreaterThan(0);
-    expect(r.requiresCheck).toBe(true);
-    expect(r.approximations.some((a) => a.kind === "обшивка")).toBe(true);
+    // Площадь и крепёж подтверждены на двух реальных объектах («22304»,
+    // «21604») — больше не приблизительный расчёт.
+    expect(r.requiresCheck).toBe(false);
+    expect(r.approximations).toEqual([]);
   });
 
   it("uses its own area formula, not the sandwich-panel one", () => {
@@ -487,6 +489,26 @@ describe("профлист вместо сэндвич-панели — рань
     const sp = computeProject({ ...base, roofingType: "С-П 150" });
     expect(profnastil.envelope.grossWallArea).not.toBeCloseTo(sp.envelope.grossWallArea, 0);
     expect(profnastil.envelope.roofArea).not.toBeCloseTo(sp.envelope.roofArea, 0);
+  });
+
+  // «21604» (Кропоткин, 18×48×7, профлист, без утепления): лист «12м»,
+  // ячейки C41/C106 — и панель, и саморез считаются от площади БЕЗ
+  // вычета проёмов, хотя ворота в проекте есть. Раньше приложение молча
+  // вычитало их, как для СП.
+  it("prices the sheet and screws off the GROSS wall area, not net of openings", () => {
+    const r = computeProject({ ...base, wallCladdingMaterial: "профнастил" });
+    expect(r.envelope.wallArea).toBeLessThan(r.envelope.grossWallArea);
+    expect(r.wallCladding.items[0].count).toBeCloseTo(r.envelope.grossWallArea, 6);
+  });
+
+  it("includes profnastil screws — 10/m² on the wall, 8/m² on the roof", () => {
+    const r = computeProject({ ...base, wallCladdingMaterial: "профнастил" });
+    const wallScrew = r.wallCladding.items.find((i) => i.name.includes("Саморез"));
+    const roofScrew = r.roofCladding!.items.find((i) => i.name.includes("Саморез"));
+    expect(wallScrew?.count).toBeCloseTo(r.envelope.grossWallArea * 10, 6);
+    expect(roofScrew?.count).toBeCloseTo(r.envelope.roofArea * 8, 6);
+    expect(wallScrew?.cost).toBeGreaterThan(0);
+    expect(roofScrew?.cost).toBeGreaterThan(0);
   });
 });
 

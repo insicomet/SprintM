@@ -76,6 +76,14 @@ function panelScrew(
 /** БК шнур — уплотнительный шнур; массы в исходнике нет, считаем нулевой. */
 const SEALANT_CORD = { name: "БК шнур", unitPrice: 63.3, unitMass_kg: 0 };
 
+/**
+ * Саморез крепления профлиста — одна и та же позиция и цена что для
+ * стены, что для кровли (лист «12м» реального файла «21604», строки
+ * 106 и 137: обе ссылаются на цену из «Перекупные»!$F$49, 2,346 ₽/шт;
+ * масса 0,0026 кг/шт — H106/H137 в том же файле).
+ */
+const PROFNASTIL_SCREW = { name: "Саморез 4,8x20", unitPrice: 2.3459999999999996, unitMass_kg: 0.0026 };
+
 function buildSection(items: CladdingItem[]): CladdingSectionTakeoff {
   const anyUnpriced = items.some((i) => i.cost === null);
   const subtotalCost = anyUnpriced ? null : items.reduce((s, i) => s + (i.cost ?? 0), 0);
@@ -170,31 +178,39 @@ export function computeWallCladdingSection(
 /**
  * Раздел "Стена" для обшивки профлистом (С-18) вместо сэндвич-панели.
  *
- * Только сам лист — крепёж (саморезы) под профлист в ведомости, из
- * которой взята формула площади, тоже был выключен (×0) вместе с ней, и
- * его формулу восстановить не из чего. Не додумываем: если понадобится
- * точная стоимость крепежа, это отдельный вопрос расчётчику на первом
- * реальном профлистовом объекте.
+ * Площадь — БРУТТО, без вычета проёмов (в отличие от СП): в реальном
+ * файле «21604» строка листа (C41) и строка самореза (C106, "=10×C41")
+ * обе считаются от той же формулы `computeProfnastilWallGrossArea_m2`
+ * без вычитания ворот/дверей — площадь стены в ведомости (1129 м²)
+ * сошлась именно с брутто-значением (1128,6 м²), не с нетто.
+ *
+ * Крепёж: саморез 4,8×20, количество = площадь × 10 — та же живая
+ * формула C106 из «21604», не дормантная (×0) строка, как было раньше.
  */
 export function computeProfnastilWallSection(
-  netWallArea_m2: number,
+  grossWallArea_m2: number,
   thickness_mm: number,
 ): CladdingSectionTakeoff {
-  const sheet = estimateProfnastilCladding(netWallArea_m2, "С-18", thickness_mm);
+  const sheet = estimateProfnastilCladding(grossWallArea_m2, "С-18", thickness_mm);
   return buildSection([
     {
       name: `Профлист С-18 ${thickness_mm} (стена)`,
-      count: netWallArea_m2,
+      count: grossWallArea_m2,
       unit: "м²",
       unitPrice: sheet?.pricePerM2 ?? null,
-      unitMass_kg: sheet?.mass_kg != null && netWallArea_m2 > 0 ? sheet.mass_kg / netWallArea_m2 : 0,
+      unitMass_kg: sheet?.mass_kg != null && grossWallArea_m2 > 0 ? sheet.mass_kg / grossWallArea_m2 : 0,
       cost: sheet?.cost ?? null,
       mass_kg: sheet?.mass_kg ?? 0,
     },
+    simpleItem(PROFNASTIL_SCREW, grossWallArea_m2 * 10, "шт"),
   ]);
 }
 
-/** То же для кровли — марка С-44, см. computeProfnastilWallSection. */
+/**
+ * То же для кровли — марка С-44, живая формула C137 из «21604»
+ * ("=(C77+C78)×8", C77 — внутренняя обшивка, всегда 0 при "нет"):
+ * количество = площадь кровли × 8. См. computeProfnastilWallSection.
+ */
 export function computeProfnastilRoofSection(
   roofArea_m2: number,
   thickness_mm: number,
@@ -210,6 +226,7 @@ export function computeProfnastilRoofSection(
       cost: sheet?.cost ?? null,
       mass_kg: sheet?.mass_kg ?? 0,
     },
+    simpleItem(PROFNASTIL_SCREW, roofArea_m2 * 8, "шт"),
   ]);
 }
 

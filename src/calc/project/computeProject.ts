@@ -539,26 +539,18 @@ export function computeProject(inputs: ProjectInputs) {
     roofArea: roofIsProfnastil ? computeProfnastilRoofArea_m2(geometry) : computeRoofArea_m2(geometry),
   };
 
+  // Профлист крепится и оплачивается по БРУТТО-площади, без вычета
+  // проёмов (в отличие от СП) — подтверждено живой формулой в «21604»
+  // (лист «12м», C41/C106: и панель, и саморезы считаются от той же
+  // площади, что computeProfnastilWallGrossArea_m2, без вычитания ворот).
   const wallCladding: CladdingSectionTakeoff = wallIsProfnastil
-    ? computeProfnastilWallSection(envelope.wallArea, wallProfnastilThickness_mm)
+    ? computeProfnastilWallSection(envelope.grossWallArea, wallProfnastilThickness_mm)
     : computeWallCladdingSection(geometry, envelope.wallArea, wallPanel_mm);
   const roofCladding = !purlinLayout
     ? null
     : roofIsProfnastil
       ? computeProfnastilRoofSection(envelope.roofArea, roofProfnastilThickness_mm)
       : computeRoofCladdingSection(geometry, envelope.roofArea, roofPanel_mm, purlinLayout.lineCount);
-
-  if (wallIsProfnastil || roofIsProfnastil) {
-    approximations.push({
-      kind: "обшивка",
-      message:
-        `Обшивка профлистом (${[wallIsProfnastil && "стены", roofIsProfnastil && "кровля"].filter(Boolean).join(", ")}): ` +
-        `формула площади сверена на двух независимых реальных объектах (включая «22304», ` +
-        `Магнитогорск — сошлась до целого м²). Крепёж (саморезы) под профлист по-прежнему ` +
-        `не посчитан — формула для него встретилась в присланном файле, но не воспроизвелась ` +
-        `при проверке, закладывать её не стал (см. вопросы расчётчику). Требует проверки перед КП.`,
-    });
-  }
 
   const wallTrim = computeWallTrim(geometry);
   const roofTrim = computeRoofTrim(geometry, { snowGuards });
