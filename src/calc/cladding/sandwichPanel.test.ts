@@ -41,3 +41,28 @@ describe("estimateSandwichPanelCladding", () => {
     expect(estimateSandwichPanelCladding(50, 999, "wall")).toBeNull();
   });
 });
+
+describe("панель «ПИР» — выбор заказчика по ТЗ, не редкий случай (расчётчик, «21550»)", () => {
+  it("lists the same thicknesses as ТУ", () => {
+    expect(getSandwichPanelThicknesses("ПИР")).toEqual([50, 80, 100, 120, 150, 200, 250]);
+  });
+
+  it("prices wall and roof off the master price list's «ПИР» block (not «ПИР (ППИ L)»)", () => {
+    // «21550»: ссылка в файле ([2]СП!$C$29) ведёт на первый столбец "ПИР "
+    // (плотность 41 кг/м³), не на второй, "ПИР (ППИ L)" (38 кг/м³).
+    const wall = estimateSandwichPanelCladding(100, 150, "wall", "zLock", "ПИР");
+    expect(wall!.pricePerM2).toBe(4370);
+    const roof = estimateSandwichPanelCladding(100, 150, "roof", "zLock", "ПИР");
+    expect(roof!.pricePerM2).toBe(4600);
+  });
+
+  it("has no mass data for ПИР — the price list carries no weight column for this block", () => {
+    const result = estimateSandwichPanelCladding(100, 150, "wall", "zLock", "ПИР");
+    expect(result!.mass_kg).toBeNull();
+  });
+
+  it("defaults to ТУ when material is omitted", () => {
+    const withoutMaterial = estimateSandwichPanelCladding(100, 150, "wall", "zLock");
+    expect(withoutMaterial!.pricePerM2).toBe(3060);
+  });
+});

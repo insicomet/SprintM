@@ -512,6 +512,28 @@ describe("профлист вместо сэндвич-панели — рань
   });
 });
 
+describe("панель «ПИР» — выбор заказчика по ТЗ, не редкий случай", () => {
+  it("switches both wall and roof panel pricing to the ПИР price list", () => {
+    const tu = computeProject(project22318);
+    const pir = computeProject({ ...project22318, panelMaterial: "ПИР" });
+    expect(pir.wallCladding.items[0].name).toContain("ПИР");
+    expect(pir.roofCladding!.items[0].name).toContain("ПИР");
+    expect(pir.wallCladding.items[0].unitPrice).not.toBe(tu.wallCladding.items[0].unitPrice);
+    expect(pir.roofCladding!.items[0].unitPrice).not.toBe(tu.roofCladding!.items[0].unitPrice);
+  });
+
+  it("leaves the panel mass unknown for ПИР — the price list has no weight for it", () => {
+    const pir = computeProject({ ...project22318, panelMaterial: "ПИР" });
+    expect(pir.wallCladding.items[0].mass_kg).toBe(0);
+  });
+
+  it("defaults to ТУ when panelMaterial is not set", () => {
+    const withDefault = computeProject(project22318);
+    const explicitTU = computeProject({ ...project22318, panelMaterial: "ТУ" });
+    expect(withDefault.wallCladding.totalCost).toBe(explicitTU.wallCladding.totalCost);
+  });
+});
+
 describe("вариант «СГ по Р» (пролёт 24 м)", () => {
   const base24: ProjectInputs = {
     ...project22316,

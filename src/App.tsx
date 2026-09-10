@@ -196,6 +196,10 @@ export function App() {
   // что и раньше — просто раньше цена обшивки при этом молча считалась
   // как у сэндвич-панели, это баг; см. computeProject.ts).
   const [wallCladdingMaterial, setWallCladdingMaterial] = useState<"СП" | "профнастил">("СП");
+  // Материал сэндвич-панели — выбор заказчика по ТЗ (расчётчик: «Это выбор
+  // заказчика по ТЗ»), не редкий случай. У ПИР в прайсе нет массы панели —
+  // только цена (см. computeProject.ts).
+  const [panelMaterial, setPanelMaterial] = useState<"ТУ" | "ПИР">("ТУ");
   const [wallProfnastilThickness, setWallProfnastilThickness] = useState(0.5);
   const [roofProfnastilThickness, setRoofProfnastilThickness] = useState(0.7);
   const [openings, setOpenings] = useState<OpeningsInput>(DEFAULT_OPENINGS);
@@ -263,6 +267,7 @@ export function App() {
         framePitchOverride_m: framePitchOverride,
         wallPanel_mm: wallThickness,
         roofPanel_mm: roofThickness,
+        panelMaterial,
         openings,
         snowGuards,
         railingPurlin,
@@ -298,6 +303,7 @@ export function App() {
       framePitchOverride,
       wallThickness,
       roofThickness,
+      panelMaterial,
       openings,
       snowGuards,
       railingPurlin,
@@ -415,6 +421,7 @@ export function App() {
     setFramePitchOverride(next.framePitchOverride_m);
     setWallThickness(next.wallPanel_mm);
     setRoofThickness(next.roofPanel_mm);
+    setPanelMaterial(next.panelMaterial ?? "ТУ");
     setOpenings(next.openings);
     setSnowGuards(next.snowGuards);
     setRailingPurlin(next.railingPurlin);
@@ -801,6 +808,25 @@ export function App() {
               </span>
             )}
           </label>
+
+          {(wallCladdingMaterial === "СП" || sandwichPanelThicknessOf(roofingType) !== null) && (
+            <label>
+              Материал панели
+              <select
+                value={panelMaterial}
+                onChange={(e) => setPanelMaterial(e.target.value as "ТУ" | "ПИР")}
+              >
+                <option value="ТУ">ТУ (минвата, стандарт)</option>
+                <option value="ПИР">ПИР (полиизоцианурат)</option>
+              </select>
+              {panelMaterial === "ПИР" && (
+                <span className="field-hint">
+                  Выбор заказчика по ТЗ. В прайсе нет массы ПИР-панели — только цена; в вес
+                  здания панель не входит.
+                </span>
+              )}
+            </label>
+          )}
 
         </div>
       </section>

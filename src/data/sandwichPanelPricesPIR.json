@@ -1,0 +1,51 @@
+[
+  {
+    "thickness_mm": 50,
+    "wallPriceZLock": 2770,
+    "wallPriceSecretFix": 2870,
+    "roofPrice": 3000,
+    "weight_kg_m2": null
+  },
+  {
+    "thickness_mm": 80,
+    "wallPriceZLock": 3250,
+    "wallPriceSecretFix": 3350,
+    "roofPrice": 3480,
+    "weight_kg_m2": null
+  },
+  {
+    "thickness_mm": 100,
+    "wallPriceZLock": 3570,
+    "wallPriceSecretFix": 3670,
+    "roofPrice": 3800,
+    "weight_kg_m2": null
+  },
+  {
+    "thickness_mm": 120,
+    "wallPriceZLock": 3890,
+    "wallPriceSecretFix": 3990,
+    "roofPrice": 4120,
+    "weight_kg_m2": null
+  },
+  {
+    "thickness_mm": 150,
+    "wallPriceZLock": 4370,
+    "wallPriceSecretFix": 4470,
+    "roofPrice": 4600,
+    "weight_kg_m2": null
+  },
+  {
+    "thickness_mm": 200,
+    "wallPriceZLock": 5170,
+    "wallPriceSecretFix": 5310,
+    "roofPrice": 5400,
+    "weight_kg_m2": null
+  },
+  {
+    "thickness_mm": 250,
+    "wallPriceZLock": "-",
+    "wallPriceSecretFix": "-",
+    "roofPrice": "-",
+    "weight_kg_m2": null
+  }
+]

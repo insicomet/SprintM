@@ -1,6 +1,6 @@
 import type { BuildingGeometry } from "../geometry/types";
 import { rafterLengthPerFrame_m } from "../geometry/frameGeometry";
-import { estimateSandwichPanelCladding } from "./sandwichPanel";
+import { estimateSandwichPanelCladding, type PanelMaterial } from "./sandwichPanel";
 import { estimateProfnastilCladding } from "./profnastil";
 
 export interface CladdingItem {
@@ -134,8 +134,9 @@ export function computeWallCladdingSection(
   geometry: Pick<BuildingGeometry, "span_m" | "length_m" | "height_m" | "framePitch_m">,
   netWallArea_m2: number,
   panelThickness_mm: number,
+  material: PanelMaterial = "ТУ",
 ): CladdingSectionTakeoff {
-  const panel = estimateSandwichPanelCladding(netWallArea_m2, panelThickness_mm, "wall", "zLock");
+  const panel = estimateSandwichPanelCladding(netWallArea_m2, panelThickness_mm, "wall", "zLock", material);
 
   const screwCount = (netWallArea_m2 / geometry.framePitch_m) * 6 * 1.1;
   const cordLength =
@@ -143,7 +144,7 @@ export function computeWallCladdingSection(
 
   return buildSection([
     {
-      name: `СП ${panelThickness_mm} (стена, Z-lock)`,
+      name: `СП ${panelThickness_mm} (стена, Z-lock${material === "ПИР" ? ", ПИР" : ""})`,
       count: netWallArea_m2,
       unit: "м²",
       unitPrice: panel?.pricePerM2 ?? null,
@@ -235,15 +236,16 @@ export function computeRoofCladdingSection(
   roofArea_m2: number,
   panelThickness_mm: number,
   purlinLineCount: number,
+  material: PanelMaterial = "ТУ",
 ): CladdingSectionTakeoff {
-  const panel = estimateSandwichPanelCladding(roofArea_m2, panelThickness_mm, "roof");
+  const panel = estimateSandwichPanelCladding(roofArea_m2, panelThickness_mm, "roof", "zLock", material);
 
   const screwCount = 2 * purlinLineCount * geometry.length_m * 1.1;
   const cordLength = geometry.length_m * rafterLengthPerFrame_m(geometry) * 1.1 * 2;
 
   return buildSection([
     {
-      name: `СП ${panelThickness_mm} (кровля)`,
+      name: `СП ${panelThickness_mm} (кровля${material === "ПИР" ? ", ПИР" : ""})`,
       count: roofArea_m2,
       unit: "м²",
       unitPrice: panel?.pricePerM2 ?? null,

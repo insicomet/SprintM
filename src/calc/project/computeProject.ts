@@ -115,6 +115,14 @@ export interface ProjectInputs {
   framePitchOverride_m: number;
   wallPanel_mm: number;
   roofPanel_mm: number;
+  /**
+   * Материал сэндвич-панели — "ТУ" (минвата 95 кг/м³, стандартный расчёт)
+   * или "ПИР" (полиизоцианурат). Выбор заказчика по ТЗ, не редкий случай
+   * (расчётчик, «21550»: «Это выбор заказчика по ТЗ»). У ПИР в прайс-листе
+   * нет данных о массе панели (только цена) — масса панели в вес здания
+   * при этом материале не входит, только её стоимость.
+   */
+  panelMaterial?: "ТУ" | "ПИР";
   openings: OpeningsInput;
   /** Прогон под снегозадержание (вывод!D26) — он же множитель строки снегозадержателя. */
   snowGuards: boolean;
@@ -225,6 +233,7 @@ export function computeProject(inputs: ProjectInputs) {
     framePitchOverride_m,
     wallPanel_mm,
     roofPanel_mm,
+    panelMaterial = "ТУ",
     openings,
     snowGuards,
     railingPurlin,
@@ -545,12 +554,12 @@ export function computeProject(inputs: ProjectInputs) {
   // площади, что computeProfnastilWallGrossArea_m2, без вычитания ворот).
   const wallCladding: CladdingSectionTakeoff = wallIsProfnastil
     ? computeProfnastilWallSection(envelope.grossWallArea, wallProfnastilThickness_mm)
-    : computeWallCladdingSection(geometry, envelope.wallArea, wallPanel_mm);
+    : computeWallCladdingSection(geometry, envelope.wallArea, wallPanel_mm, panelMaterial);
   const roofCladding = !purlinLayout
     ? null
     : roofIsProfnastil
       ? computeProfnastilRoofSection(envelope.roofArea, roofProfnastilThickness_mm)
-      : computeRoofCladdingSection(geometry, envelope.roofArea, roofPanel_mm, purlinLayout.lineCount);
+      : computeRoofCladdingSection(geometry, envelope.roofArea, roofPanel_mm, purlinLayout.lineCount, panelMaterial);
 
   const wallTrim = computeWallTrim(geometry);
   const roofTrim = computeRoofTrim(geometry, { snowGuards });
