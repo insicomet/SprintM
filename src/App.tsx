@@ -38,6 +38,41 @@ function sandwichPanelThicknessOf(roofingType: string): number | null {
   return m ? Number(m[1]) : null;
 }
 
+/**
+ * Один селектор «Покрытие кровли» — вместо общей строки «профлист»
+ * (10,5 кг/м² по нагрузкам, из таблицы «снегветер» — гейдж не важен, это
+ * категория) показываем две конкретные толщины С-44. Сама нагрузка не
+ * зависит от толщины листа, поэтому обе ведут к одному roofingType —
+ * "профлист", просто с разной толщиной для цены/массы обшивки.
+ */
+function roofOptions(
+  types: { type: string; selfWeight_kg_m2: number }[],
+  profnastilThicknesses: readonly number[],
+): { value: string; label: string }[] {
+  return types.flatMap((r) =>
+    r.type === "профлист"
+      ? profnastilThicknesses.map((t) => ({
+          value: `профлист:${t}`,
+          label: `профнастил С-44, ${t} мм`,
+        }))
+      : [{ value: r.type, label: `${r.type} (${r.selfWeight_kg_m2} кг/м²)` }],
+  );
+}
+
+/** Значение селектора «Покрытие стен» — сэндвич-панель или профнастил, одним полем. */
+function wallOptions(
+  spThicknesses: readonly number[],
+  profnastilThicknesses: readonly number[],
+): { value: string; label: string }[] {
+  return [
+    ...spThicknesses.map((t) => ({ value: `sp:${t}`, label: `С-П ${t}` })),
+    ...profnastilThicknesses.map((t) => ({
+      value: `профнастил:${t}`,
+      label: `профнастил С-18, ${t} мм`,
+    })),
+  ];
+}
+
 /** Коды «с/в», для которых в банке сечений ИНСИ есть просчитанные строки. */
 const SV_CODES = getSupportedSvCodes();
 
@@ -707,90 +742,64 @@ export function App() {
           <label className="span-2">
             Покрытие кровли
             <select
-              value={roofingType}
+              value={roofingType === "профлист" ? `профлист:${roofProfnastilThickness}` : roofingType}
               onChange={(e) => {
-                const next = e.target.value;
-                setRoofingType(next);
-                // «С-П N» задаёт толщину панели сама — отдельного поля «мм» не нужно.
-                const thickness = sandwichPanelThicknessOf(next);
-                if (thickness !== null) setRoofThickness(thickness);
+                const [type, thickness] = e.target.value.split(":");
+                setRoofingType(type);
+                if (thickness) {
+                  setRoofProfnastilThickness(Number(thickness));
+                } else {
+                  // «С-П N» задаёт толщину панели сама — отдельного поля «мм» не нужно.
+                  const spThickness = sandwichPanelThicknessOf(type);
+                  if (spThickness !== null) setRoofThickness(spThickness);
+                }
               }}
             >
-              {roofingTypesForUi.map((r) => (
-                <option key={r.type} value={r.type}>
-                  {r.type} ({r.selfWeight_kg_m2} кг/м²)
+              {roofOptions(roofingTypesForUi, getProfnastilThicknesses("С-44")).map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
                 </option>
               ))}
             </select>
             <span className="field-hint">
               Влияет и на вес прогонов, и на надбавку к снеговой нагрузке
-              {sandwichPanelThicknessOf(roofingType) !== null ? " — толщина панели отсюда же." : "."}
+              {sandwichPanelThicknessOf(roofingType) !== null
+                ? " — толщина панели отсюда же."
+                : roofingType === "профлист"
+                  ? " — формула площади под профлист не сверена на реальном объекте, крепёж не посчитан."
+                  : "."}
             </span>
           </label>
 
-          {roofingType === "профлист" && (
-            <label className="span-2">
-              Толщина профлиста кровли (С-44)
-              <select
-                value={roofProfnastilThickness}
-                onChange={(e) => setRoofProfnastilThickness(Number(e.target.value))}
-              >
-                {getProfnastilThicknesses("С-44").map((t) => (
-                  <option key={t} value={t}>
-                    {t} мм
-                  </option>
-                ))}
-              </select>
-              <span className="field-hint">
-                Формула площади не сверена на реальном профлистовом объекте — только на
-                выключенной строке СП-проекта. Крепёж (саморезы) не посчитан вовсе.
-              </span>
-            </label>
-          )}
-
-          <label>
-            Тип обшивки стен
+          <label className="span-2">
+            Покрытие стен
             <select
-              value={wallCladdingMaterial}
-              onChange={(e) => setWallCladdingMaterial(e.target.value as "СП" | "профнастил")}
+              value={
+                wallCladdingMaterial === "СП" ? `sp:${wallThickness}` : `профнастил:${wallProfnastilThickness}`
+              }
+              onChange={(e) => {
+                const [type, thickness] = e.target.value.split(":");
+                if (type === "sp") {
+                  setWallCladdingMaterial("СП");
+                  setWallThickness(Number(thickness));
+                } else {
+                  setWallCladdingMaterial("профнастил");
+                  setWallProfnastilThickness(Number(thickness));
+                }
+              }}
             >
-              <option value="СП">сэндвич-панель</option>
-              <option value="профнастил">профнастил (без утепления)</option>
+              {wallOptions(getSandwichPanelThicknesses(), getProfnastilThicknesses("С-18")).map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
             </select>
-          </label>
-
-          {wallCladdingMaterial === "СП" ? (
-            <label>
-              Покрытие стен
-              <select
-                value={wallThickness}
-                onChange={(e) => setWallThickness(Number(e.target.value))}
-              >
-                {getSandwichPanelThicknesses().map((t) => (
-                  <option key={t} value={t}>
-                    С-П {t}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : (
-            <label>
-              Толщина профлиста стен (С-18)
-              <select
-                value={wallProfnastilThickness}
-                onChange={(e) => setWallProfnastilThickness(Number(e.target.value))}
-              >
-                {getProfnastilThicknesses("С-18").map((t) => (
-                  <option key={t} value={t}>
-                    {t} мм
-                  </option>
-                ))}
-              </select>
+            {wallCladdingMaterial === "профнастил" && (
               <span className="field-hint">
-                Формула площади и крепёж — как у кровельного профлиста выше, см. предупреждение.
+                Без утепления. Формула площади не сверена на реальном объекте, крепёж не посчитан.
               </span>
-            </label>
-          )}
+            )}
+          </label>
 
           <label className="span-2">
             Марка настила
