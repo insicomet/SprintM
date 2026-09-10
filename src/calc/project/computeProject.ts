@@ -13,6 +13,8 @@ import { computeBracing, type StrutTube } from "../frame/bracing";
 import { selectSecondaryMembers } from "../frame/secondaryMembers";
 import { findFrameSelection, heightLimitsForSpan, snapHeight } from "../frame/sectionBank";
 import {
+  computeProfnastilRoofSection,
+  computeProfnastilWallSection,
   computeRoofCladdingSection,
   computeWallCladdingSection,
   type CladdingSectionTakeoff,
@@ -27,7 +29,12 @@ import { computeOpeningsFraming } from "../geometry/openingsFraming";
 import { facadePostCount } from "../facadePost/postCount";
 import { selectFacadePost } from "../facadePost/selectFacadePost";
 import { computeDrainage, NO_DRAINAGE } from "../drainage/drainage";
-import { computeRoofArea_m2, computeWallArea_m2 } from "../geometry/buildingEnvelope";
+import {
+  computeProfnastilRoofArea_m2,
+  computeProfnastilWallGrossArea_m2,
+  computeRoofArea_m2,
+  computeWallArea_m2,
+} from "../geometry/buildingEnvelope";
 import { computeFrameExtras } from "../geometry/frameExtras";
 import { computeFrameFasteners } from "../geometry/frameFasteners";
 import { computeFrameTakeoff } from "../geometry/frameTakeoff";
@@ -169,6 +176,25 @@ export interface ProjectInputs {
    * они меняются при увеличении колонны).
    */
   columnOverride?: string;
+  /**
+   * Обшивка стен — сэндвич-панель (по умолчанию) или профлист С-18 (без
+   * утепления, «холодный склад»). Кровля переключается на профлист С-44
+   * автоматически, когда «Покрытие кровли» = "профлист" (то же поле уже
+   * отвечает за собственный вес по нагрузкам — раньше цена обшивки при
+   * этом всё равно молча считалась как у сэндвич-панели, это и есть тот
+   * баг, из-за которого добавлена профлистовая ветка).
+   *
+   * Формулы площади под профлист (буквально есть в файле подборщика,
+   * строки "С-18"/"С-44") взяты из ВЫКЛЮЧЕННЫХ (×0) строк — ни на одном
+   * реальном профлистовом объекте не сверялись, только на СП-проектах,
+   * где эта ветка не используется. Требует подтверждения на первом
+   * реальном расчёте.
+   */
+  wallCladdingMaterial?: "СП" | "профнастил";
+  /** Толщина профлиста стен, мм — 0,5 или 0,7. Без разницы, если стены не профлист. */
+  wallProfnastilThickness_mm?: number;
+  /** Толщина профлиста кровли, мм — 0,5 или 0,7. Без разницы, если кровля не профлист. */
+  roofProfnastilThickness_mm?: number;
 }
 
 export type ProjectResult = ReturnType<typeof computeProject>;
@@ -210,7 +236,13 @@ export function computeProject(inputs: ProjectInputs) {
     trussedVariant,
     mezzanine,
     columnOverride,
+    wallCladdingMaterial = "СП",
+    wallProfnastilThickness_mm = 0.5,
+    roofProfnastilThickness_mm = 0.7,
   } = inputs;
+
+  const wallIsProfnastil = wallCladdingMaterial === "профнастил";
+  const roofIsProfnastil = roofingType === "профлист";
 
   // ---- Климат -------------------------------------------------------
   //
@@ -498,21 +530,34 @@ export function computeProject(inputs: ProjectInputs) {
   const openingsDeduction = computeOpeningsDeduction_m2(openings);
   const openingsCost = computeOpeningsCost(openings);
 
-  const grossWallArea = computeWallArea_m2(geometry);
+  const grossWallArea = wallIsProfnastil
+    ? computeProfnastilWallGrossArea_m2(geometry)
+    : computeWallArea_m2(geometry);
   const envelope = {
     grossWallArea,
     wallArea: Math.max(0, grossWallArea - openingsDeduction),
-    roofArea: computeRoofArea_m2(geometry),
+    roofArea: roofIsProfnastil ? computeProfnastilRoofArea_m2(geometry) : computeRoofArea_m2(geometry),
   };
 
-  const wallCladding: CladdingSectionTakeoff = computeWallCladdingSection(
-    geometry,
-    envelope.wallArea,
-    wallPanel_mm,
-  );
-  const roofCladding = purlinLayout
-    ? computeRoofCladdingSection(geometry, envelope.roofArea, roofPanel_mm, purlinLayout.lineCount)
-    : null;
+  const wallCladding: CladdingSectionTakeoff = wallIsProfnastil
+    ? computeProfnastilWallSection(envelope.wallArea, wallProfnastilThickness_mm)
+    : computeWallCladdingSection(geometry, envelope.wallArea, wallPanel_mm);
+  const roofCladding = !purlinLayout
+    ? null
+    : roofIsProfnastil
+      ? computeProfnastilRoofSection(envelope.roofArea, roofProfnastilThickness_mm)
+      : computeRoofCladdingSection(geometry, envelope.roofArea, roofPanel_mm, purlinLayout.lineCount);
+
+  if (wallIsProfnastil || roofIsProfnastil) {
+    approximations.push({
+      kind: "обшивка",
+      message:
+        `Обшивка профлистом (${[wallIsProfnastil && "стены", roofIsProfnastil && "кровля"].filter(Boolean).join(", ")}): ` +
+        `формула площади взята из выключенной (×0) строки ведомости — ни на одном реальном ` +
+        `профлистовом объекте не сверялась. Крепёж (саморезы) под профлист не посчитан вовсе — ` +
+        `формулы для него нет. Требует проверки перед КП.`,
+    });
+  }
 
   const wallTrim = computeWallTrim(geometry);
   const roofTrim = computeRoofTrim(geometry, { snowGuards });

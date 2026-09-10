@@ -444,6 +444,52 @@ describe("степень огнестойкости — информационн
   });
 });
 
+describe("профлист вместо сэндвич-панели — раньше молча считался как СП", () => {
+  // Баг, который это чинит: «Покрытие кровли» = профлист уже давало
+  // верный собственный вес для нагрузок, но раздел обшивки всё равно
+  // считал стоимость по сэндвич-панели (roofPanel_mm), какая бы толщина
+  // там ни стояла — то есть выдавал уверенную, но неверную цену.
+  const base: ProjectInputs = { ...project22318, roofingType: "профлист" };
+
+  it("switches the roof cladding cost off sandwich-panel pricing", () => {
+    const r = computeProject(base);
+    expect(r.roofCladding!.items[0].name).toContain("Профлист С-44");
+    expect(r.roofCladding!.items[0].name).not.toContain("СП");
+  });
+
+  it("keeps wall cladding as СП unless it's switched too", () => {
+    const r = computeProject(base);
+    expect(r.wallCladding.items[0].name).toContain("СП");
+  });
+
+  it("switches wall cladding to profnastil when asked, independently of the roof", () => {
+    const r = computeProject({
+      ...base,
+      roofingType: "С-П 150",
+      wallCladdingMaterial: "профнастил",
+    });
+    expect(r.wallCladding.items[0].name).toContain("Профлист С-18");
+    expect(r.roofCladding!.items[0].name).toContain("СП");
+  });
+
+  it("both walls and roof in profnastil at once — the exact case asked about", () => {
+    const r = computeProject({ ...base, wallCladdingMaterial: "профнастил" });
+    expect(r.wallCladding.items[0].name).toContain("Профлист С-18");
+    expect(r.roofCladding!.items[0].name).toContain("Профлист С-44");
+    expect(r.wallCladding.totalCost).toBeGreaterThan(0);
+    expect(r.roofCladding!.totalCost).toBeGreaterThan(0);
+    expect(r.requiresCheck).toBe(true);
+    expect(r.approximations.some((a) => a.kind === "обшивка")).toBe(true);
+  });
+
+  it("uses its own area formula, not the sandwich-panel one", () => {
+    const profnastil = computeProject({ ...base, wallCladdingMaterial: "профнастил" });
+    const sp = computeProject({ ...base, roofingType: "С-П 150" });
+    expect(profnastil.envelope.grossWallArea).not.toBeCloseTo(sp.envelope.grossWallArea, 0);
+    expect(profnastil.envelope.roofArea).not.toBeCloseTo(sp.envelope.roofArea, 0);
+  });
+});
+
 describe("вариант «СГ по Р» (пролёт 24 м)", () => {
   const base24: ProjectInputs = {
     ...project22316,

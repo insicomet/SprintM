@@ -1,6 +1,7 @@
 import { Fragment, useMemo, useState } from "react";
 import { findSettlement, getAllSettlementNames, getSupportedSvCodes } from "./calc/climate/svCode";
 import { getSandwichPanelThicknesses } from "./calc/cladding/sandwichPanel";
+import { getProfnastilThicknesses } from "./calc/cladding/profnastil";
 import type { StrutTube } from "./calc/frame/bracing";
 import { heightLimitsForSpan } from "./calc/frame/sectionBank";
 import { getKnownPgsProfiles } from "./calc/profiles/pgsPriceCatalog";
@@ -155,6 +156,13 @@ export function App() {
   // В обоих реальных проектах стена 100мм, кровля 150мм.
   const [wallThickness, setWallThickness] = useState(100);
   const [roofThickness, setRoofThickness] = useState(150);
+  // Профлист вместо сэндвич-панели — «холодный склад», без утепления.
+  // Кровля переключается самим «Покрытие кровли» = «профлист» (то же поле,
+  // что и раньше — просто раньше цена обшивки при этом молча считалась
+  // как у сэндвич-панели, это баг; см. computeProject.ts).
+  const [wallCladdingMaterial, setWallCladdingMaterial] = useState<"СП" | "профнастил">("СП");
+  const [wallProfnastilThickness, setWallProfnastilThickness] = useState(0.5);
+  const [roofProfnastilThickness, setRoofProfnastilThickness] = useState(0.7);
   const [openings, setOpenings] = useState<OpeningsInput>(DEFAULT_OPENINGS);
   const [postSpacing, setPostSpacing] = useState(2);
   const [snowGuards, setSnowGuards] = useState(true);
@@ -232,6 +240,9 @@ export function App() {
         mezzanine,
         fireResistanceRating: fireResistanceRating || undefined,
         columnOverride: columnOverride || undefined,
+        wallCladdingMaterial,
+        wallProfnastilThickness_mm: wallProfnastilThickness,
+        roofProfnastilThickness_mm: roofProfnastilThickness,
       }),
     [
       city,
@@ -264,6 +275,9 @@ export function App() {
       mezzanine,
       fireResistanceRating,
       columnOverride,
+      wallCladdingMaterial,
+      wallProfnastilThickness,
+      roofProfnastilThickness,
     ],
   );
 
@@ -377,6 +391,9 @@ export function App() {
     setMezzanine(Boolean(next.mezzanine));
     setFireResistanceRating(next.fireResistanceRating ?? "");
     setColumnOverride(next.columnOverride ?? "");
+    setWallCladdingMaterial(next.wallCladdingMaterial ?? "СП");
+    setWallProfnastilThickness(next.wallProfnastilThickness_mm ?? 0.5);
+    setRoofProfnastilThickness(next.roofProfnastilThickness_mm ?? 0.7);
   }
 
   async function openFile(file: File) {
@@ -711,16 +728,69 @@ export function App() {
             </span>
           </label>
 
-          <label className="span-2">
-            Покрытие стен
-            <select value={wallThickness} onChange={(e) => setWallThickness(Number(e.target.value))}>
-              {getSandwichPanelThicknesses().map((t) => (
-                <option key={t} value={t}>
-                  С-П {t}
-                </option>
-              ))}
+          {roofingType === "профлист" && (
+            <label className="span-2">
+              Толщина профлиста кровли (С-44)
+              <select
+                value={roofProfnastilThickness}
+                onChange={(e) => setRoofProfnastilThickness(Number(e.target.value))}
+              >
+                {getProfnastilThicknesses("С-44").map((t) => (
+                  <option key={t} value={t}>
+                    {t} мм
+                  </option>
+                ))}
+              </select>
+              <span className="field-hint">
+                Формула площади не сверена на реальном профлистовом объекте — только на
+                выключенной строке СП-проекта. Крепёж (саморезы) не посчитан вовсе.
+              </span>
+            </label>
+          )}
+
+          <label>
+            Тип обшивки стен
+            <select
+              value={wallCladdingMaterial}
+              onChange={(e) => setWallCladdingMaterial(e.target.value as "СП" | "профнастил")}
+            >
+              <option value="СП">сэндвич-панель</option>
+              <option value="профнастил">профнастил (без утепления)</option>
             </select>
           </label>
+
+          {wallCladdingMaterial === "СП" ? (
+            <label>
+              Покрытие стен
+              <select
+                value={wallThickness}
+                onChange={(e) => setWallThickness(Number(e.target.value))}
+              >
+                {getSandwichPanelThicknesses().map((t) => (
+                  <option key={t} value={t}>
+                    С-П {t}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <label>
+              Толщина профлиста стен (С-18)
+              <select
+                value={wallProfnastilThickness}
+                onChange={(e) => setWallProfnastilThickness(Number(e.target.value))}
+              >
+                {getProfnastilThicknesses("С-18").map((t) => (
+                  <option key={t} value={t}>
+                    {t} мм
+                  </option>
+                ))}
+              </select>
+              <span className="field-hint">
+                Формула площади и крепёж — как у кровельного профлиста выше, см. предупреждение.
+              </span>
+            </label>
+          )}
 
           <label className="span-2">
             Марка настила
@@ -1077,7 +1147,7 @@ export function App() {
           <p className="error">{climate.error}</p>
         )}
         {approximations
-          .filter((a) => a.kind !== "высота")
+          .filter((a) => a.kind !== "высота" && a.kind !== "обшивка")
           .map((a) => (
             <p className="hint check-hint" key={a.kind}>
               {a.message}

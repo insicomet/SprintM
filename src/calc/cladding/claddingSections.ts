@@ -1,6 +1,7 @@
 import type { BuildingGeometry } from "../geometry/types";
 import { rafterLengthPerFrame_m } from "../geometry/frameGeometry";
 import { estimateSandwichPanelCladding } from "./sandwichPanel";
+import { estimateProfnastilCladding } from "./profnastil";
 
 export interface CladdingItem {
   name: string;
@@ -166,6 +167,52 @@ export function computeWallCladdingSection(
  * Добавка под снегозадержание сюда НЕ входит, она есть только в
  * погонаже самих прогонов.
  */
+/**
+ * Раздел "Стена" для обшивки профлистом (С-18) вместо сэндвич-панели.
+ *
+ * Только сам лист — крепёж (саморезы) под профлист в ведомости, из
+ * которой взята формула площади, тоже был выключен (×0) вместе с ней, и
+ * его формулу восстановить не из чего. Не додумываем: если понадобится
+ * точная стоимость крепежа, это отдельный вопрос расчётчику на первом
+ * реальном профлистовом объекте.
+ */
+export function computeProfnastilWallSection(
+  netWallArea_m2: number,
+  thickness_mm: number,
+): CladdingSectionTakeoff {
+  const sheet = estimateProfnastilCladding(netWallArea_m2, "С-18", thickness_mm);
+  return buildSection([
+    {
+      name: `Профлист С-18 ${thickness_mm} (стена)`,
+      count: netWallArea_m2,
+      unit: "м²",
+      unitPrice: sheet?.pricePerM2 ?? null,
+      unitMass_kg: sheet?.mass_kg != null && netWallArea_m2 > 0 ? sheet.mass_kg / netWallArea_m2 : 0,
+      cost: sheet?.cost ?? null,
+      mass_kg: sheet?.mass_kg ?? 0,
+    },
+  ]);
+}
+
+/** То же для кровли — марка С-44, см. computeProfnastilWallSection. */
+export function computeProfnastilRoofSection(
+  roofArea_m2: number,
+  thickness_mm: number,
+): CladdingSectionTakeoff {
+  const sheet = estimateProfnastilCladding(roofArea_m2, "С-44", thickness_mm);
+  return buildSection([
+    {
+      name: `Профлист С-44 ${thickness_mm} (кровля)`,
+      count: roofArea_m2,
+      unit: "м²",
+      unitPrice: sheet?.pricePerM2 ?? null,
+      unitMass_kg: sheet?.mass_kg != null && roofArea_m2 > 0 ? sheet.mass_kg / roofArea_m2 : 0,
+      cost: sheet?.cost ?? null,
+      mass_kg: sheet?.mass_kg ?? 0,
+    },
+  ]);
+}
+
 export function computeRoofCladdingSection(
   geometry: Pick<BuildingGeometry, "span_m" | "length_m" | "roofSlopeDeg">,
   roofArea_m2: number,
