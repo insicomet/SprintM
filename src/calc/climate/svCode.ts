@@ -27,8 +27,33 @@ export function qualifiedSettlementName(s: SettlementClimate): string {
   return `${s.settlement}, ${s.region}`;
 }
 
+/**
+ * Старые (до 1997 года) русские названия городов, переименованных после
+ * распада СССР, — многие до сих пор ищут именно по ним. В справочнике
+ * город записан под нынешним официальным названием (как в таблице,
+ * присланной расчётчиком), поэтому старое название не находилось вовсе.
+ * Добавляется как отдельная, равноценная запись для поиска и
+ * автодополнения — климатические данные не дублируются, это то же самое
+ * значение под другим именем.
+ */
+const RENAMED_SETTLEMENTS: ReadonlyArray<readonly [current: string, historical: string]> = [
+  ["Костанай", "Кустанай"],
+];
+
+function historicalAliasNames(s: SettlementClimate): string[] {
+  const aliases: string[] = [];
+  for (const [current, historical] of RENAMED_SETTLEMENTS) {
+    if (s.settlement.startsWith(current)) {
+      aliases.push(historical + s.settlement.slice(current.length));
+    }
+  }
+  return aliases;
+}
+
 const byNormalizedName = new Map<string, SettlementClimate[]>();
 const byNormalizedQualified = new Map<string, SettlementClimate>();
+const aliasDisplayNames: string[] = [];
+const byAliasKey = new Map<string, SettlementClimate>();
 for (const s of settlements) {
   const key = normalizeKey(s.settlement);
   const bucket = byNormalizedName.get(key);
@@ -36,6 +61,11 @@ for (const s of settlements) {
   else byNormalizedName.set(key, [s]);
 
   byNormalizedQualified.set(normalizeKey(qualifiedSettlementName(s)), s);
+
+  for (const alias of historicalAliasNames(s)) {
+    aliasDisplayNames.push(alias);
+    byAliasKey.set(normalizeKey(alias), s);
+  }
 }
 
 /**
@@ -46,7 +76,10 @@ for (const s of settlements) {
 export function findSettlementsByName(name: string): readonly SettlementClimate[] {
   const qualified = byNormalizedQualified.get(normalizeKey(name));
   if (qualified) return [qualified];
-  return byNormalizedName.get(normalizeKey(name)) ?? [];
+  const byName = byNormalizedName.get(normalizeKey(name));
+  if (byName) return byName;
+  const alias = byAliasKey.get(normalizeKey(name));
+  return alias ? [alias] : [];
 }
 
 /**
@@ -62,7 +95,9 @@ export function findSettlement(name: string): SettlementClimate | undefined {
 /**
  * Названия для автодополнения в UI: уникальные названия как есть, а
  * тёзки — в уточнённой форме "Город, Регион", чтобы их можно было
- * выбрать осознанно.
+ * выбрать осознанно. Плюс старые (дореформенные) названия — отдельными
+ * строками, чтобы автодополнение реально показывало их при вводе, а не
+ * только «понимало» через синоним под капотом.
  */
 export function getAllSettlementNames(): readonly string[] {
   const names: string[] = [];
@@ -70,6 +105,7 @@ export function getAllSettlementNames(): readonly string[] {
     if (group.length === 1) names.push(group[0].settlement);
     else names.push(...group.map(qualifiedSettlementName));
   }
+  names.push(...aliasDisplayNames);
   return names.sort((a, b) => a.localeCompare(b, "ru"));
 }
 

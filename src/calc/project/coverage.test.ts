@@ -161,9 +161,11 @@ describe("покрытие климатического справочника",
     expect(p.commercial.totalCost).toBeGreaterThan(0);
   });
 
-  it("the settlement dropdown offers every settlement exactly once", () => {
+  it("the settlement dropdown offers every settlement exactly once, plus historical aliases", () => {
     const names = getAllSettlementNames();
     expect(new Set(names).size).toBe(names.length);
-    expect(names.length).toBe(settlements.length);
+    // +2: «Кустанай» — дореформенное название «Костанай», добавлено
+    // отдельными строками автодополнения для обоих вариантов уклона.
+    expect(names.length).toBe(settlements.length + 2);
   });
 });
