@@ -512,6 +512,67 @@ describe("профлист вместо сэндвич-панели — рань
   });
 });
 
+describe("обвязка стен под профлист — упрощённый режим (калькулятор ограждайки)", () => {
+  const base: ProjectInputs = { ...project22318, roofingType: "профлист", wallCladdingMaterial: "профнастил" };
+  const endWalls = {
+    cornerZoneLength_m: 6,
+    typicalZoneLength_m: 6,
+    wallHeight_m: 7.5,
+    postStep_m: 6,
+    cornerStepRigel_mm: 1000,
+    typicalStepRigel_mm: 1000,
+    profileName: "ПС 145х45х1,5",
+    paired: false,
+  };
+  const sideWalls = {
+    cornerZoneLength_m: 12,
+    typicalZoneLength_m: 18,
+    wallHeight_m: 7,
+    postStep_m: 4.5,
+    cornerStepRigel_mm: 1200,
+    typicalStepRigel_mm: 1500,
+    profileName: "ПС 145х45х1,2",
+    paired: false,
+  };
+
+  it("is null when not configured, even for profnastil walls", () => {
+    const r = computeProject(base);
+    expect(r.wallGirt).toEqual({ endWalls: null, sideWalls: null });
+  });
+
+  it("is null entirely when wall cladding is СП, regardless of wallGirt input", () => {
+    const r = computeProject({ ...base, wallCladdingMaterial: "СП", wallGirt: { endWalls } });
+    expect(r.wallGirt).toBeNull();
+  });
+
+  it("computes both wall types independently when both are configured", () => {
+    const r = computeProject({ ...base, wallGirt: { endWalls, sideWalls } });
+    expect(r.wallGirt!.endWalls).not.toBeNull();
+    expect(r.wallGirt!.sideWalls).not.toBeNull();
+    expect(r.wallGirt!.endWalls!.totalMass_kg).toBeGreaterThan(0);
+    expect(r.wallGirt!.sideWalls!.totalMass_kg).toBeGreaterThan(0);
+  });
+
+  it("adds its mass to summary.steelMass_kg but keeps cost out of commercial/knownCost", () => {
+    const without = computeProject(base);
+    const withGirt = computeProject({ ...base, wallGirt: { endWalls, sideWalls } });
+    expect(withGirt.summary.steelMass_kg).toBeGreaterThan(without.summary.steelMass_kg);
+    // Кронштейны без подтверждённой цены → totalCost секции = null, но
+    // это не должно тянуть за собой основную стоимость проекта.
+    expect(withGirt.wallGirt!.endWalls!.totalCost).toBeNull();
+    expect(withGirt.commercial).toEqual(without.commercial);
+    expect(withGirt.summary.knownCost).toBeCloseTo(without.summary.knownCost, 6);
+  });
+
+  it("returns null for an unknown profile name instead of throwing", () => {
+    const r = computeProject({
+      ...base,
+      wallGirt: { endWalls: { ...endWalls, profileName: "выдуманный профиль" } },
+    });
+    expect(r.wallGirt!.endWalls).toBeNull();
+  });
+});
+
 describe("панель «ПИР» — выбор заказчика по ТЗ, не редкий случай", () => {
   it("switches both wall and roof panel pricing to the ПИР price list", () => {
     const tu = computeProject(project22318);

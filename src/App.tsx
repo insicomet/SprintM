@@ -13,6 +13,8 @@ import { readPdfText } from "./calc/tz/readPdfText";
 import { DEFAULT_OPENINGS, type OpeningGroup, type OpeningsInput } from "./calc/geometry/openings";
 import { buildBill } from "./calc/bill/buildBill";
 import { computeProject, type ProjectInputs } from "./calc/project/computeProject";
+import { getGirtProfileOptions } from "./calc/wallGirt/catalog";
+import type { WallGirtWallTypeConfig } from "./calc/wallGirt/types";
 import { DECKING_MARKS, DEFAULT_DECKING_MARK } from "./calc/purlin/deckingSpan";
 import roofingTypesRaw from "./data/roofingSelfWeight.json";
 import { SPANS, type ResponsibilityLevel, type Span } from "./types/common";
@@ -172,6 +174,140 @@ function OpeningGroupsEditor({
   );
 }
 
+const girtProfileOptions = getGirtProfileOptions();
+
+const DEFAULT_GIRT_WALL: WallGirtWallTypeConfig = {
+  cornerZoneLength_m: 6,
+  typicalZoneLength_m: 6,
+  wallHeight_m: 6,
+  postStep_m: 6,
+  cornerStepRigel_mm: 1000,
+  typicalStepRigel_mm: 1000,
+  profileName: girtProfileOptions[0]?.name ?? "",
+  paired: false,
+};
+
+/**
+ * Обвязка стен под профлист для одного типа стены (торцевой или
+ * продольной) — упрощённый режим, без авто-подбора профиля по
+ * ветровому зонированию и базе профилей (решение по объёму, см.
+ * артефакт вопросов расчётчику). Формулы (ряды/кронштейны/масса)
+ * подтверждены живым текстом «Калькулятор ограждайки v1.5.xlsx».
+ */
+function WallGirtFields({
+  label,
+  enabled,
+  onToggle,
+  value,
+  onChange,
+}: {
+  label: string;
+  enabled: boolean;
+  onToggle: (enabled: boolean) => void;
+  value: WallGirtWallTypeConfig;
+  onChange: (next: WallGirtWallTypeConfig) => void;
+}) {
+  const update = (patch: Partial<WallGirtWallTypeConfig>) => onChange({ ...value, ...patch });
+
+  return (
+    <div className="opening-type">
+      <div className="opening-type-head">
+        <label>
+          <input type="checkbox" checked={enabled} onChange={(e) => onToggle(e.target.checked)} /> {label}
+        </label>
+      </div>
+      {enabled && (
+        <>
+          <div className="inline-fields">
+            <label>
+              Высота расчётной стены, м
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={value.wallHeight_m}
+                onChange={(e) => update({ wallHeight_m: Number(e.target.value) })}
+              />
+            </label>
+            <label>
+              Шаг стоек, м
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={value.postStep_m}
+                onChange={(e) => update({ postStep_m: Number(e.target.value) })}
+              />
+            </label>
+          </div>
+          <div className="inline-fields">
+            <label>
+              Угловая зона: длина, м
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={value.cornerZoneLength_m}
+                onChange={(e) => update({ cornerZoneLength_m: Number(e.target.value) })}
+              />
+            </label>
+            <label>
+              шаг ригелей, мм
+              <input
+                type="number"
+                min="0"
+                step="10"
+                value={value.cornerStepRigel_mm}
+                onChange={(e) => update({ cornerStepRigel_mm: Number(e.target.value) })}
+              />
+            </label>
+          </div>
+          <div className="inline-fields">
+            <label>
+              Рядовая зона: длина, м
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={value.typicalZoneLength_m}
+                onChange={(e) => update({ typicalZoneLength_m: Number(e.target.value) })}
+              />
+            </label>
+            <label>
+              шаг ригелей, мм
+              <input
+                type="number"
+                min="0"
+                step="10"
+                value={value.typicalStepRigel_mm}
+                onChange={(e) => update({ typicalStepRigel_mm: Number(e.target.value) })}
+              />
+            </label>
+          </div>
+          <label>
+            Профиль
+            <select value={value.profileName} onChange={(e) => update({ profileName: e.target.value })}>
+              {girtProfileOptions.map((p) => (
+                <option key={p.name} value={p.name}>
+                  {p.name} ({p.weightPerMeter_kg.toFixed(2)} кг/м)
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="checkbox-field">
+            <input
+              type="checkbox"
+              checked={value.paired}
+              onChange={(e) => update({ paired: e.target.checked })}
+            />
+            Спаренная схема (2 профиля) — удваивает вес/цену профиля и кронштейна
+          </label>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function App() {
   const [city, setCity] = useState("Челябинск");
   // Ручной ввод нагрузок — для площадок, которых нет в справочнике.
@@ -202,6 +338,11 @@ export function App() {
   const [panelMaterial, setPanelMaterial] = useState<"ТУ" | "ПИР">("ТУ");
   const [wallProfnastilThickness, setWallProfnastilThickness] = useState(0.5);
   const [roofProfnastilThickness, setRoofProfnastilThickness] = useState(0.7);
+  // Обвязка стен под профлист — упрощённый режим (см. WallGirtFields).
+  const [endWallGirtEnabled, setEndWallGirtEnabled] = useState(false);
+  const [endWallGirt, setEndWallGirt] = useState<WallGirtWallTypeConfig>(DEFAULT_GIRT_WALL);
+  const [sideWallGirtEnabled, setSideWallGirtEnabled] = useState(false);
+  const [sideWallGirt, setSideWallGirt] = useState<WallGirtWallTypeConfig>(DEFAULT_GIRT_WALL);
   const [openings, setOpenings] = useState<OpeningsInput>(DEFAULT_OPENINGS);
   const [postSpacing, setPostSpacing] = useState(2);
   const [snowGuards, setSnowGuards] = useState(true);
@@ -283,6 +424,13 @@ export function App() {
         wallCladdingMaterial,
         wallProfnastilThickness_mm: wallProfnastilThickness,
         roofProfnastilThickness_mm: roofProfnastilThickness,
+        wallGirt:
+          wallCladdingMaterial === "профнастил"
+            ? {
+                endWalls: endWallGirtEnabled ? endWallGirt : undefined,
+                sideWalls: sideWallGirtEnabled ? sideWallGirt : undefined,
+              }
+            : undefined,
       }),
     [
       city,
@@ -319,6 +467,10 @@ export function App() {
       wallCladdingMaterial,
       wallProfnastilThickness,
       roofProfnastilThickness,
+      endWallGirtEnabled,
+      endWallGirt,
+      sideWallGirtEnabled,
+      sideWallGirt,
     ],
   );
 
@@ -346,6 +498,7 @@ export function App() {
     envelope,
     wallCladding,
     roofCladding,
+    wallGirt,
     wallTrim,
     roofTrim,
     drainage,
@@ -437,6 +590,10 @@ export function App() {
     setWallCladdingMaterial(next.wallCladdingMaterial ?? "СП");
     setWallProfnastilThickness(next.wallProfnastilThickness_mm ?? 0.5);
     setRoofProfnastilThickness(next.roofProfnastilThickness_mm ?? 0.7);
+    setEndWallGirtEnabled(Boolean(next.wallGirt?.endWalls));
+    setEndWallGirt(next.wallGirt?.endWalls ?? DEFAULT_GIRT_WALL);
+    setSideWallGirtEnabled(Boolean(next.wallGirt?.sideWalls));
+    setSideWallGirt(next.wallGirt?.sideWalls ?? DEFAULT_GIRT_WALL);
   }
 
   async function openFile(file: File) {
@@ -774,7 +931,7 @@ export function App() {
               {sandwichPanelThicknessOf(roofingType) !== null
                 ? " — толщина панели отсюда же."
                 : roofingType === "профлист"
-                  ? " — формула площади под профлист не сверена на реальном объекте, крепёж не посчитан."
+                  ? " — площадь и крепёж сверены день в день с реальной ведомостью («21604»)."
                   : "."}
             </span>
           </label>
@@ -804,7 +961,8 @@ export function App() {
             </select>
             {wallCladdingMaterial === "профнастил" && (
               <span className="field-hint">
-                Без утепления. Формула площади не сверена на реальном объекте, крепёж не посчитан.
+                Без утепления. Площадь и крепёж (саморез 4,8×20) сверены день в день с реальной
+                ведомостью («21604»).
               </span>
             )}
           </label>
@@ -830,6 +988,37 @@ export function App() {
 
         </div>
       </section>
+
+      {wallCladdingMaterial === "профнастил" && (
+        <section className="card">
+          <h2>Обвязка стен под профлист</h2>
+          <p className="hint">
+            Отдельный расчёт расчётчика («калькулятор ограждайки»), не общая ведомость — по её
+            подтверждению, ≈668 тыс. ₽ из 1,42 млн ₽ раздела «Стены» в «21604». Упрощённый режим:
+            без авто-подбора профиля по ветровому зонированию и базе из ~890 строк подбора —
+            профиль и шаг ригелей вводятся вручную для каждой зоны (угловой и рядовой), приложение
+            считает по подтверждённым формулам число рядов, кронштейнов и массу профиля. Цена
+            кронштейнов не подтверждена (открытый вопрос расчётчику), поэтому раздел не входит в
+            общую стоимость проекта — только в справочную массу металла.
+          </p>
+          <div className="opening-types">
+            <WallGirtFields
+              label="Торцевые стены (2 шт.)"
+              enabled={endWallGirtEnabled}
+              onToggle={setEndWallGirtEnabled}
+              value={endWallGirt}
+              onChange={setEndWallGirt}
+            />
+            <WallGirtFields
+              label="Продольные стены (2 шт.)"
+              enabled={sideWallGirtEnabled}
+              onToggle={setSideWallGirtEnabled}
+              value={sideWallGirt}
+              onChange={setSideWallGirt}
+            />
+          </div>
+        </section>
+      )}
 
       <section className="card">
         <h2>Проёмы</h2>
@@ -1591,6 +1780,44 @@ export function App() {
           </dd>
         </dl>
       </section>
+
+      {wallGirt && (wallGirt.endWalls || wallGirt.sideWalls) && (
+        <section className="card">
+          <h2>Обвязка стен под профлист</h2>
+          <p className="hint">
+            Упрощённый режим (профиль и шаг ригелей — вручную). Цена кронштейнов не подтверждена,
+            поэтому раздел не входит в общую стоимость проекта — только в справочную массу металла.
+          </p>
+          <dl className="result-list">
+            {(
+              [
+                ["Торцевые стены", wallGirt.endWalls] as const,
+                ["Продольные стены", wallGirt.sideWalls] as const,
+              ] as const
+            ).map(([label, section]) =>
+              section === null ? null : (
+                <Fragment key={label}>
+                  <dt className="group-heading">{label}</dt>
+                  <dd />
+                  {section.items.map((item) => (
+                    <Fragment key={`${label}-${item.name}`}>
+                      <dt>{item.name}</dt>
+                      <dd>
+                        {item.count.toFixed(1)} {item.unit} — {item.mass_kg.toFixed(1)} кг —{" "}
+                        {item.cost !== null
+                          ? `${Math.round(item.cost).toLocaleString("ru-RU")} ₽`
+                          : "цена не подтверждена"}
+                      </dd>
+                    </Fragment>
+                  ))}
+                  <dt>Итого {label.toLowerCase()}</dt>
+                  <dd>{section.totalMass_kg.toFixed(1)} кг</dd>
+                </Fragment>
+              ),
+            )}
+          </dl>
+        </section>
+      )}
 
       <section className="card">
         <h2>Кровля — доборные элементы</h2>

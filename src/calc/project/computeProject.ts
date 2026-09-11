@@ -25,6 +25,8 @@ import {
   computeWallUnpricedItems,
   type UnpricedSection,
 } from "../cladding/unpricedItems";
+import { computeWallGirtWallType } from "../wallGirt/wallGirt";
+import type { WallGirtInputs } from "../wallGirt/types";
 import { computeOpeningsFraming } from "../geometry/openingsFraming";
 import { facadePostCount } from "../facadePost/postCount";
 import { selectFacadePost } from "../facadePost/selectFacadePost";
@@ -203,6 +205,27 @@ export interface ProjectInputs {
   wallProfnastilThickness_mm?: number;
   /** Толщина профлиста кровли, мм — 0,5 или 0,7. Без разницы, если кровля не профлист. */
   roofProfnastilThickness_mm?: number;
+  /**
+   * Обвязка стен под профлист («ПС 145х45» + кронштейны) — считается по
+   * отдельному инструменту расчётчика, «калькулятору ограждайки», не по
+   * общей ведомости (подтверждено расчётчиком: «21604», ≈668 тыс. ₽ из
+   * 1,42 млн ₽ раздела «Стены»). Формулы (число рядов/кронштейнов, масса
+   * профиля) — живой текст из «Калькулятор ограждайки v1.5.xlsx», только
+   * чтение (SHA-256 4A9343A1E3149954DEC0F91D5398528F18016A8423EC204CE2B92A59F612DEAF).
+   *
+   * Упрощённый режим (решение по объёму — полный авто-подбор профиля по
+   * ветровому зонированию норматива и базе из ~890 строк — отдельная
+   * большая тема): менеджер сам указывает профиль/шаг для каждой зоны,
+   * приложение считает по подтверждённым формулам.
+   *
+   * Цена кронштейнов не подтверждена (см. вопрос расчётчику про строку
+   * 38 «21604», её числа не совпадают с габаритами того же объекта) —
+   * поэтому wallGirt считается ОТДЕЛЬНО от wallCladding/wallMaterials
+   * и не входит в commercial/knownCost, пока цена не найдётся: иначе
+   * незаполненная цена кронштейнов молча обнулила бы стоимость всего
+   * проекта целиком.
+   */
+  wallGirt?: WallGirtInputs;
 }
 
 export type ProjectResult = ReturnType<typeof computeProject>;
@@ -248,6 +271,7 @@ export function computeProject(inputs: ProjectInputs) {
     wallCladdingMaterial = "СП",
     wallProfnastilThickness_mm = 0.5,
     roofProfnastilThickness_mm = 0.7,
+    wallGirt,
   } = inputs;
 
   const wallIsProfnastil = wallCladdingMaterial === "профнастил";
@@ -561,6 +585,14 @@ export function computeProject(inputs: ProjectInputs) {
       ? computeProfnastilRoofSection(envelope.roofArea, roofProfnastilThickness_mm)
       : computeRoofCladdingSection(geometry, envelope.roofArea, roofPanel_mm, purlinLayout.lineCount, panelMaterial);
 
+  // Обвязка стен под профлист — только когда стены профлистовые (по
+  // сэндвич-панели её не считают, см. wallGirt в ProjectInputs) и
+  // менеджер заполнил вход хотя бы для одного типа стены.
+  const endWallGirt =
+    wallIsProfnastil && wallGirt?.endWalls ? computeWallGirtWallType(wallGirt.endWalls) : null;
+  const sideWallGirt =
+    wallIsProfnastil && wallGirt?.sideWalls ? computeWallGirtWallType(wallGirt.sideWalls) : null;
+
   const wallTrim = computeWallTrim(geometry);
   const roofTrim = computeRoofTrim(geometry, { snowGuards });
   // ТЗ, п.14 — водосток бывает не заказан вовсе («21923»: F70 = 0 в обоих
@@ -637,7 +669,9 @@ export function computeProject(inputs: ProjectInputs) {
     (frameExtras?.totalMass_kg ?? 0) +
     wallTrim.totalMass_kg +
     (purlinLayout?.totalMass_kg ?? 0) +
-    (facadePostLayout?.totalMass_kg ?? 0);
+    (facadePostLayout?.totalMass_kg ?? 0) +
+    (endWallGirt?.totalMass_kg ?? 0) +
+    (sideWallGirt?.totalMass_kg ?? 0);
   const claddingMass_kg = wallCladding.totalMass_kg + (roofCladding?.totalMass_kg ?? 0);
   const hasFullSteelMass =
     frameTakeoff?.totalFrameMass_kg != null &&
@@ -720,6 +754,15 @@ export function computeProject(inputs: ProjectInputs) {
     envelope,
     wallCladding,
     roofCladding,
+    /**
+     * Обвязка стен под профлист — упрощённый режим (см. ProjectInputs).
+     * Намеренно НЕ входит в commercial/summary.knownCost: цена
+     * кронштейнов не подтверждена, поэтому их cost=null, и по общему
+     * правилу CladdingSectionTakeoff это обнулило бы totalCost всей
+     * секции — сюда её незачем тащить дальше в общую сумму проекта.
+     * Масса, наоборот, уже учтена в summary.steelMass_kg.
+     */
+    wallGirt: wallIsProfnastil ? { endWalls: endWallGirt, sideWalls: sideWallGirt } : null,
     wallTrim,
     roofTrim,
     drainage,

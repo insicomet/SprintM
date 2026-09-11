@@ -84,7 +84,7 @@ const SEALANT_CORD = { name: "БК шнур", unitPrice: 63.3, unitMass_kg: 0 };
  */
 const PROFNASTIL_SCREW = { name: "Саморез 4,8x20", unitPrice: 2.3459999999999996, unitMass_kg: 0.0026 };
 
-function buildSection(items: CladdingItem[]): CladdingSectionTakeoff {
+export function buildSection(items: CladdingItem[]): CladdingSectionTakeoff {
   const anyUnpriced = items.some((i) => i.cost === null);
   const subtotalCost = anyUnpriced ? null : items.reduce((s, i) => s + (i.cost ?? 0), 0);
   const overheadCost = subtotalCost === null ? null : subtotalCost * OVERHEAD_RATE;
