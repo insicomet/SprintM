@@ -1,6 +1,8 @@
 """Гипотетический расчёт: подборщик и ведомость пересчитываются LibreOffice,
 те же исходные данные прогоняются через приложение, итоги сверяются."""
 import json, subprocess, sys, os, math, warnings, openpyxl
+from pathlib import Path
+import shutil
 
 
 def floor_m(size):
@@ -8,21 +10,28 @@ def floor_m(size):
     return int(math.floor(round(size, 6)))
 warnings.filterwarnings("ignore")
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent.parent
+INPUTS = HERE / "inputs"
+WORK = HERE / "work"
+WORK.mkdir(exist_ok=True)
 # строки таблицы саморезов M110:M115 под толщину панели (M103:M109)
 SCREW_ROW = {80: 110, 100: 111, 150: 112, 120: 113, 200: 114, 250: 115}
 # погонный вес квадратной трубы, т/п.м (L83:L86 ведомости)
 TUBE_MASS = {"60х3": 0.00525, "80х3": 0.0072, "100х3": 0.009, "120х3": 0.011}
-LO = ["soffice", "--headless", "--norestore", "-env:UserInstallation=file:///tmp/lo_prof"]
+SOFFICE = shutil.which("soffice")
+if not SOFFICE:
+    raise SystemExit("LibreOffice (soffice) not found in PATH; use check:parity-baseline for snapshot-only verification")
+LO = [SOFFICE, "--headless", "--norestore", f"-env:UserInstallation={WORK.joinpath('lo-profile').as_uri()}"]
 
 def recalc(src, dst):
-    env = dict(os.environ, HOME="/root")
     subprocess.run(LO + [f"macro:///Standard.Module1.Recalc({src},{dst})"],
-                   cwd=HERE, env=env, check=True, capture_output=True, timeout=900)
+                   cwd=HERE, check=True, capture_output=True, timeout=900)
 
 def app(inputs):
-    r = subprocess.run(["npx", "vite-node", "/tmp/hypo_dump.ts", "--", json.dumps(inputs, ensure_ascii=False)],
-                       cwd="/home/user/SprintM", capture_output=True, text=True, timeout=600)
+    vite_node = ROOT / "node_modules" / "vite-node" / "vite-node.mjs"
+    r = subprocess.run(["node", str(vite_node), "scripts/oracle/dump_project.ts", "--", json.dumps(inputs, ensure_ascii=False)],
+                       cwd=ROOT, capture_output=True, text=True, timeout=600)
     line = [l for l in r.stdout.splitlines() if l.startswith("{")]
     if not line:
         print(r.stdout[-2000:], r.stderr[-2000:]); sys.exit(1)
@@ -34,7 +43,7 @@ def run(case):
     print(json.dumps(inp, ensure_ascii=False))
 
     # --- 1. подборщик -------------------------------------------------
-    wb = openpyxl.load_workbook("engine_src.xlsx"); ws = wb["вывод"]
+    wb = openpyxl.load_workbook(INPUTS / "engine_src.xlsx"); ws = wb["вывод"]
     ws["D2"] = case["engineCity"]; ws["D4"] = inp["span"]; ws["D5"] = inp["length_m"]
     ws["D6"] = inp["height_m"]; ws["D7"] = inp["gammaN"]
     ws["D20"] = inp["roofingType"]; ws["D21"] = inp["deckingMark"]
@@ -44,9 +53,11 @@ def run(case):
     o = inp["openings"]
     ws["D60"] = o["gatesCount"]; ws["D61"] = 0; ws["D62"] = o["doorsCount"]
     ws["D64"] = o["windowHeight_m"]; ws["D65"] = o["windowWidth_m"] * o["windowsCount"]; ws["D66"] = 0
-    wb.save(f"engine_{name}.xlsx")
-    recalc(f"{HERE}/engine_{name}.xlsx", f"{HERE}/out/engine_{name}.xlsx")
-    e = openpyxl.load_workbook(f"out/engine_{name}.xlsx", data_only=True)["вывод"]
+    engine_work = WORK / f"engine_{name}.xlsx"
+    engine_out = WORK / f"engine_{name}_recalculated.xlsx"
+    wb.save(engine_work)
+    recalc(engine_work, engine_out)
+    e = openpyxl.load_workbook(engine_out, data_only=True)["вывод"]
     eng = {k: e[k].value for k in ["D3","D22","D23","D28","D33","D34","D35","D38","E52","D57","E24","E68","D16","D13"]}
     print("подборщик :", json.dumps(eng, ensure_ascii=False))
 
@@ -57,7 +68,13 @@ def run(case):
     else:
         inp.pop("extraTubeMass_t", None)
 
-    a = app(inp); sel, tr = a["sel"], a["transcribe"]
+    app_inputs = dict(inp)
+    app_inputs["openings"] = {
+        "gates": [{"count": o["gatesCount"], "width_m": o["gateWidth_m"], "height_m": o["gateHeight_m"]}] if o["gatesCount"] else [],
+        "doors": [{"count": o["doorsCount"], "width_m": o["doorWidth_m"], "height_m": o["doorHeight_m"]}] if o["doorsCount"] else [],
+        "windows": [{"count": o["windowsCount"], "width_m": o["windowWidth_m"], "height_m": o["windowHeight_m"]}] if o["windowsCount"] else [],
+    }
+    a = app(app_inputs); sel, tr = a["sel"], a["transcribe"]
     print("приложение:", json.dumps(sel, ensure_ascii=False))
 
     # --- 2. сверка цепочки подбора ------------------------------------
@@ -83,7 +100,7 @@ def run(case):
         print(f"  {'✓' if ok else '✗'} {label:15} подборщик={x!r:32} приложение={y!r}")
 
     # --- 3. ведомость --------------------------------------------------
-    wb = openpyxl.load_workbook("bom_src.xlsx"); ws = wb["12м"]
+    wb = openpyxl.load_workbook(INPUTS / "bom_src.xlsx"); ws = wb["12м"]
     svA, svB = eng["D3"].split("/")
     edits = {
         "C5": int(svA), "D5": int(svB), "B6": case["engineCity"], "G5": case["tz"],
@@ -135,9 +152,11 @@ def run(case):
         "B139": f'=M{SCREW_ROW[inp["roofPanel_mm"]]}', "E139": f'=N{SCREW_ROW[inp["roofPanel_mm"]]}',
     }
     for k, v in edits.items(): ws[k] = v
-    wb.save(f"bom_{name}.xlsx")
-    recalc(f"{HERE}/bom_{name}.xlsx", f"{HERE}/out/bom_{name}.xlsx")
-    v = openpyxl.load_workbook(f"out/bom_{name}.xlsx", data_only=True)["12м"]
+    bom_work = WORK / f"bom_{name}.xlsx"
+    bom_out = WORK / f"bom_{name}_recalculated.xlsx"
+    wb.save(bom_work)
+    recalc(bom_work, bom_out)
+    v = openpyxl.load_workbook(bom_out, data_only=True)["12м"]
 
     bad = 0
     print("  ведомость:")

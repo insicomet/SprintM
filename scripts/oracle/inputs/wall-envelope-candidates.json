@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "status": "candidate-regression-corpus",
+  "candidates": [
+    {
+      "id": "22317-longitudinal",
+      "evidenceClass": "independent-saved-workbook",
+      "path": "22317 Благовещенск/Подбор ограждайки для продольных стен.xlsx",
+      "sha256": "D2A73D4225F1C1DE6D4C8BF328D92BF9D97263A628ECB44CEEE52DB5135C5D17",
+      "modifiedAt": "2026-09-04T10:24:02+05:00",
+      "recalculationStatus": "verified-readonly-excel-com",
+      "inputs": { "city": "Благовещенск", "span_m": 12, "buildingLength_m": 45, "buildingHeight_m": 7.4, "wallLength_m": 45, "layoutHeight_m": 6.8, "postSpacing_m": 6, "terrainType": "В", "decking": "С18-1150-0,5" },
+      "outputs": { "cornerZoneLength_m": 0, "regularZoneLength_m": 45, "regularProfile": "[]ПП 170x45x1,2", "regularMaterial": "МП350", "regularStep_mm": 1450, "regularRows": 5, "regularBracketCount": 38, "regularBracketMass_kg": 57, "regularProfileMass_kg": 1067.76, "selectionMetricMass_kg": 1112.760364125 },
+      "coverage": ["zero-corner-zone", "ПП", "МП350", "long-wall"]
+    },
+    {
+      "id": "22317-end",
+      "evidenceClass": "independent-saved-workbook",
+      "path": "22317 Благовещенск/Подбор ограждайки для торцевых стен.xlsx",
+      "sha256": "4E7341A6708BA06284B40D90620448CBA794CFF769960A0EEE47E8AF8723A63C",
+      "modifiedAt": "2026-09-04T10:22:35+05:00",
+      "recalculationStatus": "verified-readonly-excel-com",
+      "inputs": { "city": "Благовещенск", "span_m": 12, "buildingLength_m": 45, "buildingHeight_m": 7.4, "wallLength_m": 12, "layoutHeight_m": 7.4, "postSpacing_m": 6, "terrainType": "В", "decking": "С18-1150-0,5" },
+      "outputs": { "cornerZoneLength_m": 0, "regularZoneLength_m": 12, "regularProfile": "[]ПП 170x45x1,2", "regularMaterial": "МП390", "regularStep_mm": 1500, "regularRows": 5, "regularBracketCount": 10, "regularBracketMass_kg": 15, "regularProfileMass_kg": 284.736, "selectionMetricMass_kg": 296.736325 },
+      "coverage": ["zero-corner-zone", "ПП", "МП390", "end-wall"]
+    },
+    {
+      "id": "calculator-saved-state-2026-04-07",
+      "evidenceClass": "template-saved-state",
+      "path": "Калькуляторы/Калькулятор ограждайки v1.5.xlsx",
+      "sha256": "4A9343A1E3149954DEC0F91D5398528F18016A8423EC204CE2B92A59F612DEAF",
+      "modifiedAt": "2026-04-07T14:06:42+05:00",
+      "recalculationStatus": "verified-readonly-excel-com",
+      "inputs": { "city": "Благовещенск", "span_m": 24, "buildingLength_m": 24, "buildingHeight_m": 10.5, "wallLength_m": 24, "layoutHeight_m": 9.3, "postSpacing_m": 6, "terrainType": "В", "decking": "С18-1150-0,5" },
+      "outputs": { "cornerZoneLength_m": 12, "regularZoneLength_m": 12, "cornerProfile": "[]ПП 145x45x1,5", "cornerMaterial": "МП390", "cornerStep_mm": 1370, "cornerRows": 7, "cornerBracketCount": 14, "cornerProfileMass_kg": 448.8288, "regularProfile": "[]ПП 145x45x1,2", "regularMaterial": "МП350", "regularStep_mm": 1380, "regularRows": 7, "regularBracketCount": 14, "regularProfileMass_kg": 359.1504, "selectionMetricMass_kg": 843.9795845 },
+      "coverage": ["corner-and-regular-zones", "ПП", "МП350", "МП390"],
+      "limitation": "Не независимая объектная книга; только структурный regression-case"
+    }
+  ]
+}

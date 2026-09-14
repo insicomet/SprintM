@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "name": "B · Курган, 15×42, h4,5, γn=0,8",
+  "status": "provisional",
+  "provenance": {
+    "engineWorkbook": "engine_src.xlsx (original file and SHA-256 are unavailable)",
+    "engineSheet": "вывод",
+    "engineCells": ["D3", "D22", "D23", "D28", "D33", "D34", "D35", "E52", "D57", "E24"],
+    "billWorkbook": "bom_src.xlsx (original file and SHA-256 are unavailable)",
+    "billSheet": "12м",
+    "billCells": ["F32", "F44", "F70", "F81", "F100", "F114", "F147", "F82", "F148", "F149", "F151", "F154"],
+    "recalculation": "Repository comments state LibreOffice calculateAll; no Microsoft Excel recalculation log is available",
+    "capturedFrom": "src/calc/project/hypothetical.test.ts",
+    "independence": "Not independently provable without the original workbooks or an immutable recalculation report; values may only be treated as a regression snapshot"
+  },
+  "inputs": {
+    "city": "Курган",
+    "span": 15,
+    "length_m": 42,
+    "height_m": 4.5,
+    "gammaN": 0.8,
+    "bankK": "auto",
+    "roofingType": "С-П 150",
+    "deckingMark": "С44-1000-0,7",
+    "maxStepOverride_mm": 0,
+    "minStep_mm": 0,
+    "framePitchOverride_m": 0,
+    "wallPanel_mm": 100,
+    "roofPanel_mm": 150,
+    "openings": {
+      "gates": [{ "count": 2, "width_m": 3.5, "height_m": 3.5 }],
+      "doors": [{ "count": 1, "width_m": 1, "height_m": 2 }],
+      "windows": []
+    },
+    "snowGuards": true,
+    "railingPurlin": false,
+    "tubeStrutCount": 3,
+    "postSpacing_m": 2
+  },
+  "engine": {
+    "sv": "3/2",
+    "pitch": 6,
+    "maxStep": 2300,
+    "step": 2065,
+    "beam": "ПГС300/20х80х2,5",
+    "column": "ПГС300/20х80х2",
+    "purlin": "2ПС 245х65х1,5",
+    "boltsTotal": 300,
+    "gusset": 264,
+    "purlinMass": 4245.78
+  },
+  "bill": {
+    "F32": 1423403.80668675,
+    "F44": 74728.4210526316,
+    "F70": 124658.28,
+    "F81": 205918.31808,
+    "F100": 1031454.92931911,
+    "F114": 1642499.1966,
+    "F147": 2379424.05785716,
+    "F82": 1828708.82581938,
+    "F148": 5053378.18377627,
+    "F149": 6882087.00959565,
+    "F151": 7019728.74978756,
+    "F154": 44107.667311892
+  }
+}

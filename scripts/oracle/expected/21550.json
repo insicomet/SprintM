@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "status": "provisional-input-mapping",
+  "case": "21550",
+  "source": {
+    "relativePath": "Январь 2026/21550 (15х22х3, спринт сп)/21550.xlsx",
+    "sha256": "1b522784e1599d6ecc0a28d3f415eca3508124fe1d653a51f0098bfe5410d666",
+    "sheet": "12м",
+    "openedReadOnly": true,
+    "recalculatedWith": "Microsoft Excel COM CalculateFullRebuild",
+    "calculationVersion": 152511
+  },
+  "inputs": {
+    "city": "Казань",
+    "span": 15,
+    "length_m": 22,
+    "height_m": 3,
+    "gammaN": 1,
+    "bankK": 0.8,
+    "svOverride": "4/3",
+    "roofingType": "С-П 200",
+    "deckingMark": "С44-1000-0,7",
+    "maxStepOverride_mm": 0,
+    "minStep_mm": 0,
+    "framePitchOverride_m": 3.68,
+    "wallPanel_mm": 150,
+    "roofPanel_mm": 200,
+    "openings": { "gates": [], "doors": [], "windows": [] },
+    "snowGuards": true,
+    "railingPurlin": false,
+    "hasDrainage": true,
+    "tubeStrutCount": 3,
+    "postSpacing_m": 2
+  },
+  "inputMappingNotes": [
+    "gammaN is not present in the bill workbook and is not verified",
+    "bankK=0.8 is inferred from the column, bolt and gusset rows, not read directly",
+    "Excel districts 4/2 are normalized by SprintM to bank code 4/3",
+    "deckingMark is absent from the bill workbook and uses the application default"
+  ],
+  "excelTotalsWithoutOpenings": {
+    "F82": 1212745.9475798928,
+    "F148": 4520070.461873374,
+    "F149": 5732816.409453267,
+    "F150": 114656.32818906535,
+    "F151": 5847472.737642333,
+    "F154_mass_kg": 22079.423872481464
+  },
+  "appTotalsWithoutOpenings": {
+    "materials": 1200493.7267098052,
+    "additional": 3074226.5299396776,
+    "recommendedPrice": 4274720.256649483,
+    "packaging": 85494.40513298966,
+    "total": 4360214.661782472,
+    "mass_kg": 28327.68749122141
+  }
+}

@@ -1,6 +1,9 @@
 node_modules/
+22316 Березовский (спринт)/
 dist/
 dist-ssr/
 *.local
 .DS_Store
 coverage/
+scripts/oracle/inputs/*.xlsx
+scripts/oracle/work/

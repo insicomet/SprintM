@@ -520,7 +520,38 @@ export function App() {
         </div>
       )}
 
-      <section className="card toolbar-card">
+      <section className="dashboard-card" aria-label="Краткая сводка расчёта">
+        <div className="dashboard-head">
+          <div>
+            <p className="eyebrow">ТЕКУЩИЙ СЦЕНАРИЙ</p>
+            <h2>{projectTitle || "Новый расчёт"}</h2>
+            <p className="dashboard-meta">
+              {city || "Площадка не задана"} · {span} × {length} × {height} м · γn {responsibility.toFixed(1).replace(".", ",")}
+            </p>
+          </div>
+          <span className={`status-pill ${requiresCheck ? "status-warn" : "status-ok"}`}>
+            {requiresCheck ? "Требует проверки" : "Предварительный расчёт"}
+          </span>
+        </div>
+        <nav className="step-nav" aria-label="Разделы расчёта">
+          <a href="#object">1 Объект</a>
+          <a href="#envelope">2 Ограждение</a>
+          <a href="#openings">3 Проёмы</a>
+          <a href="#engineering">4 Инженерные параметры</a>
+          <a href="#results">5 Результаты</a>
+        </nav>
+        <div className="metric-grid">
+          <div className="metric"><span>Площадь стен</span><strong>{envelope.wallArea.toFixed(1)} м²</strong><small>с вычетом проёмов</small></div>
+          <div className="metric"><span>Площадь кровли</span><strong>{envelope.roofArea.toFixed(1)} м²</strong><small>с учётом уклона</small></div>
+          <div className="metric"><span>Количество рам</span><strong>{frameTakeoff ? `${frameTakeoff.frameCount} шт.` : "—"}</strong><small>по выбранному шагу</small></div>
+          <div className="metric"><span>Стоимость без проёмов</span><strong>{commercial.materialsWithPackaging !== null ? `${Math.round(commercial.materialsWithPackaging).toLocaleString("ru-RU")} ₽` : "—"}</strong><small>каркас и ограждение, с упаковкой</small></div>
+        </div>
+        <p className="dashboard-note">
+          Инженерные количества и стоимость показываются раздельно. Excel-паритет для текущего сценария не подтверждает автоматически итог — перед КП нужна проверка конструктора.
+        </p>
+      </section>
+
+      <section className="card toolbar-card" id="calculation">
         <h2>Расчёт</h2>
         <div className="form-grid">
           <label className="span-2">
@@ -585,7 +616,7 @@ export function App() {
         )}
       </section>
 
-      <section className="card">
+      <section className="card" id="object">
         <h2>Объект</h2>
         <div className="form-grid">
           <label className="span-2">
@@ -737,7 +768,7 @@ export function App() {
         </div>
       </section>
 
-      <section className="card">
+      <section className="card" id="envelope">
         <h2>Ограждение</h2>
         <div className="form-grid">
           <label className="span-2">
@@ -805,8 +836,11 @@ export function App() {
         </div>
       </section>
 
-      <section className="card">
-        <h2>Проёмы</h2>
+      <section className="card openings-card" id="openings">
+        <div className="section-title-row">
+          <h2>Проёмы</h2>
+          <span className="separate-badge">отдельно от основного итога</span>
+        </div>
         <p className="hint">
           Количество × ширина × высота, м. Несколько размеров одного типа — «+ добавить
           размер»: так же, как расчётчик заводит лишний слот вручную. Вычитаются из площади стен.
@@ -836,13 +870,18 @@ export function App() {
           Всего проёмов: {openingsArea.toFixed(1)} м². Стена под обшивку:{" "}
           {envelope.wallArea.toFixed(1)} из {envelope.grossWallArea.toFixed(1)} м²
         </p>
+        <div className="opening-cost">
+          <span>Стоимость окон, ворот и дверей</span>
+          <strong>{Math.round(openingsCost.totalCost).toLocaleString("ru-RU")} ₽</strong>
+          <small>не включается в стоимость проекта и сравнение базовой стоимости</small>
+        </div>
         <p className="field-hint">
           Ворота на длинной стене раздвигают свою раму (шаг ≥ ширина ворот + 0,8 м) — на
           торце раздвигать нечего, там рамы и так по краям здания.
         </p>
       </section>
 
-      <section className="card">
+      <section className="card" id="roofing">
         <h2>Кровля и прогоны</h2>
         <div className="form-grid">
           <label>
@@ -922,7 +961,7 @@ export function App() {
         </div>
       </section>
 
-      <section className="card">
+      <section className="card" id="engineering">
         <h2>Связи, фахверк, перекрытие</h2>
         <div className="form-grid">
           <label>
@@ -1006,6 +1045,26 @@ export function App() {
             </label>
           )}
         </div>
+      </section>
+
+      <section className="card metal-card" id="metal">
+        <div className="section-title-row">
+          <h2>Металлоёмкость</h2>
+          <span className="calculated-badge">расчётный показатель</span>
+        </div>
+        <p className="hint">
+          Масса металла берётся из текущей ведомости каркаса, прогонов, связей, крепежа,
+          доборных профилей и стоек фахверка. Оконные, воротные и дверные изделия в этот показатель
+          не входят.
+        </p>
+        <div className="metric-grid metal-metrics">
+          <div className="metric"><span>Металл здания</span><strong>{summary.steelMass_kg.toFixed(0)} кг</strong><small>{summary.hasFullSteelMass ? "полная известная масса" : "частично, см. ограничения"}</small></div>
+          <div className="metric"><span>Площадь застройки</span><strong>{(span * length).toFixed(1)} м²</strong><small>пролёт × длина</small></div>
+          <div className="metric"><span>Металлоёмкость</span><strong>{(summary.steelMass_kg / (span * length)).toFixed(2).replace(".", ",")} кг/м²</strong><small>металл / площадь застройки</small></div>
+        </div>
+        <p className="field-hint">
+          Это справочный удельный показатель для сравнения вариантов, а не замена проверке несущей способности.
+        </p>
       </section>
 
       <details className="card overrides">
@@ -1747,14 +1806,16 @@ export function App() {
         </table>
       </section>
 
-      <section className="card summary-card">
+      <section className="card summary-card" id="results">
         <h2>Итоговая сводка</h2>
         <p className="hint">
           Структура — как в коммерческой части исходной ведомости: три статьи материалов с
           упаковкой 2%, проёмы отдельной строкой сверх неё.
         </p>
         <dl className="result-list">
-          {commercial.lines.map((line) => (
+          {commercial.lines
+            .filter((line) => line.name !== "Окна, ворота, двери")
+            .map((line) => (
             <Fragment key={line.name}>
               <dt>{line.name}</dt>
               <dd>
@@ -1767,15 +1828,17 @@ export function App() {
               </dd>
             </Fragment>
           ))}
-          <dt>Итого предложение</dt>
+          <dt>Итого без окон, ворот и дверей</dt>
           <dd className="summary-total">
-            {commercial.totalCost !== null
-              ? Math.round(commercial.totalCost).toLocaleString("ru-RU") + " ₽"
+            {commercial.materialsWithPackaging !== null
+              ? Math.round(commercial.materialsWithPackaging).toLocaleString("ru-RU") + " ₽"
               : "—"}
-            {commercial.lines.some((l) => l.missing) && (
+            {commercial.lines.filter((l) => l.name !== "Окна, ворота, двери").some((l) => l.missing) && (
               <span className="incomplete"> — занижено, см. выше</span>
             )}
           </dd>
+          <dt>Окна, ворота, двери</dt>
+          <dd>{Math.round(commercial.openingsCost).toLocaleString("ru-RU")} ₽ <span className="incomplete">— отдельно</span></dd>
           <dt className="group-heading">Справочно</dt>
           <dd />
           {fireResistanceRating !== "" && (

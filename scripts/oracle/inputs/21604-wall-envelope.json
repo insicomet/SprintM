@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "case": "21604-wall-envelope",
+  "status": "provisional-author-restored-inputs",
+  "scope": "engineering-quantities-and-masses-only",
+  "source": {
+    "relativePath": "Февраль 2026/21604 (18х48х7, спринт ах)/21604.xlsx",
+    "sha256": "957240B3D154FA2F3745F6635C4A7720B537E024DDDED5040C41C74E8B4DA9B8",
+    "sheet": "12м",
+    "openedReadOnly": true,
+    "recalculatedWith": "Microsoft Excel COM CalculateFullRebuild"
+  },
+  "calculator": {
+    "relativePath": "Калькуляторы/Калькулятор ограждайки v1.5.xlsx",
+    "sha256": "4A9343A1E3149954DEC0F91D5398528F18016A8423EC204CE2B92A59F612DEAF",
+    "sheets": ["Лист1", "Расчет Угловая", "Расчет Рядовая"]
+  },
+  "restoredSources": [
+    {
+      "role": "end-walls",
+      "relativePath": "21604 спринт профлист/Калькулятор ограждайки v1.5 торец.xlsx",
+      "sha256": "668A7BB463BBD72B80B6728F356EE4AD98B4D50D75EDC1A242E35099DA988363",
+      "openedReadOnly": true,
+      "recalculatedWith": "Microsoft Excel COM CalculateFullRebuild",
+      "hashUnchanged": true
+    },
+    {
+      "role": "longitudinal-walls",
+      "relativePath": "21604 спринт профлист/Калькулятор ограждайки v1.5 торец продольная.xlsx",
+      "sha256": "DAE79A7266A558D9DBDA71FB32958BADAA7330AE119AC17A877FA1AB9F43E44A",
+      "openedReadOnly": true,
+      "recalculatedWith": "Microsoft Excel COM CalculateFullRebuild",
+      "hashUnchanged": true
+    }
+  ],
+  "buildingInputs": {
+    "city": { "value": "Кропоткин", "cell": "12м!B6", "provenance": "direct", "confidence": "high" },
+    "span_m": { "value": 18, "cell": "12м!C8", "provenance": "direct", "confidence": "high" },
+    "length_m": { "value": 48, "cell": "12м!C9", "provenance": "direct", "confidence": "high" },
+    "height_m": { "value": 7, "cell": "12м!C10", "provenance": "direct", "confidence": "high" },
+    "framePitch_m": { "value": 5.35, "cell": "12м!C11", "provenance": "direct", "confidence": "high" },
+    "terrainType": { "value": "В", "cell": null, "provenance": "reconstructed", "confidence": "medium" },
+    "standard": { "value": "по СП 20.13330.20ХХ", "cell": null, "provenance": "reconstructed", "confidence": "medium" },
+    "decking": { "value": "С18-1150-0,5", "cell": "12м!B41", "provenance": "direct", "confidence": "high" }
+  },
+  "calculatorRuns": [
+    {
+      "id": "end-walls",
+      "wallCount": 2,
+      "inputs": {
+        "buildingHeight_m": { "cell": "Лист1!B8", "value": 9.75, "provenance": "author-restored", "confidence": "high" },
+        "wallLength_m": { "cell": "Лист1!B11", "value": 18, "provenance": "direct", "confidence": "high" },
+        "layoutHeight_m": { "cell": "Лист1!B12", "value": 9.75, "provenance": "author-restored", "confidence": "high" },
+        "postSpacing_m": { "cell": "Лист1!B13", "value": 6, "provenance": "author-restored", "confidence": "high" },
+        "cornerStepOverride_mm": { "cell": "Лист1!B22", "value": 0, "provenance": "author-restored", "confidence": "high" },
+        "regularStepOverride_mm": { "cell": "Лист1!B27", "value": 0, "provenance": "author-restored", "confidence": "high" },
+        "cornerThickness": { "cell": "Лист1!B35", "value": "любая", "provenance": "author-restored", "confidence": "high" },
+        "regularThickness": { "cell": "Лист1!B36", "value": "любая", "provenance": "author-restored", "confidence": "high" }
+      },
+      "zones": {
+        "corner": { "length_m": { "cell": "Лист1!E24", "value": 12 }, "profile": { "cell": "Лист1!B49", "value": "[-]ПС145×45×1,5" }, "material": { "cell": "Лист1!C49", "value": "МП390" }, "step_mm": { "cell": "Лист1!D49", "value": 1290 }, "selectionMetricMass_kg": { "cell": "Лист1!E49", "value": 707.48383742 }, "rows": { "cell": "Лист1!F49", "value": 8 }, "bracketCount": { "cell": "Лист1!G49", "value": 16 }, "bracketMass_kg": { "cell": "Лист1!H49", "value": 24 }, "profileMass_kg": { "cell": "Лист1!I49", "value": 703.536 } },
+        "regular": { "length_m": { "cell": "Лист1!E29", "value": 6 }, "profile": { "cell": "Лист1!B50", "value": "[-]ПС145×45×1,2" }, "material": { "cell": "Лист1!C50", "value": "МП350" }, "step_mm": { "cell": "Лист1!D50", "value": 1480 }, "selectionMetricMass_kg": { "cell": "Лист1!E50", "value": 260.13049252 }, "rows": { "cell": "Лист1!F50", "value": 7 }, "bracketCount": { "cell": "Лист1!G50", "value": 7 }, "bracketMass_kg": { "cell": "Лист1!H50", "value": 10.5 }, "profileMass_kg": { "cell": "Лист1!I50", "value": 259.6566 } }
+      }
+    },
+    {
+      "id": "longitudinal-walls",
+      "wallCount": 2,
+      "inputs": {
+        "buildingHeight_m": { "cell": "Лист1!B8", "value": 9.75, "provenance": "author-restored", "confidence": "high" },
+        "wallLength_m": { "cell": "Лист1!B11", "value": 48, "provenance": "direct", "confidence": "high" },
+        "layoutHeight_m": { "cell": "Лист1!B12", "value": 7.5, "provenance": "author-restored", "confidence": "high" },
+        "postSpacing_m": { "cell": "Лист1!B13", "value": 5.35, "provenance": "author-restored", "confidence": "high" },
+        "cornerStepOverride_mm": { "cell": "Лист1!B22", "value": 0, "provenance": "author-restored", "confidence": "high" },
+        "regularStepOverride_mm": { "cell": "Лист1!B27", "value": 0, "provenance": "author-restored", "confidence": "high" },
+        "cornerThickness": { "cell": "Лист1!B35", "value": "любая", "provenance": "author-restored", "confidence": "high" },
+        "regularThickness": { "cell": "Лист1!B36", "value": "любая", "provenance": "author-restored", "confidence": "high" }
+      },
+      "zones": {
+        "corner": { "length_m": { "cell": "Лист1!E24", "value": 10.7 }, "profile": { "cell": "Лист1!B49", "value": "[-]ПС145×45×1,2" }, "material": { "cell": "Лист1!C49", "value": "МП350" }, "step_mm": { "cell": "Лист1!D49", "value": 1120 }, "selectionMetricMass_kg": { "cell": "Лист1!E49", "value": 465.84948576 }, "rows": { "cell": "Лист1!F49", "value": 7 }, "bracketCount": { "cell": "Лист1!G49", "value": 14 }, "bracketMass_kg": { "cell": "Лист1!H49", "value": 21 }, "profileMass_kg": { "cell": "Лист1!I49", "value": 463.05427 } },
+        "regular": { "length_m": { "cell": "Лист1!E29", "value": 37.3 }, "profile": { "cell": "Лист1!B50", "value": "[-]ПС145×45×1,2" }, "material": { "cell": "Лист1!C50", "value": "МП350" }, "step_mm": { "cell": "Лист1!D50", "value": 1500 }, "selectionMetricMass_kg": { "cell": "Лист1!E50", "value": 1146.4189275 }, "rows": { "cell": "Лист1!F50", "value": 5 }, "bracketCount": { "cell": "Лист1!G50", "value": 35 }, "bracketMass_kg": { "cell": "Лист1!H50", "value": 52.5 }, "profileMass_kg": { "cell": "Лист1!I50", "value": 1152.99895 } }
+      }
+    }
+  ],
+  "buildingTotals": {
+    "profileLength_m": 1597.6,
+    "calculatorProfileMass_kg": 5158.49164,
+    "billProfileMass_kg": 5155.464,
+    "difference_kg": -3.02764,
+    "differenceReason": "Ведомость использует округлённые массы 3,66 и 3,09 кг/м"
+  },
+  "manualItems": [
+    { "item": "Кронштейны", "cells": ["12м!C38", "12м!G38"], "archivedFormula": "G38=(24+10,5+18+45)*2; C38=G38/0,75*0,2", "confirmedFormula": "G38=(24+10,5+21+52,5)*2; C38=G38/0,75*0,2", "archivedMass_kg": 195, "confirmedMass_kg": 216, "archivedBlankLength_m": 52, "confirmedBlankLength_m": 57.6, "confidence": "high", "status": "confirmed-estimator-error-in-archived-bill", "evidence": "Автор расчёта 11.09.2026: торец 24/10,5 кг; продольная стена 21/52,5 кг; 18/45 кг в ведомости — вероятная ошибка" },
+    { "item": "Наружный уголок", "cells": ["12м!C40", "12м!G40"], "formula": "C40=4*C10/2,9; G40=C40*2,3", "confidence": "high" },
+    { "item": "Внутренний уголок", "cells": ["12м!C39", "12м!G39"], "formula": "C39=(3*C9+2*C8)/2,9; G39=C39*0,9", "confidence": "medium", "blocker": "Третья продольная линия не объяснена" },
+    { "item": "Стеновой саморез", "cells": ["12м!C41", "12м!C106", "12м!G106"], "formula": "C106=10*(C41+C43); G106=C106*0,0026", "confidence": "high" }
+  ],
+  "excluded": {
+    "openingCosts": true,
+    "pricesFromEngineeringBaseline": true,
+    "snowPocket": { "status": "blocked-broken-source-formulas", "cells": ["Лист1!Q80:S81"] }
+  }
+}

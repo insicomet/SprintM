@@ -26,9 +26,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run test
-      - run: npx tsc --noEmit
-      - run: npx vite build
+      - run: npm run verify
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

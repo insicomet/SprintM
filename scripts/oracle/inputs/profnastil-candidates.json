@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "status": "provisional-object-workbooks",
+  "scope": "engineering-quantities-first; prices-separated; opening-costs-excluded",
+  "calculationEngine": "Microsoft Excel COM CalculateFullRebuild",
+  "calculationVersion": 152511,
+  "cases": [
+    {
+      "id": "22304",
+      "evidenceClass": "independent-saved-object-workbook",
+      "source": {
+        "relativePath": "22304 спринт профлист/22304.xlsx",
+        "sha256": "9d40d9241b6853af5638709065b4056b2d1d9eb353aa43b1e5333b5cb053be4e",
+        "sheet": "12м",
+        "openedReadOnly": true,
+        "hashUnchanged": true
+      },
+      "inputs": {
+        "city": "Магнитогорск",
+        "svOverride": "3/2",
+        "span_m": 18,
+        "length_m": 40,
+        "height_m": 7.5,
+        "framePitch_m": 5,
+        "gammaN": { "value": 1, "provenance": "inferred-not-present-in-bill" },
+        "bankK": { "value": "auto", "provenance": "inferred-from-selected-frame" },
+        "columnOverride": "ПГС300/20х80х3",
+        "wall": "С-18 0,5 окрашенный",
+        "roof": "С-44 0,7 оцинкованный",
+        "wallInsulation_mm": 0,
+        "roofInsulation_mm": 0,
+        "snowGuards": true,
+        "openings": {
+          "windows": [{ "count": 8, "width_m": 4, "height_m": 1 }],
+          "doors": [{ "count": 2, "width_m": 1, "height_m": 2.1 }],
+          "gates": [{ "count": 1, "width_m": 4, "height_m": 4.2 }]
+        }
+      },
+      "excel": {
+        "grossWallSheetArea_m2": 1060.4,
+        "roofSheetArea_m2": 838.86,
+        "wallScrews_4_8x20": 10604,
+        "roofScrews_4_8x20": 6710.88,
+        "wallProfiles_m": { "ПП195x45x1.5": 336, "ПП195x45x1.2": 1264 },
+        "bracketMass_kg": 207,
+        "outerAngles_count": 10.344827586206897,
+        "projectWithoutOpeningCosts": 6366853.278804109
+      },
+      "app": {
+        "grossWallSheetArea_m2": 1060.4,
+        "netWallSheetArea_m2": 1008.4,
+        "roofSheetArea_m2": 838.86,
+        "wallScrews_4_8x20": null,
+        "roofScrews_4_8x20": null,
+        "wallEnvelopeSubsystem": null,
+        "projectWithoutOpeningCosts": 5389578.431757849,
+        "requiresCheck": true
+      }
+    },
+    {
+      "id": "22012",
+      "evidenceClass": "independent-saved-object-workbook",
+      "source": {
+        "relativePath": "Апрель 2026/22012 (12х30х6, спринт ах)/22012 спринт.xlsx",
+        "sha256": "eb28a64f62df0889b98ad972966760f029a0403f3eb5394b82ca41077a62b4bf",
+        "sheet": "12м",
+        "openedReadOnly": true,
+        "hashUnchanged": true
+      },
+      "inputs": {
+        "siteLabel": "п. Октябрьский",
+        "svOverride": "3/1",
+        "manualClimate": { "snowLoad_kPa": 1.5, "windDistrict": "I", "provenance": "reconstructed-from-3/1" },
+        "span_m": 12,
+        "length_m": 30,
+        "height_m": 6,
+        "framePitch_m": 6,
+        "gammaN": { "value": 0.8, "provenance": "inferred-from-purlin-selection-not-present-in-bill" },
+        "bankK": { "value": 0.8, "provenance": "inferred-from-frame-selection-not-present-in-bill" },
+        "columnOverride": "ПГС300/20х80х2,5",
+        "wall": "С-18 0,5 окрашенный",
+        "roof": "С-44 0,7 оцинкованный",
+        "wallInsulation_mm": 0,
+        "roofInsulation_mm": 0,
+        "snowGuards": true,
+        "openings": {
+          "windows": [{ "count": 2, "width_m": 26, "height_m": 1 }],
+          "doors": [{ "count": 1, "width_m": 1, "height_m": 2 }],
+          "gates": [{ "count": 1, "width_m": 4, "height_m": 4.2 }]
+        }
+      },
+      "excel": {
+        "grossWallSheetArea_m2": 627,
+        "roofSheetArea_m2": 429.66,
+        "wallScrews_4_8x20": 6270,
+        "roofScrews_4_8x20": 3437.28,
+        "wallProfiles_m": { "ПП145x45x1.2": 1096 },
+        "bracketMass_kg": 111,
+        "outerAngles_count": 8.275862068965518,
+        "projectWithoutOpeningCosts": 3070603.169871551
+      },
+      "app": {
+        "grossWallSheetArea_m2": 627,
+        "netWallSheetArea_m2": 557,
+        "roofSheetArea_m2": 429.66,
+        "wallScrews_4_8x20": null,
+        "roofScrews_4_8x20": null,
+        "wallEnvelopeSubsystem": null,
+        "projectWithoutOpeningCosts": 3039102.034332527,
+        "requiresCheck": true
+      }
+    },
+    {
+      "id": "22009",
+      "evidenceClass": "independent-saved-object-workbook-unsupported-variant",
+      "source": {
+        "relativePath": "Апрель 2026/22009 (21х70х4, спринт ах)/22009.xlsx",
+        "sha256": "8a06ff7dc1e3a68f65a951ab6dc65e8eee99e83686433ec7e7122663e20fa1c1",
+        "sheet": "12м",
+        "openedReadOnly": true,
+        "hashUnchanged": true
+      },
+      "inputs": {
+        "city": "Челябинск",
+        "svOverride": "3/2",
+        "span_m": 21,
+        "length_m": 70,
+        "height_m": 4,
+        "framePitch_m": 5,
+        "wall": "С-18 0,5 окрашенный",
+        "roof": "С-44 0,7 оцинкованный с утеплением 200 мм",
+        "wallInsulation_mm": 100,
+        "roofInsulation_mm": 200,
+        "snowGuards": false
+      },
+      "excel": {
+        "grossWallSheetArea_m2": 947.1,
+        "roofSheetArea_m2": 1686.96,
+        "roofPurlin": "ТПС200x65x1.5",
+        "roofPurlinLength_m": 1960,
+        "wallScrews_4_8x20": 9471,
+        "roofScrews_4_8x20": 13495.68,
+        "wallProfiles_m": { "ТПП110x45x1.2": 2684 },
+        "bracketMass_kg": 159,
+        "outerAngles_count": 5.517241379310345,
+        "projectWithoutOpeningCosts": 8468920.11731089
+      },
+      "app": {
+        "status": "not-representable",
+        "reason": "Нет режима профлистовой кровли с утеплением и семейством ТПС; режим профлист выбирает ПС, а режим С-П меняет материал покрытия.",
+        "grossWallSheetArea_m2": 947.1,
+        "netWallSheetArea_m2": 875.1,
+        "roofSheetArea_m2": 1686.96,
+        "roofPurlin": "ПС200x65x1.5",
+        "roofPurlinLength_m": 1680,
+        "projectWithoutOpeningCosts": 8259328.216276023,
+        "requiresCheck": true
+      }
+    }
+  ]
+}

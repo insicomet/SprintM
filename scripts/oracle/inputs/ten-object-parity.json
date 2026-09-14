@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "status": "provisional-mixed-object-corpus",
+  "scope": "engineering-quantities-first; prices-separated; opening-costs-excluded",
+  "calculationEngine": "Microsoft Excel COM CalculateFullRebuild",
+  "calculationVersion": 152511,
+  "cases": [
+    {
+      "id": "21604",
+      "cladding": "profnastil",
+      "source": { "relativePath": "Архив предрасчетов/2026/Сурова/Февраль 2026/21604 (18х48х7, спринт ах)/21604.xlsx", "sha256": "957240b3d154fa2f3745f6635c4a7720b537e024ddded5040c41c74e8b4da9b8", "sheet": "12м", "openedReadOnly": true, "hashUnchanged": true },
+      "inputs": { "sv": "2/4", "span_m": 18, "length_m": 48, "height_m": 7, "framePitch_m": 5.35, "roofInsulation_mm": 0, "wallInsulation_mm": 0 },
+      "comparison": { "status": "provisional-missing-app-subsystem", "matched": ["beamLength", "roofArea"], "numericMismatch": ["beamMass", "columnMass", "purlinLength", "frameFasteners", "tubeMass"], "missingInApp": ["wallProfiles", "wallBrackets", "wallAngles", "wallAndRoofSheetFasteners"], "missingInExcel": [], "unmapped": ["projectCostWithoutOpenings"] }
+    },
+    {
+      "id": "22009",
+      "cladding": "profnastil-insulated",
+      "source": { "relativePath": "Архив предрасчетов/2026/Сурова/Апрель 2026/22009 (21х70х4, спринт ах)/22009.xlsx", "sha256": "8a06ff7dc1e3a68f65a951ab6dc65e8eee99e83686433ec7e7122663e20fa1c1", "sheet": "12м", "openedReadOnly": true, "hashUnchanged": true },
+      "inputs": { "sv": "3/2", "span_m": 21, "length_m": 70, "height_m": 4, "framePitch_m": 5, "roofInsulation_mm": 200, "wallInsulation_mm": 100 },
+      "comparison": { "status": "provisional-unsupported-variant", "matched": ["grossWallArea", "roofArea"], "numericMismatch": ["roofPurlinProfile", "roofPurlinLength", "M16Fasteners", "tubeMass"], "missingInApp": ["wallProfiles", "wallBrackets", "wallAngles", "wallAndRoofSheetFasteners"], "missingInExcel": ["PS61", "PS145"], "unmapped": ["insulatedProfnastilMode"] },
+      "costWithoutOpenings": { "excel": 8468920.11731089, "app": 8259328.216276023 }
+    },
+    {
+      "id": "22012",
+      "cladding": "profnastil",
+      "source": { "relativePath": "Архив предрасчетов/2026/Сурова/Апрель 2026/22012 (12х30х6, спринт ах)/22012 спринт.xlsx", "sha256": "eb28a64f62df0889b98ad972966760f029a0403f3eb5394b82ca41077a62b4bf", "sheet": "12м", "openedReadOnly": true, "hashUnchanged": true },
+      "inputs": { "sv": "3/1", "span_m": 12, "length_m": 30, "height_m": 6, "framePitch_m": 6, "roofInsulation_mm": 0, "wallInsulation_mm": 0 },
+      "comparison": { "status": "provisional-inferred-gamma", "matched": ["grossWallArea", "roofArea", "roofPurlinLength", "M16Fasteners"], "numericMismatch": ["tubeMass", "profileUnitMassPrecision"], "missingInApp": ["wallProfiles", "wallBrackets", "wallAngles", "wallAndRoofSheetFasteners"], "missingInExcel": ["PS61", "PS145"], "unmapped": ["gammaN"] },
+      "costWithoutOpenings": { "excel": 3070603.169871551, "app": 3039102.034332527 }
+    },
+    {
+      "id": "22304",
+      "cladding": "profnastil",
+      "source": { "relativePath": "22304 спринт профлист/22304.xlsx", "sha256": "9d40d9241b6853af5638709065b4056b2d1d9eb353aa43b1e5333b5cb053be4e", "sheet": "12м", "openedReadOnly": true, "hashUnchanged": true },
+      "inputs": { "sv": "3/2", "span_m": 18, "length_m": 40, "height_m": 7.5, "framePitch_m": 5, "roofInsulation_mm": 0, "wallInsulation_mm": 0 },
+      "comparison": { "status": "provisional-missing-app-subsystem", "matched": ["grossWallArea", "roofArea", "beamLength", "columnLength", "roofPurlinLength", "PS145Length"], "numericMismatch": ["M16Fasteners", "tubeMass", "profileUnitMassPrecision"], "missingInApp": ["wallProfiles", "wallBrackets", "wallAngles", "wallAndRoofSheetFasteners", "PP150"], "missingInExcel": ["PS61"], "unmapped": [] },
+      "costWithoutOpenings": { "excel": 6366853.278804109, "app": 5389578.431757849 }
+    },
+    {
+      "id": "21520",
+      "cladding": "sandwich",
+      "source": { "relativePath": "Архив предрасчетов/2026/Сурова/Январь 2026/21520 (18х36х6, спринт сп)/21520.xlsx", "sha256": "f10c5f4daa5ba8267ca4aebb2870189a0a78bb9be2e82ccc88335758086c19f5", "sheet": "12м", "openedReadOnly": true, "hashUnchanged": true },
+      "inputs": { "sv": "3/2", "span_m": 18, "length_m": 36, "height_m": 6, "framePitch_m": 4.5, "roofPanel_mm": 150, "wallPanel_mm": 150, "openingsArea_m2": 53 },
+      "comparison": { "status": "provisional-new-object", "matched": ["beamLength", "columnLength", "roofPurlinLength", "grossWallArea", "netWallArea", "roofArea", "wallPanelFasteners", "butylCord"], "numericMismatch": ["beamMass", "columnMass", "roofPanelFasteners", "tubeMass", "angleMass", "panelUnitMassPrecision"], "missingInApp": [], "missingInExcel": [], "unmapped": ["manualFrameExtras"] },
+      "costWithoutOpenings": { "excel": 8971883.291963788, "app": 8010493.383945044 }
+    },
+    {
+      "id": "21550",
+      "cladding": "sandwich-pir",
+      "source": { "relativePath": "Архив предрасчетов/2026/Сурова/Январь 2026/21550 (15х22х3, спринт сп)/21550.xlsx", "sha256": "1b522784e1599d6ecc0a28d3f415eca3508124fe1d653a51f0098bfe5410d666", "sheet": "12м", "openedReadOnly": true, "hashUnchanged": true },
+      "inputs": { "sv": "4/2", "span_m": 15, "length_m": 22, "height_m": 3, "framePitch_m": 3.68, "roofPanel_mm": 200, "wallPanel_mm": 150, "openingsArea_m2": 0 },
+      "comparison": { "status": "provisional-pir-not-in-app", "matched": ["beamLength", "columnLength", "grossWallArea", "netWallArea", "roofArea", "wallPanelFasteners", "butylCord", "wallTrim", "drainage"], "numericMismatch": ["profileUnitMassPrecision", "roofPanelFasteners", "tubeMass", "angleMass"], "missingInApp": ["PIRPanelMaterial"], "missingInExcel": [], "unmapped": ["panelMass", "panelPrice", "gammaN"] },
+      "costWithoutOpenings": { "excel": 5847472.737642333, "app": 4360214.661782472 }
+    },
+    {
+      "id": "21923",
+      "cladding": "sandwich",
+      "source": { "relativePath": "Архив предрасчетов/2026/Савина/Апрель 2026/21923 (12х24х5 Спринт,СП)/21923 (2у.о, 4ст.ог).xlsx", "sha256": "a7960344c552dde50262794cf83058a3df8f9d1b3675902570314759e0ad1a2b", "sheet": "12м", "openedReadOnly": true, "hashUnchanged": true },
+      "inputs": { "sv": "3/1", "span_m": 12, "length_m": 24, "height_m": 5, "framePitch_m": 6, "roofPanel_mm": 150, "wallPanel_mm": 100, "openingsArea_m2": 26 },
+      "comparison": { "status": "provisional-purlin-selection-mismatch", "matched": ["beamLength", "grossWallArea", "netWallArea", "roofArea", "wallPanelArea", "wallPanelFasteners", "butylCord", "wallTrim"], "numericMismatch": ["columnMass", "roofPurlinProfile", "roofPurlinLength", "roofPanelFasteners", "tubeMass", "panelUnitMassPrecision"], "missingInApp": [], "missingInExcel": [], "unmapped": ["threeDoorRowWithZeroWidth"] },
+      "costWithoutOpenings": { "excel": 4294552.04664214, "app": 3861687.756458855 }
+    },
+    {
+      "id": "22285",
+      "cladding": "sandwich",
+      "source": { "relativePath": "22285 Коркино (спринт с окнами)/22285.xlsx", "sha256": "568192ee25ef71ba8d54d1cd18576e5f88847e4caecfae05d40cb0f6f6d3e1b9", "sheet": "12м", "openedReadOnly": true, "hashUnchanged": true },
+      "inputs": { "sv": "3/2", "span_m": 18, "length_m": 48, "height_m": 6, "framePitch_m": 4, "roofPanel_mm": 150, "wallPanel_mm": 100, "openingsArea_m2": 86 },
+      "comparison": { "status": "provisional-confirmed-excel-errors", "matched": ["beamLength", "columnLength", "roofPurlinLength", "roofArea", "roofPanelFasteners", "butylCord", "wallTrim", "drainage"], "numericMismatch": ["grossWallArea", "netWallArea", "wallPanelArea", "wallPanelFasteners", "M16Fasteners", "profileUnitMassPrecision", "priceSnapshot"], "missingInApp": [], "missingInExcel": [], "unmapped": [] },
+      "costWithoutOpenings": { "excel": 9977301.089379128, "app": 10098562.316244248 }
+    },
+    {
+      "id": "22316",
+      "cladding": "sandwich",
+      "source": { "relativePath": "22316 Березовский (спринт)/22316 спринт.xlsx", "sha256": "d76d812d2f4808d1b3b6637981040cf7737b74a47a5a72e0a9e01d5b97f61dc5", "sheet": "12м", "openedReadOnly": true, "hashUnchanged": true },
+      "inputs": { "sv": "3/1", "span_m": 18, "length_m": 30, "height_m": 5, "framePitch_m": 4.5, "roofPanel_mm": 150, "wallPanel_mm": 100, "openingsArea_m2": 48.8 },
+      "comparison": { "status": "provisional-known-corrected-window-framing", "matched": ["beamLength", "columnLength", "roofPurlinLength", "grossWallArea", "netWallArea", "roofArea", "panelFasteners", "butylCord", "wallTrim", "roofTrim", "drainage"], "numericMismatch": ["windowFraming", "profileUnitMassPrecision", "panelUnitMassPrecision"], "missingInApp": [], "missingInExcel": [], "unmapped": [] },
+      "costWithoutOpenings": { "excel": 6530752.753871601, "app": 6534829.290767602 }
+    },
+    {
+      "id": "22318",
+      "cladding": "sandwich",
+      "source": { "relativePath": "22318 Сургут (спринт)/22318.xlsx", "sha256": "40fa0c65da3551f04de1b6d66b502791631e472b0691ee2a315ad84175c395b5", "sheet": "12м", "openedReadOnly": true, "hashUnchanged": true },
+      "inputs": { "sv": "4/1", "span_m": 15, "length_m": 24, "height_m": 5, "framePitch_m": 4, "roofPanel_mm": 150, "wallPanel_mm": 100, "openingsArea_m2": 20 },
+      "comparison": { "status": "verified-cost-total-with-current-snapshot", "matched": ["frameSelection", "beamLength", "columnLength", "roofPurlinLength", "grossWallArea", "netWallArea", "roofArea", "panelFasteners", "butylCord", "allSectionCosts", "projectCostWithoutOpenings"], "numericMismatch": ["profileUnitMassPrecision", "panelUnitMassPrecision"], "missingInApp": [], "missingInExcel": [], "unmapped": [] },
+      "costWithoutOpenings": { "excel": 4755155.532531397, "app": 4755155.532531397 }
+    }
+  ]
+}
