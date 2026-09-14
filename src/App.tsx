@@ -350,6 +350,7 @@ export function App() {
   // правилом подборщика, пустое значение — «по правилу».
   const [tubeStrutCount, setTubeStrutCount] = useState(3);
   const [strutTube, setStrutTube] = useState<StrutTube | "">("");
+  const [verticalBraceTube, setVerticalBraceTube] = useState<StrutTube | "">("");
   // 0 — выводим сами из проёмов (вывод!E68), см. openingsFraming.
   const [extraTubeMass_t, setExtraTubeMass] = useState(0);
   // Шаг рам вручную (вывод!D9): расчётчик задаёт его при некратной длине.
@@ -415,6 +416,7 @@ export function App() {
         hasDrainage,
         tubeStrutCount,
         strutTube: strutTube || undefined,
+        verticalBraceTube: verticalBraceTube || undefined,
         extraTubeMass_t: extraTubeMass_t || undefined,
         postSpacing_m: postSpacing,
         trussedVariant,
@@ -458,6 +460,7 @@ export function App() {
       hasDrainage,
       tubeStrutCount,
       strutTube,
+      verticalBraceTube,
       extraTubeMass_t,
       postSpacing,
       trussedVariant,
@@ -581,6 +584,7 @@ export function App() {
     setHasDrainage(next.hasDrainage ?? true);
     setTubeStrutCount(next.tubeStrutCount);
     setStrutTube(next.strutTube ?? "");
+    setVerticalBraceTube(next.verticalBraceTube ?? "");
     setExtraTubeMass(next.extraTubeMass_t ?? 0);
     setPostSpacing(next.postSpacing_m);
     setTrussedVariant(Boolean(next.trussedVariant));
@@ -1162,6 +1166,24 @@ export function App() {
             <span className="field-hint">
               Количество в обоих реальных проектах — 3 шт.; сечение подборщик выводит по шагу рам
               (≤ 4 м — 60х3, иначе 80х3), сейчас {effectiveStrutTube}.
+            </span>
+          </label>
+
+          <label>
+            Труба вертикальных связей
+            <select
+              value={verticalBraceTube}
+              onChange={(e) => setVerticalBraceTube(e.target.value as StrutTube | "")}
+            >
+              <option value="">80х3 (по умолчанию)</option>
+              <option value="60х3">60х3</option>
+              <option value="80х3">80х3</option>
+              <option value="120х3">120х3</option>
+            </select>
+            <span className="field-hint">
+              По умолчанию 80х3 (подтверждено на «22316»/«22318»). «22069» (пролёт 12, k=1,0)
+              показал 120х3 — похоже на такой же ручной выбор конструктора, что и труба
+              распорок; общего правила по габаритам не найдено.
             </span>
           </label>
 

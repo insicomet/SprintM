@@ -22,6 +22,18 @@ const project22318 = {
   extraTubeMass_t: 0.795,
 };
 
+const project22069 = {
+  span_m: 12 as const,
+  length_m: 20,
+  height_m: 6,
+  framePitch_m: 5,
+  frameCount: 5,
+  strutTube: "80х3" as const,
+  verticalBraceTube: "120х3" as const,
+  extraTubeMass_t: 0.436,
+  windowFramingPerimeter_m: 64,
+};
+
 function byName(result: ReturnType<typeof computeBracing>) {
   return Object.fromEntries(result.items.map((i) => [i.name, i]));
 }
@@ -57,6 +69,39 @@ describe("computeBracing", () => {
     expect(items["Конструкции из труб"].cost).toBeCloseTo(339777.74847254576, 4);
     expect(items["Уголок"].cost).toBeCloseTo(124458.75, 4);
     expect(items["Лист (фасонки)"].cost).toBeCloseTo(229524.81999999998, 4);
+  });
+
+  it("reproduces «Конструкции из труб» of real project '22069' to the 10th digit with verticalBraceTube=120х3", () => {
+    // «22069» (пролёт 12, k=1,0 — не авто-подобранный k=0,8, см. вопрос
+    // расчётчику про «22330») — первый пример трубы вертикальных связей,
+    // отличной от 80х3. Полная реконструкция формулы C96 файла.
+    const items = byName(computeBracing(project22069));
+    expect(items["Конструкции из труб"].mass_t).toBeCloseTo(2.8596735037793275, 9);
+  });
+
+  it("defaults verticalBraceTube to 80х3 when not given (unchanged behaviour for '22316'/'22318')", () => {
+    const withDefault = byName(computeBracing({ ...project22069, verticalBraceTube: undefined }));
+    const withExplicit80 = byName(computeBracing({ ...project22069, verticalBraceTube: "80х3" }));
+    expect(withDefault["Конструкции из труб"].mass_t).toBeCloseTo(
+      withExplicit80["Конструкции из труб"].mass_t!,
+      9,
+    );
+    // Труба потяжелее — масса связей заметно выше, чем при 80х3.
+    const with120 = byName(computeBracing(project22069));
+    expect(with120["Конструкции из труб"].mass_t!).toBeGreaterThan(
+      withDefault["Конструкции из труб"].mass_t!,
+    );
+  });
+
+  it("names the vertical-braces line item after the tube in use", () => {
+    const items = byName(computeBracing(project22069));
+    expect(items["Конструкции из труб"].breakdown!.some((p) => p.name === "Вертикальные связи (труба 120х3)")).toBe(
+      true,
+    );
+    const defaultItems = byName(computeBracing({ ...project22316 }));
+    expect(
+      defaultItems["Конструкции из труб"].breakdown!.some((p) => p.name === "Вертикальные связи (труба 80х3)"),
+    ).toBe(true);
   });
 
   it("takes the gusset weight from the section bank when it is given", () => {

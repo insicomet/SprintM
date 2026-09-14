@@ -146,6 +146,13 @@ export interface ProjectInputs {
    */
   strutTube?: StrutTube;
   /**
+   * Труба вертикальных связей вручную. Пусто — 80х3 (см. вопрос
+   * расчётчику: «22069» показал 120х3 при том же пролёте/высоте, где
+   * раньше подтверждалось 80х3, — похоже на такой же ручной выбор
+   * конструктора, что и для трубы распорок, но правило не найдено).
+   */
+  verticalBraceTube?: StrutTube;
+  /**
    * Слагаемое «Конструкций из труб» вручную, т. Пусто — считаем сами:
    * это металл обрамления проёмов (вывод!E68), см. openingsFraming.
    * Ручной ввод нужен, когда в проекте есть окна: их перемычки
@@ -263,6 +270,7 @@ export function computeProject(inputs: ProjectInputs) {
     hasDrainage = true,
     tubeStrutCount,
     strutTube,
+    verticalBraceTube,
     extraTubeMass_t,
     postSpacing_m,
     trussedVariant,
@@ -509,6 +517,7 @@ export function computeProject(inputs: ProjectInputs) {
           frameCount: frameTakeoff.frameCount,
           tubeStrutCount,
           strutTube: effectiveStrutTube,
+          verticalBraceTube,
           extraTubeMass_t: effectiveExtraTubeMass_t,
           windowFramingPerimeter_m: windowFramingPerimeter_m(openings, geometry.framePitch_m),
           gussetMassPerFrame_kg: selection.massGussetPlates_kg,

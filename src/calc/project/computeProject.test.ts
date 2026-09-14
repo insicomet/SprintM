@@ -72,6 +72,75 @@ const project22318: ProjectInputs = {
   postSpacing_m: 2,
 };
 
+/**
+ * «22069» (Челябинск, 12×20×6) — тот же файл, что и раньше, но с
+ * важной поправкой: авто-подбор блока банка k (лестница снегветер)
+ * даёт k=0,8 для Челябинска, а реальная ведомость использует k=1,0.
+ * Та же ситуация, что и «22330» (расчётчик вписывает k вручную по
+ * своему усмотрению, вопрос расчётчику, почему). С k=1,0 и трубой
+ * вертикальных связей 120х3 (см. bracing.test.ts) сечения рамы,
+ * количество болтов М16 (300 на раму) и вес фасонок (268 кг на раму)
+ * сходятся с ведомостью день в день.
+ */
+const project22069: ProjectInputs = {
+  city: "Челябинск",
+  span: 12,
+  length_m: 20,
+  height_m: 6,
+  gammaN: 1.0,
+  bankK: 1.0,
+  roofingType: "С-П 150",
+  deckingMark: "С44-1000-0,7",
+  maxStepOverride_mm: 0,
+  minStep_mm: 0,
+  framePitchOverride_m: 5,
+  wallPanel_mm: 100,
+  roofPanel_mm: 150,
+  openings: { gates: [], doors: [], windows: [] },
+  snowGuards: false,
+  railingPurlin: false,
+  tubeStrutCount: 3,
+  strutTube: "80х3",
+  verticalBraceTube: "120х3",
+  extraTubeMass_t: 0.436,
+  postSpacing_m: 6,
+};
+
+describe("computeProject — реальный проект «22069», k блока банка задан вручную", () => {
+  const r = computeProject(project22069);
+
+  it("picks the frame sections the real bill uses (ригель 300мм, колонна 245мм)", () => {
+    expect(r.frameTakeoff!.beam.profileName).toBe("ПГС300/20х80х2,5");
+    expect(r.frameTakeoff!.column.profileName).toBe("ПГС245/20х80х2,5");
+    expect(r.frameTakeoff!.beam.massPerM_kg).toBeCloseTo(9.7775, 4);
+    expect(r.frameTakeoff!.column.massPerM_kg).toBeCloseTo(8.7033, 4);
+  });
+
+  it("matches the real bolt count and gusset mass for this bank row", () => {
+    if (!r.frame) throw new Error("frame selection expected to succeed");
+    if (!r.frame.ok) throw new Error(r.frame.error);
+    if (!r.frame.value) throw new Error("frame selection expected a value");
+    expect(r.frame.value.bolts.totalInFrame).toBe(300);
+    expect(r.frame.value.massGussetPlates_kg).toBe(268);
+  });
+
+  it("reproduces «Конструкции из труб» to the 10th digit with the vertical tube override", () => {
+    // Реальный файл даёт 2,8596735037793275 т — сюда входит ещё
+    // 0,0096×64=0,6144 т от обрамления окон (windowFramingPerimeter_m),
+    // которое здесь не воспроизводим — в фикстуре нет проёмов «22069»,
+    // сама формула трубы (без обрамления) уже полностью сверена в
+    // bracing.test.ts.
+    const tubes = r.bracing!.items.find((i) => i.name === "Конструкции из труб")!;
+    expect(tubes.mass_t).toBeCloseTo(2.8596735037793275 - 0.6144, 9);
+  });
+
+  it("without the bankK override, auto-selection picks a lighter (and wrong, for this file) frame", () => {
+    const auto = computeProject({ ...project22069, bankK: "auto" });
+    expect(auto.frameTakeoff!.beam.profileName).toBe("ПГС245/20х80х2,5");
+    expect(auto.frameTakeoff!.beam.profileName).not.toBe(r.frameTakeoff!.beam.profileName);
+  });
+});
+
 function line(result: ReturnType<typeof computeProject>, name: string) {
   return result.commercial.lines.find((l) => l.name === name)!;
 }
