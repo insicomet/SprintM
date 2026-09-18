@@ -366,6 +366,9 @@ export function App() {
   // вне банка нет (расчётчик подтвердила: разовое инженерное решение,
   // не правило), так что вместо угадывания — ручной выбор профиля.
   const [columnOverride, setColumnOverride] = useState("");
+  // Сечение балки вручную — тот же механизм, что и колонна, для «21876»
+  // (облегчённая балка при том, что колонна/болты/фасонки — по банку).
+  const [beamOverride, setBeamOverride] = useState("");
   // Блок банка сечений (подбор!W9) — в исходнике это ОТДЕЛЬНАЯ величина от
   // γn (вывод!D7): в "22316" γn = 1, а сечения взяты из блока k = 0,8.
   const [bankK, setBankK] = useState<"auto" | ResponsibilityLevel>("auto");
@@ -423,6 +426,7 @@ export function App() {
         mezzanine,
         fireResistanceRating: fireResistanceRating || undefined,
         columnOverride: columnOverride || undefined,
+        beamOverride: beamOverride || undefined,
         wallCladdingMaterial,
         wallProfnastilThickness_mm: wallProfnastilThickness,
         roofProfnastilThickness_mm: roofProfnastilThickness,
@@ -467,6 +471,7 @@ export function App() {
       mezzanine,
       fireResistanceRating,
       columnOverride,
+      beamOverride,
       wallCladdingMaterial,
       wallProfnastilThickness,
       roofProfnastilThickness,
@@ -1327,6 +1332,23 @@ export function App() {
               Для высоты вне банка — общей формулы «увеличения» нет, решение разовое.
               Остальная ведомость (масса, стоимость) пересчитается под этот профиль; болты и
               узловые пластины останутся по банку.
+            </span>
+          </label>
+
+          <label>
+            Сечение балки вручную
+            <select value={beamOverride} onChange={(e) => setBeamOverride(e.target.value)}>
+              <option value="">по банку сечений</option>
+              {KNOWN_PGS_PROFILES.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            <span className="field-hint">
+              Тот же случай, что и с колонной, но встречается и в обратную сторону —
+              облегчённая балка при том, что остальная рама посчитана по банку («21876»).
+              Болты и узловые пластины останутся по банку.
             </span>
           </label>
         </div>

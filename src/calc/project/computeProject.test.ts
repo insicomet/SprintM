@@ -501,6 +501,68 @@ describe("сечение колонны вручную — общей форму
   });
 });
 
+describe("сечение балки вручную — та же логика, но встречается и в обратную сторону", () => {
+  // «21876» (Савина, 12×30×4,5, с/в «3/2»): банк для пролёта 12, с/в 3/2,
+  // высоты-корзины 4,8, k=0,8 даёт балку «ПГС245/20х80х2,5» и колонну
+  // «ПГС300/20х80х2» — колонна, болты (константа 260 в формуле O89) и вес
+  // фасонок на раму (223 кг) сошлись с этой строкой банка день в день, а
+  // балка в реальной ведомости — «ПГС245/20х80х2», на полтолщины тоньше.
+  const base: ProjectInputs = {
+    ...project22318,
+    span: 12,
+    length_m: 30,
+    height_m: 4.5,
+    bankK: 0.8,
+    svOverride: "3/2",
+  };
+
+  it("replaces the beam profile and recomputes its mass and cost", () => {
+    const stock = computeProject(base);
+    const stockFrame = stock.frame && stock.frame.ok ? stock.frame.value! : null;
+    expect(stockFrame!.beam.profile).toBe("ПГС245/20х80х2,5");
+    expect(stockFrame!.column.profile).toBe("ПГС300/20х80х2");
+
+    const overridden = computeProject({ ...base, beamOverride: "ПГС245/20х80х2" });
+    const overriddenFrame = overridden.frame && overridden.frame.ok ? overridden.frame.value! : null;
+    expect(overriddenFrame!.beam.profile).toBe("ПГС245/20х80х2");
+    // Колонна, болты и узловые пластины не меняются — только балка.
+    expect(overriddenFrame!.column.profile).toBe(stockFrame!.column.profile);
+    expect(overriddenFrame!.bolts.totalInFrame).toBe(stockFrame!.bolts.totalInFrame);
+    // Профиль потоньше — значит и масса, и стоимость балки ниже.
+    expect(overridden.frameTakeoff!.beam.massPerM_kg).toBeLessThan(
+      stock.frameTakeoff!.beam.massPerM_kg!,
+    );
+    expect(overridden.frameTakeoff!.totalFrameCost!).toBeLessThan(
+      stock.frameTakeoff!.totalFrameCost!,
+    );
+    expect(overridden.requiresCheck).toBe(true);
+    expect(overridden.approximations.some((a) => a.message.includes("ПГС245/20х80х2"))).toBe(
+      true,
+    );
+  });
+
+  it("can override column and beam at the same time, independently", () => {
+    const overridden = computeProject({
+      ...base,
+      columnOverride: "ПГС300/20х80х2,5",
+      beamOverride: "ПГС245/20х80х2",
+    });
+    const frame = overridden.frame && overridden.frame.ok ? overridden.frame.value! : null;
+    expect(frame!.column.profile).toBe("ПГС300/20х80х2,5");
+    expect(frame!.beam.profile).toBe("ПГС245/20х80х2");
+  });
+
+  it("does nothing when the override matches the bank's own profile", () => {
+    const r = computeProject({ ...base, beamOverride: "ПГС245/20х80х2,5" });
+    expect(r.approximations.some((a) => a.message.includes("задано вручную"))).toBe(false);
+  });
+
+  it("is a no-op without a frame selection", () => {
+    const r = computeProject({ ...base, city: "Такого города нет", beamOverride: "ПГС245/20х80х2" });
+    expect(r.frame).toBeNull();
+  });
+});
+
 describe("степень огнестойкости — информационное поле, на расчёт не влияет", () => {
   // Расчётчик подтвердила: «Штрипс не считается ни в каком случае; степень
   // огнестойкости на расчёт не влияет» — ни при каком значении, включая IV.

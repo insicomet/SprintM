@@ -194,6 +194,17 @@ export interface ProjectInputs {
    */
   columnOverride?: string;
   /**
+   * Сечение балки вручную — тот же механизм, что и `columnOverride`, но
+   * для балки. Подтверждено на «21876» (реальный файл, "Каргалейка"): там
+   * колонна, болты и узловые пластины совпали с банком день в день, а
+   * балка в ведомости — на полтолщины тоньше, чем в той же строке банка
+   * («…2» вместо «…2,5»). Расчётчик ранее подтвердила, что подобная замена
+   * сечения — разовое инженерное решение, не формула, так что и здесь
+   * вместо угадывания — ручной ввод; болты и узловые пластины остаются по
+   * банку, как и при переопределении колонны.
+   */
+  beamOverride?: string;
+  /**
    * Обшивка стен — сэндвич-панель (по умолчанию) или профлист С-18 (без
    * утепления, «холодный склад»). Кровля переключается на профлист С-44
    * автоматически, когда «Покрытие кровли» = "профлист" (то же поле уже
@@ -276,6 +287,7 @@ export function computeProject(inputs: ProjectInputs) {
     trussedVariant,
     mezzanine,
     columnOverride,
+    beamOverride,
     wallCladdingMaterial = "СП",
     wallProfnastilThickness_mm = 0.5,
     roofProfnastilThickness_mm = 0.7,
@@ -419,10 +431,13 @@ export function computeProject(inputs: ProjectInputs) {
     }
   }
   const bankSelection = frame?.ok ? frame.value : null;
-  const selection =
-    bankSelection && columnOverride
-      ? { ...bankSelection, column: { ...bankSelection.column, profile: columnOverride } }
-      : bankSelection;
+  let selection = bankSelection;
+  if (bankSelection && columnOverride) {
+    selection = { ...selection!, column: { ...bankSelection.column, profile: columnOverride } };
+  }
+  if (bankSelection && beamOverride) {
+    selection = { ...selection!, beam: { ...bankSelection.beam, profile: beamOverride } };
+  }
   if (bankSelection && columnOverride && columnOverride !== bankSelection.column.profile) {
     approximations.push({
       kind: "высота",
@@ -431,6 +446,17 @@ export function computeProject(inputs: ProjectInputs) {
         `${bankSelection.column.profile}). Болты и узловые пластины остаются по банку — ` +
         `как они меняются при увеличении сечения, не выяснено. Требует проверки конструктором.`,
     });
+  }
+  if (bankSelection && beamOverride && beamOverride !== bankSelection.beam.profile) {
+    approximations.push({
+      kind: "высота",
+      message:
+        `Сечение балки задано вручную: ${beamOverride} (по банку сечений — ` +
+        `${bankSelection.beam.profile}). Болты и узловые пластины остаются по банку — ` +
+        `как они меняются при изменении сечения, не выяснено. Требует проверки конструктором.`,
+    });
+  }
+  if (selection !== bankSelection) {
     // Возвращаем наружу (в т.ч. для UI) уже с учётом override — иначе
     // карточка «Сечения рамы» показала бы старый профиль, а ведомость
     // считала бы по новому: расхождение прямо в интерфейсе.
