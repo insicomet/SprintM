@@ -442,6 +442,9 @@ export function App() {
   const [trussedVariant, setTrussedVariant] = useState(false);
   // Раздел «Перекрытие» — в ведомости он есть, но его итог обнулён.
   const [mezzanine, setMezzanine] = useState(false);
+  // «Каркас» — заказчик берёт только раму, без ограждения (подтверждено
+  // на «21627», см. ProjectInputs.frameOnly).
+  const [frameOnly, setFrameOnly] = useState(false);
   // Степень огнестойкости (ТЗ, п.5) — на подбор сечений не влияет, только
   // для отображения в КП; пусто — расчёт как есть, ничего не предполагаем.
   const [fireResistanceRating, setFireResistanceRating] = useState<number | "">("");
@@ -487,6 +490,7 @@ export function App() {
         postSpacing_m: postSpacing,
         trussedVariant,
         mezzanine,
+        frameOnly,
         fireResistanceRating: fireResistanceRating || undefined,
         columnOverride: columnOverride || undefined,
         beamOverride: beamOverride || undefined,
@@ -532,6 +536,7 @@ export function App() {
       postSpacing,
       trussedVariant,
       mezzanine,
+      frameOnly,
       fireResistanceRating,
       columnOverride,
       beamOverride,
@@ -657,6 +662,7 @@ export function App() {
     setPostSpacing(next.postSpacing_m);
     setTrussedVariant(Boolean(next.trussedVariant));
     setMezzanine(Boolean(next.mezzanine));
+    setFrameOnly(Boolean(next.frameOnly));
     setFireResistanceRating(next.fireResistanceRating ?? "");
     setColumnOverride(next.columnOverride ?? "");
     setWallCladdingMaterial(next.wallCladdingMaterial ?? "СП");
@@ -1297,6 +1303,19 @@ export function App() {
             </select>
             <span className="field-hint">В ведомости раздел есть, но его итог обнулён.</span>
           </label>
+
+          <label className="checkbox-field">
+            <input type="checkbox" checked={frameOnly} onChange={(e) => setFrameOnly(e.target.checked)} />
+            Только каркас (без ограждения)
+          </label>
+          {frameOnly && (
+            <span className="field-hint">
+              В коммерческой сводке «Стеновое ограждение» и «Кровельное ограждение» — 0;
+              «Каркас» и «Окна/ворота/двери» остаются в цене. Масса обшивки по-прежнему
+              считается и показывается — только не входит в стоимость. Подтверждено на
+              реальном объекте «21627» (ТЗ помечено «КАРКАС!»).
+            </span>
+          )}
 
           {span === 24 && (
             <label>

@@ -764,3 +764,51 @@ describe("вариант «СГ по Р» (пролёт 24 м)", () => {
     expect(s!.variant).toBe("стандарт");
   });
 });
+
+describe("«каркас» — заказчик берёт только раму, без ограждения", () => {
+  // «21627» (Ирбит, ТЗ помечено «КАРКАС!»): в коммерческой сводке
+  // «Стеновое ограждение» и «Перекрытие»/«Перегородки» — 0, «Кровельное
+  // ограждение» тоже фактически 0 (крошечный копипаст-остаток, не
+  // правило), а «Каркас» и «Окна/ворота/двери» остаются в цене.
+  it("zeroes out wall and roof envelope in the commercial summary, keeps frame and openings", () => {
+    const withFrameOnly = computeProject({ ...project22316, frameOnly: true });
+    const lines = withFrameOnly.commercial.lines;
+    expect(lines.find((l) => l.name === "Стеновое ограждение")!.cost).toBe(0);
+    expect(lines.find((l) => l.name === "Кровельное ограждение")!.cost).toBe(0);
+    expect(lines.find((l) => l.name === "Каркас")!.cost).not.toBeNull();
+    expect(lines.find((l) => l.name === "Каркас")!.cost).toBeGreaterThan(0);
+    expect(lines.find((l) => l.name === "Окна, ворота, двери")!.cost).toBeGreaterThan(0);
+
+    const full = computeProject(project22316);
+    expect(withFrameOnly.commercial.totalCost).toBeLessThan(full.commercial.totalCost!);
+    // Каркас и проёмы не меняются от переключателя — меняется только ограждение.
+    expect(lines.find((l) => l.name === "Каркас")!.cost).toBeCloseTo(
+      full.commercial.lines.find((l) => l.name === "Каркас")!.cost!,
+      6,
+    );
+  });
+
+  it("still computes the envelope mass for reference — frameOnly only zeroes the price", () => {
+    const withFrameOnly = computeProject({ ...project22316, frameOnly: true });
+    const full = computeProject(project22316);
+    expect(withFrameOnly.summary.claddingMass_kg).toBeCloseTo(full.summary.claddingMass_kg, 6);
+    expect(withFrameOnly.summary.claddingMass_kg).toBeGreaterThan(0);
+  });
+
+  it("zeroes the roof envelope even when its cost would otherwise be unknown", () => {
+    // Город вне справочника → wo неизвестен → без frameOnly кровельное
+    // ограждение осталось бы null («не посчитано», нет подбора прогонов
+    // без климата). С frameOnly оно 0 — это не пробел в данных, а
+    // сознательное решение по объёму поставки.
+    const withoutFrameOnly = computeProject({ ...project22316, city: "Такого города нет" });
+    expect(withoutFrameOnly.commercial.lines.find((l) => l.name === "Кровельное ограждение")!.cost).toBeNull();
+
+    const r = computeProject({
+      ...project22316,
+      city: "Такого города нет",
+      frameOnly: true,
+    });
+    expect(r.commercial.lines.find((l) => l.name === "Стеновое ограждение")!.cost).toBe(0);
+    expect(r.commercial.lines.find((l) => l.name === "Кровельное ограждение")!.cost).toBe(0);
+  });
+});

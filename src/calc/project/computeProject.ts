@@ -231,10 +231,9 @@ export interface ProjectInputs {
    * профиля) — живой текст из «Калькулятор ограждайки v1.5.xlsx», только
    * чтение (SHA-256 4A9343A1E3149954DEC0F91D5398528F18016A8423EC204CE2B92A59F612DEAF).
    *
-   * Упрощённый режим (решение по объёму — полный авто-подбор профиля по
-   * ветровому зонированию норматива и базе из ~890 строк — отдельная
-   * большая тема): менеджер сам указывает профиль/шаг для каждой зоны,
-   * приложение считает по подтверждённым формулам.
+   * По умолчанию профиль/шаг подбираются автоматически по ветровой
+   * нагрузке (см. selectGirt.ts, сверено день в день на «Благовещенске»);
+   * менеджер может переключиться на ручной ввод для каждой зоны.
    *
    * Цена кронштейнов не подтверждена (см. вопрос расчётчику про строку
    * 38 «21604», её числа не совпадают с габаритами того же объекта) —
@@ -244,6 +243,22 @@ export interface ProjectInputs {
    * проекта целиком.
    */
   wallGirt?: WallGirtInputs;
+  /**
+   * «Каркас» — заказчик берёт только стальной каркас, без ограждающих
+   * конструкций (стеновая/кровельная обшивка с доборными элементами и
+   * водостоком поставляются отдельно или не поставляются вовсе).
+   * Подтверждено на реальном объекте «21627» (Ирбит, ТЗ помечено
+   * «КАРКАС!»): в коммерческой сводке «Стеновое ограждение» и
+   * «Перекрытие»/«Перегородки» — 0, «Кровельное ограждение» — тоже
+   * фактически 0 (крошечный остаток ~16 тыс. ₽ — скопированная
+   * незачищенная строка, той же природы, что и другие уже
+   * задокументированные копипаст-остатки в этих ведомостях, не правило).
+   * «Окна/ворота/двери» и сам «Каркас» (профили, крепёж, связи) при
+   * этом остаются в цене — заказчик получает раму и проёмы, но не
+   * панели. Масса обшивки при этом всё равно считается и показывается
+   * (нужна для логистики), просто не входит в стоимость.
+   */
+  frameOnly?: boolean;
 }
 
 export type ProjectResult = ReturnType<typeof computeProject>;
@@ -292,6 +307,7 @@ export function computeProject(inputs: ProjectInputs) {
     wallProfnastilThickness_mm = 0.5,
     roofProfnastilThickness_mm = 0.7,
     wallGirt,
+    frameOnly = false,
   } = inputs;
 
   const wallIsProfnastil = wallCladdingMaterial === "профнастил";
@@ -690,10 +706,19 @@ export function computeProject(inputs: ProjectInputs) {
         SECTION_OVERHEAD
       : null;
 
-  const wallMaterials =
-    wallCladding.totalCost != null ? wallCladding.totalCost + wallTrim.totalCost : null;
-  const roofMaterials =
-    roofCladding?.totalCost != null
+  // «Каркас» — заказчик берёт только раму: ограждение (стены, кровля,
+  // доборные, водосток) в коммерческую сводку не идёт вовсе, 0, а не
+  // «не посчитано» (подтверждено на «21627» — реальный объект с пометкой
+  // «КАРКАС!» в ТЗ). Масса при этом считается как обычно — ниже, в
+  // steelMass_kg/claddingMass_kg, не здесь.
+  const wallMaterials = frameOnly
+    ? 0
+    : wallCladding.totalCost != null
+      ? wallCladding.totalCost + wallTrim.totalCost
+      : null;
+  const roofMaterials = frameOnly
+    ? 0
+    : roofCladding?.totalCost != null
       ? roofCladding.totalCost + drainage.totalCost + roofTrim.totalCost
       : null;
 
