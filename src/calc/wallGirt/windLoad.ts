@@ -126,7 +126,14 @@ export function zoneWindPressure_kPa(
 
 /**
  * Расчётное давление на зону с учётом снижения по площади загружения
- * (площадь = шаг ригелей × шаг стоек), кПа ('Расчет Угловая'!AD5 и т.п.).
+ * (площадь = шаг ригелей × шаг стоек) и коэффициента ответственности γn,
+ * кПа ('Расчет Угловая'!AD5, через C3 = 'Ветер по СП'!F7 × Лист1!B3).
+ *
+ * Лист1!B3 — константа (не формула по СП), но численно совпадает с полем
+ * «Ур. отв.» того же объекта («Благовещенск» — 0,8 в обоих местах): это
+ * тот же коэффициент ответственности γn/bankK, что уже используется в
+ * подборе сечения рамы (bankK), только применённый здесь напрямую к
+ * ветровому давлению, а не к банку сечений.
  */
 export function girtWindPressure_kPa(
   w0_kPa: number,
@@ -135,8 +142,9 @@ export function girtWindPressure_kPa(
   zone: "corner" | "typical",
   stepRigel_m: number,
   postStep_m: number,
+  gammaN: number,
 ): number {
-  const zonePressure = zoneWindPressure_kPa(w0_kPa, height_m, terrain, zone);
+  const zonePressure = zoneWindPressure_kPa(w0_kPa, height_m, terrain, zone) * gammaN;
   const area_m2 = stepRigel_m * postStep_m;
   return zonePressure * areaReductionCoeff(area_m2);
 }
