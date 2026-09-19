@@ -842,6 +842,297 @@ No files under `src/` were modified this round. Verified with `git status
 
 ---
 
+## 19. 1.0 MM / MP220 / P4 LEGACY BRANCH (round 4)
+
+This round found a **new raw column in `nesushki.csv` that was never carried
+into `girtBearingCatalog.json`**, and it changes the round-3 conclusion:
+the 1.1 factor is not two separate phenomena (56 unexplained + 260
+material-explained) — it is **one single mechanism, uniform across all 316
+pairs**, and material grade turns out to be a mostly-independent, coincidental
+label. This is a genuine correction to §17, not just an addition to it.
+
+### 19.0 SUPERSEDED FINDINGS
+
+**Superseded (§17, round 3):** "260 apparent duplicate keys are legitimate
+different material grades (МП350/МП390), and their `Пред момент` values
+differ by exactly ×1.1 *because* of the material difference; separately, 56
+МП220/1.0mm pairs are an unrelated, unexplained duplication." This framing
+treated the 260 and the 56 as two different phenomena, one explained and one
+not.
+
+**Replaced by (§19, round 4):** `Пред момент = raw_moment ×
+макс_к_т_исп_по_умолчанию × material_coeff`, verified exactly on all 632
+rows with no exceptions. `material_coeff` is **0.55 for МП220 and exactly
+1.0 for BOTH МП350 and МП390** — material label does not distinguish
+МП350 from МП390 at all. The ×1.1 actually lives in `raw_moment`, which is
+1.1× higher in the "second block" row of **every one of the 316 name-pairs**
+— the 56 МП220 pairs and the 260 material-differing pairs alike, with
+identical exactness. Therefore:
+
+- **"MP350 vs MP390 causes the ×1.1 Пред момент difference" — disproven.**
+  The material label and the ×1.1 split are two different axes of the same
+  underlying table structure that happen to co-occur for 260 of 316
+  profiles; the label is not the cause.
+- **"MP220 1mm duplicates are a separate, unexplained mechanism" —
+  disproven.** They are the identical raw-moment split found everywhere
+  else in the catalog; what's still unexplained is narrower — why 260 of
+  the 316 splits also carry a material relabel and 56 don't, not why the
+  56 differ in the first place.
+- **What remains valid, unchanged:** МП350 and МП390 rows are still
+  genuinely different, correctly-labeled material records (the field itself
+  is accurate) — they just aren't what drives the moment difference.
+  `CURRENT_SELECTOR_CAPACITY_AMBIGUOUS = YES` stands, for the same
+  underlying reason as before (§17.5/§17.8): `resolvePricedProfile()` still
+  can't see whichever field actually matters, whether that's framed as
+  material or as the raw-moment branch itself.
+
+No git history was rewritten — this is a forward-only correction, in the
+same document, dated by section number.
+
+### FROZEN EVIDENCE (checkpoint, Phase 3)
+
+```
+GIRT_PRODUCTION_ROWS              = 632
+GIRT_PAIR_COUNT                   = 316
+RAW_MOMENT_PAIR_RATIO_1_1         = PROVEN   (all 316 pairs, exact)
+PRED_MOMENT_FORMULA               = PROVEN   (raw_moment × к_т_исп × material_coeff, all 632 rows)
+MATERIAL_COEFFICIENT_MP220        = 0.55
+MATERIAL_COEFFICIENT_MP350        = 1.0
+MATERIAL_COEFFICIENT_MP390        = 1.0
+MP220_1MM_SEPARATE_MECHANISM      = DISPROVEN
+CAPACITY_BRANCH_EXISTS_ALL_PAIRS  = PROVEN
+CAPACITY_BRANCH_ENGINEERING_SEMANTICS = UNKNOWN   (numeric mechanism proven; the underlying
+                                                    engineering reason for two raw-moment blocks
+                                                    per profile — e.g. two restraint schemes, two
+                                                    calc methods, or something else — is not
+                                                    recovered from source and is not guessed here)
+CURRENT_SELECTOR_CAPACITY_AMBIGUOUS = YES
+SAFE_TO_CHANGE_SELECTOR           = NO
+SAFE_TO_IMPORT_PLUS_STUD_ROWS     = NO
+```
+
+**Naming note for future schema/contract work:** until the engineering
+semantics above are actually proven from source, any future field for this
+should use a neutral name — `sourceBlock`, `capacityBranch`, or
+`rawMoment` — not `r350r390` or similar. The material-grade correlation is
+real for 260/316 profiles but is not the mechanism, and naming a schema
+field after it would misrepresent what's actually known.
+
+### 19.1 The 56 pairs, enumerated (Task 1)
+
+Full machine-readable table: **`data/audit/mp220_1mm_pairs.json`** (56
+entries, every field from `girtBearingCatalog.json` plus source row indices,
+row delta, and both moment values).
+
+```
+PAIR_COUNT         = 56   (recomputed from scratch this round — matches round 3)
+ALL_THICKNESS_1MM  = YES
+ALL_MATERIAL_MP220 = YES
+ALL_RATIO_1_1      = YES
+```
+
+Breakdown by family: ПП=14, ТПП=12, ПС=12, ТПС=10, ТПГС=8 — **no ПГССигма**
+rows, but this isn't part of the mystery: `ПГССигма` simply has no 1.0mm
+rows anywhere in the 632-row catalog at all (its thinnest is 1.2mm), so it
+was never eligible to appear here. All 56 share `раскреп` mixed
+(30 True / 26 False — not a discriminator) and `к_т_исп_по_умолчанию = 0.85`
+for every single one.
+
+### 19.2 Source row structure (Task 2)
+
+Row deltas between the two rows of each of the 56 pairs: **114 (26 pairs),
+25 (22 pairs), 16 (8 pairs)** — the exact same three values found for the
+full 316-pair set in §17.4. The 56 are not a separate block; they sit
+inside the same repeated-block structure as everything else. Index 114
+lines up with where the `вид` sequence (ПП→ПС→ПГССигма→ТПП→ТПС→ТПГС)
+restarts from `ПП` in the raw array — i.e. a second full pass over the
+family list, not an adjacent second column.
+
+### 19.3–19.5 P4/X7 semantics, numeric correlation, and the actual discriminator (Tasks 3–5)
+
+No literal `Расчет Угловая!X7` formula was recovered — same access
+limitation as every prior round (no local xlsx). But re-reading
+`nesushki.csv` **with its full column range**, not just the 13 columns that
+made it into `girtBearingCatalog.json`, surfaced two things the earlier
+rounds missed entirely:
+
+**A legend block sits directly above the header row, in the same column
+that later holds `материал`:**
+
+```
+row 0, col 13: "R220/R350"
+row 1, col 13: "0.55"
+row 2, col 13: "R390/R350"
+row 3, col 13: "1.1"   (this is the row the CSV export mistakes for a column header)
+```
+
+`R220/R350` and `R390/R350` read as steel-grade design-resistance ratios;
+`0.55` and `1.1` are their values. **`1.1` is sitting right there, in the
+source data, as the ratio label for `R390/R350`** — this is almost
+certainly what the old `selectGirt.ts` comment calls "P4": not a
+1mm-specific correction at all, but a general material-resistance ratio the
+whole несушки table is built from.
+
+**An unlabeled column (index 16, between `Профиль` and `Пред М`) holds a
+"raw moment" value that `Пред М` is computed from.** Recovered the exact
+relationship, verified on **all 632 rows without a single exception**:
+
+```
+Пред_момент = raw_moment × макс_к_т_исп_по_умолчанию × material_coeff
+
+material_coeff:  МП220 → 0.55   МП350 → 1.0   МП390 → 1.0   (exactly, all 632 rows)
+```
+
+This is the real source of the `R220/R350 = 0.55` legend value: it's the
+grade-220 multiplier, applied uniformly. **МП350 and МП390 get the *same*
+material_coeff (1.0)** — the material label does **not** distinguish their
+final moment at all, contrary to round 3's working assumption.
+
+Then, checking the **raw_moment column itself** (not `Пред М`) across all
+316 name-pairs:
+
+```
+raw_moment(high) / raw_moment(low) = 1.1   for ALL 316 pairs, no exceptions
+                                            (56 same-material AND 260 material-differing alike)
+```
+
+**This is the actual mechanism.** Every profile in the table has a "low
+block" and a "high block" row (matching the 114/25/16 row-delta structure
+in 19.2/17.4), and the high block's raw capacity is always exactly 1.1× the
+low block's — completely independent of whichever material label happens to
+be attached to each block. For 260 profiles, the source table's low/high
+blocks *also* happen to carry different material labels (МП350 then МП390);
+for these 56, both blocks kept the same label (МП220). The material
+relabeling and the 1.1 raw-moment split are two **independent** things that
+mostly, but not always, coincide in the same two blocks.
+
+```
+NUMERIC_CORRELATION = PROVEN     (exact ×1.1 on raw_moment, all 316 pairs, to full float precision)
+SEMANTIC_LINK        = PARTIAL   (P4=1.1 is well-supported as the R390/R350 legend value and matches
+                                   the raw-moment split exactly, but this round also DISPROVES the old
+                                   "P4 applies only to 1.0mm profiles" framing — the same split exists
+                                   on every thickness, not just 1mm. What X7 specifically does with it
+                                   — pick a block, multiply, or something else — is still not recovered
+                                   as a literal formula.)
+```
+
+**This corrects round 3's own framing**, which treated the 56 as
+"unexplained" and the 260 as "explained by material" as if they were
+different phenomena. They are not — they're the same 1.1 split with material
+labeling as a mostly-coincidental second axis. The genuinely open question
+is narrower than round 3 stated: not "why do these 56 differ" but "why does
+material relabeling (350→390) accompany the split for 260 profiles but not
+the other 56" — and that remains unanswered.
+
+### 19.6 Hidden material-grade search (Task 6)
+
+Searched `nesushki.csv` and every other locally available CSV/upload for
+any grade token beyond the three already known:
+
+```
+grep -oE "МП[0-9]+" nesushki.csv  →  МП220, МП350, МП390 only. No МП240, МП250, or others found.
+```
+
+No fourth grade exists anywhere in the accessible data. **`HIDDEN_MATERIAL_GRADE
+= UNKNOWN`** stands — not because a grade is likely hidden, but because
+19.5 already found the *actual* driver (raw_moment, independent of material
+labeling), which makes a hidden-fourth-grade explanation for the 56
+unnecessary rather than merely unproven.
+
+### 19.7 Selector risk for the 56 pairs (Task 7)
+
+```
+AFFECTED_PROFILE_KEYS = 56   (every one of the 56 pairs, by construction — each has a
+                              (moment_low, moment_high] interval where the current
+                              selector's pass/fail depends on which row of the pair
+                              is checked)
+```
+
+Full interval table for all 56: `data/audit/mp220_1mm_pairs.json`
+(`moment_low`, `moment_high`, `ratio` per pair — ratio is 1.1 throughout, so
+the interval width is always exactly 10% of the low value). Mechanism is
+identical to §17.5/17.7: `resolvePricedProfile()` cannot see `материал`, so
+both rows resolve to the same priced output; whichever row's moment the
+actual demand satisfies determines pass/fail, invisibly.
+
+### 19.8 Golden-project search (Task 8)
+
+Checked Благовещенск first: its two selected corner/typical profiles
+(`[]ПП 145x45x1,5` / `[]ПП 145x45x1,2`) are 1.5mm/1.2mm, not 1.0mm — outside
+the 56-pair set entirely (already established in §17.6, which covers the
+material-labeled 260-set instead).
+
+Checked the one other locally-available real profnastil-wall object,
+`21604.xlsx` (all sheets): its actual, quantity-bearing wall-girt lines
+(`B34`/`B35`: `ПС 145х45х1,5`, `ПС 145х45х1,2`) are also 1.5mm/1.2mm. The
+file does contain several bare "×1" mentions (`ТПП 110х1`, `ПП 110x1`,
+`B174`, `I38`, `B56`) but these sit inside generic price/section lookup
+tables elsewhere in the sheet, with no associated quantity formula tying
+them to this object's own selected wall girt — they're reference rows, not
+evidence of a resolved 1.0mm selection.
+
+**`NO_DISCRIMINATING_FIXTURE_FOUND`** — per instruction, not escalating to
+mass Drive indexing to search for one this round.
+
+### 19.9 Architectural consequence (Task 9)
+
+```
+STRUCTURAL_GRADE_PRESERVED = YES   (GirtBearingRow already has a `материал` field, correctly
+                                    populated — МП220/350/390 are distinguished at this layer)
+PRICING_GRADE_PRESERVED    = NO    (resolvePricedProfile()'s output, GirtProfileOption, has no
+                                    material/grade field at all — confirmed by reading the type
+                                    and by the live run in §17.5: both rows of a pair resolve to
+                                    byte-identical weightPerMeter_kg/pricePerMeter)
+```
+
+Recommendation carried into §13's `EnclosureCore` sketch stands and is now
+better-supported: any future catalog needs to keep `материал` (or better,
+the raw_moment/material_coeff split found in 19.5) as an explicit,
+queryable field through to the pricing layer — not just at the
+`GirtBearingRow` level where it already exists today but is effectively
+discarded one function call later.
+
+---
+
+## 20. Round-4 final statuses
+
+```
+MP220_1MM_DUPLICATE_PAIRS       = 56
+MP220_1MM_PAIR_RATIO_1_1        = PROVEN
+P4_VALUE                        = 1.1   (well-supported: found as the literal "R390/R350" legend
+                                          value in the source column, and matches the raw-moment
+                                          split exactly on all 316 pairs — not from a recovered
+                                          formula reference, so treat as strong-not-certain)
+P4_SEMANTICS                    = PARTIAL   (identified as a material-resistance ratio driving a
+                                              uniform raw-moment split; the literal X7 formula that
+                                              consumes it was not recovered)
+X7_1MM_RULE                     = PARTIAL   (this round DISPROVES the "1.0mm-only" framing of the
+                                              old comment — the same 1.1 split exists at every
+                                              thickness; X7's exact role, if it's thickness-specific
+                                              at all, is not recovered)
+MP220_DUPLICATES_LINKED_TO_P4   = PARTIAL   (same numeric mechanism as the proven 260 material
+                                              pairs — not a separate phenomenon — but WHY material
+                                              relabeling accompanies 260 of the 316 splits and not
+                                              the other 56 is still open)
+HIDDEN_MATERIAL_GRADE           = UNKNOWN   (none found; also no longer needed as an explanation —
+                                              see 19.6)
+CURRENT_SELECTOR_CAPACITY_AMBIGUOUS = YES
+STRUCTURAL_GRADE_PRESERVED      = YES
+PRICING_GRADE_PRESERVED         = NO
+SAFE_TO_CHANGE_SELECTOR         = NO
+PRODUCTION_CODE_CHANGED         = NO
+```
+
+New artifact this round: **`data/audit/mp220_1mm_pairs.json`** (56 pairs,
+full field set + source rows + demand intervals). Not committed yet, not
+wired into production.
+
+Verified via `git status --short`: only new/updated files under
+`COLD_ENCLOSURE_COMPLETION_AUDIT.md` and `data/audit/` — nothing under `src/`
+touched this round either.
+
+---
+
 ### What would unblock the `NOT_PROVEN`/`UNKNOWN` items
 
 Every remaining gap above traces back to one thing: **no tool in this
