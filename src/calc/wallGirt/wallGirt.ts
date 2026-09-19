@@ -1,5 +1,6 @@
 import { buildSection, type CladdingItem, type CladdingSectionTakeoff } from "../cladding/claddingSections";
 import { findGirtProfile } from "./catalog";
+import { selectGirtProfile } from "./selectGirt";
 import type { GirtZoneInput, GirtZoneResult, WallGirtWallTypeConfig } from "./types";
 
 const BRACKET_WEIGHT_PAIRED_kg = 1.5;
@@ -93,29 +94,79 @@ export interface WallGirtWallTypeInput {
  * удваивает результат на вторую такую же стену.
  */
 export function computeWallGirtSection(input: WallGirtWallTypeInput): CladdingSectionTakeoff {
-  const corner = computeGirtZone(input.corner);
-  const typical = computeGirtZone(input.typical);
+  return buildWallGirtSection(computeGirtZone(input.corner), computeGirtZone(input.typical), input.wallCount);
+}
 
+/** Собрать ведомость обвязки из уже посчитанных зон (ручной ввод или автоподбор). */
+function buildWallGirtSection(
+  corner: GirtZoneResult,
+  typical: GirtZoneResult,
+  wallCount: number,
+): CladdingSectionTakeoff {
   const perWallItems = [...zoneItems(corner, "угловая"), ...zoneItems(typical, "рядовая")];
   const items: CladdingItem[] = perWallItems.map((item) => ({
     ...item,
-    count: item.count * input.wallCount,
-    mass_kg: item.mass_kg * input.wallCount,
-    cost: item.cost != null ? item.cost * input.wallCount : null,
+    count: item.count * wallCount,
+    mass_kg: item.mass_kg * wallCount,
+    cost: item.cost != null ? item.cost * wallCount : null,
   }));
 
   return buildSection(items);
 }
 
+/** Контекст проекта, нужный автоподбору обвязки (высота/нагрузка/ответственность здания). */
+export interface WallGirtAutoContext {
+  w0_kPa: number;
+  buildingHeight_m: number;
+  gammaN: number;
+}
+
 /**
  * Обвязка стен под профлист для одного типа стены, заданная в форме
- * ввода (название профиля из каталога вместо готового {@link GirtProfileOption}).
- * null — если указанного профиля нет в каталоге.
+ * ввода — либо ручной выбор профиля/шага (название профиля из каталога
+ * вместо готового {@link GirtProfileOption}), либо автоподбор по ветровой
+ * нагрузке (см. selectGirt.ts). null — если профиль не найден в каталоге
+ * (ручной ввод) или ни один профиль не проходит проверку прочности ни на
+ * одном шаге (автоподбор) — контекст проекта для автоподбора тоже
+ * обязателен, без него автоподбор посчитать нечем.
  */
 export function computeWallGirtWallType(
   config: WallGirtWallTypeConfig,
   wallCount = 2,
+  autoContext?: WallGirtAutoContext,
 ): CladdingSectionTakeoff | null {
+  if (config.mode === "auto") {
+    if (!autoContext) return null;
+    const cornerAuto = selectGirtProfile({
+      zoneKind: "corner",
+      zoneLength_m: config.cornerZoneLength_m,
+      wallHeight_m: config.wallHeight_m,
+      postStep_m: config.postStep_m,
+      terrain: config.terrain,
+      insulationThickness_mm: config.insulationThickness_mm,
+      minStep_mm: config.minStep_mm,
+      maxStep_mm: config.maxStep_mm,
+      minProfileHeight_mm: config.minProfileHeight_mm,
+      maxProfileHeight_mm: config.maxProfileHeight_mm,
+      ...autoContext,
+    });
+    const typicalAuto = selectGirtProfile({
+      zoneKind: "typical",
+      zoneLength_m: config.typicalZoneLength_m,
+      wallHeight_m: config.wallHeight_m,
+      postStep_m: config.postStep_m,
+      terrain: config.terrain,
+      insulationThickness_mm: config.insulationThickness_mm,
+      minStep_mm: config.minStep_mm,
+      maxStep_mm: config.maxStep_mm,
+      minProfileHeight_mm: config.minProfileHeight_mm,
+      maxProfileHeight_mm: config.maxProfileHeight_mm,
+      ...autoContext,
+    });
+    if (!cornerAuto || !typicalAuto) return null;
+    return buildWallGirtSection(cornerAuto.zone, typicalAuto.zone, wallCount);
+  }
+
   const profile = findGirtProfile(config.profileName, config.paired);
   if (!profile) return null;
 

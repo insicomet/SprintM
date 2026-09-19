@@ -176,7 +176,19 @@ function OpeningGroupsEditor({
 
 const girtProfileOptions = getGirtProfileOptions();
 
+const TERRAIN_TYPES = ["А", "В", "С"] as const;
+
 const DEFAULT_GIRT_WALL: WallGirtWallTypeConfig = {
+  mode: "auto",
+  cornerZoneLength_m: 6,
+  typicalZoneLength_m: 6,
+  wallHeight_m: 6,
+  postStep_m: 6,
+  terrain: "В",
+};
+
+const DEFAULT_GIRT_WALL_MANUAL: WallGirtWallTypeConfig = {
+  mode: "manual",
   cornerZoneLength_m: 6,
   typicalZoneLength_m: 6,
   wallHeight_m: 6,
@@ -189,10 +201,12 @@ const DEFAULT_GIRT_WALL: WallGirtWallTypeConfig = {
 
 /**
  * Обвязка стен под профлист для одного типа стены (торцевой или
- * продольной) — упрощённый режим, без авто-подбора профиля по
- * ветровому зонированию и базе профилей (решение по объёму, см.
- * артефакт вопросов расчётчику). Формулы (ряды/кронштейны/масса)
- * подтверждены живым текстом «Калькулятор ограждайки v1.5.xlsx».
+ * продольной) — по умолчанию автоподбор профиля/шага ригелей по
+ * ветровой нагрузке и несущей способности (см. selectGirt.ts, сверено
+ * на «Благовещенске» день в день), либо ручной ввод — переключатель
+ * остаётся на случай, если менеджеру нужно отступить от автомата.
+ * Формулы (ряды/кронштейны/масса) подтверждены живым текстом
+ * «Калькулятор ограждайки v1.5.xlsx».
  */
 function WallGirtFields({
   label,
@@ -207,7 +221,18 @@ function WallGirtFields({
   value: WallGirtWallTypeConfig;
   onChange: (next: WallGirtWallTypeConfig) => void;
 }) {
-  const update = (patch: Partial<WallGirtWallTypeConfig>) => onChange({ ...value, ...patch });
+  const common = {
+    cornerZoneLength_m: value.cornerZoneLength_m,
+    typicalZoneLength_m: value.typicalZoneLength_m,
+    wallHeight_m: value.wallHeight_m,
+    postStep_m: value.postStep_m,
+  };
+
+  const setMode = (mode: "auto" | "manual") => {
+    onChange(
+      mode === "auto" ? { ...common, mode: "auto", terrain: "В" } : { ...DEFAULT_GIRT_WALL_MANUAL, ...common },
+    );
+  };
 
   return (
     <div className="opening-type">
@@ -226,7 +251,7 @@ function WallGirtFields({
                 min="0"
                 step="0.1"
                 value={value.wallHeight_m}
-                onChange={(e) => update({ wallHeight_m: Number(e.target.value) })}
+                onChange={(e) => onChange({ ...value, wallHeight_m: Number(e.target.value) })}
               />
             </label>
             <label>
@@ -236,7 +261,7 @@ function WallGirtFields({
                 min="0"
                 step="0.1"
                 value={value.postStep_m}
-                onChange={(e) => update({ postStep_m: Number(e.target.value) })}
+                onChange={(e) => onChange({ ...value, postStep_m: Number(e.target.value) })}
               />
             </label>
           </div>
@@ -248,21 +273,9 @@ function WallGirtFields({
                 min="0"
                 step="0.1"
                 value={value.cornerZoneLength_m}
-                onChange={(e) => update({ cornerZoneLength_m: Number(e.target.value) })}
+                onChange={(e) => onChange({ ...value, cornerZoneLength_m: Number(e.target.value) })}
               />
             </label>
-            <label>
-              шаг ригелей, мм
-              <input
-                type="number"
-                min="0"
-                step="10"
-                value={value.cornerStepRigel_mm}
-                onChange={(e) => update({ cornerStepRigel_mm: Number(e.target.value) })}
-              />
-            </label>
-          </div>
-          <div className="inline-fields">
             <label>
               Рядовая зона: длина, м
               <input
@@ -270,38 +283,88 @@ function WallGirtFields({
                 min="0"
                 step="0.1"
                 value={value.typicalZoneLength_m}
-                onChange={(e) => update({ typicalZoneLength_m: Number(e.target.value) })}
-              />
-            </label>
-            <label>
-              шаг ригелей, мм
-              <input
-                type="number"
-                min="0"
-                step="10"
-                value={value.typicalStepRigel_mm}
-                onChange={(e) => update({ typicalStepRigel_mm: Number(e.target.value) })}
+                onChange={(e) => onChange({ ...value, typicalZoneLength_m: Number(e.target.value) })}
               />
             </label>
           </div>
-          <label>
-            Профиль
-            <select value={value.profileName} onChange={(e) => update({ profileName: e.target.value })}>
-              {girtProfileOptions.map((p) => (
-                <option key={p.name} value={p.name}>
-                  {p.name} ({p.weightPerMeter_kg.toFixed(2)} кг/м)
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="checkbox-field">
-            <input
-              type="checkbox"
-              checked={value.paired}
-              onChange={(e) => update({ paired: e.target.checked })}
-            />
-            Спаренная схема (2 профиля) — удваивает вес/цену профиля и кронштейна
-          </label>
+
+          <div className="inline-fields">
+            <label className="checkbox-field">
+              <input type="radio" checked={value.mode === "auto"} onChange={() => setMode("auto")} />
+              Автоподбор по ветру
+            </label>
+            <label className="checkbox-field">
+              <input type="radio" checked={value.mode === "manual"} onChange={() => setMode("manual")} />
+              Вручную
+            </label>
+          </div>
+
+          {value.mode === "auto" ? (
+            <label>
+              Тип местности
+              <select
+                value={value.terrain}
+                onChange={(e) => onChange({ ...value, terrain: e.target.value as (typeof TERRAIN_TYPES)[number] })}
+              >
+                {TERRAIN_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <span className="field-hint">
+                Профиль и шаг ригелей для угловой и рядовой зоны считаются отдельно по ветровой
+                нагрузке города (высота, γn и wo берутся из остального проекта). Сверено на реальном
+                файле «Благовещенск» — совпадает день в день.
+              </span>
+            </label>
+          ) : (
+            <>
+              <div className="inline-fields">
+                <label>
+                  Угловая зона: шаг ригелей, мм
+                  <input
+                    type="number"
+                    min="0"
+                    step="10"
+                    value={value.cornerStepRigel_mm}
+                    onChange={(e) => onChange({ ...value, cornerStepRigel_mm: Number(e.target.value) })}
+                  />
+                </label>
+                <label>
+                  Рядовая зона: шаг ригелей, мм
+                  <input
+                    type="number"
+                    min="0"
+                    step="10"
+                    value={value.typicalStepRigel_mm}
+                    onChange={(e) => onChange({ ...value, typicalStepRigel_mm: Number(e.target.value) })}
+                  />
+                </label>
+              </div>
+              <label>
+                Профиль
+                <select
+                  value={value.profileName}
+                  onChange={(e) => onChange({ ...value, profileName: e.target.value })}
+                >
+                  {girtProfileOptions.map((p) => (
+                    <option key={p.name} value={p.name}>
+                      {p.name} ({p.weightPerMeter_kg.toFixed(2)} кг/м)
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="checkbox-field">
+                <input
+                  type="checkbox"
+                  checked={value.paired}
+                  onChange={(e) => onChange({ ...value, paired: e.target.checked })}
+                />
+                Спаренная схема (2 профиля) — удваивает вес/цену профиля и кронштейна
+              </label>
+            </>
+          )}
         </>
       )}
     </div>
@@ -1003,12 +1066,13 @@ export function App() {
           <h2>Обвязка стен под профлист</h2>
           <p className="hint">
             Отдельный расчёт расчётчика («калькулятор ограждайки»), не общая ведомость — по её
-            подтверждению, ≈668 тыс. ₽ из 1,42 млн ₽ раздела «Стены» в «21604». Упрощённый режим:
-            без авто-подбора профиля по ветровому зонированию и базе из ~890 строк подбора —
-            профиль и шаг ригелей вводятся вручную для каждой зоны (угловой и рядовой), приложение
-            считает по подтверждённым формулам число рядов, кронштейнов и массу профиля. Цена
-            кронштейнов не подтверждена (открытый вопрос расчётчику), поэтому раздел не входит в
-            общую стоимость проекта — только в справочную массу металла.
+            подтверждению, ≈668 тыс. ₽ из 1,42 млн ₽ раздела «Стены» в «21604». По умолчанию —
+            автоподбор профиля и шага ригелей для каждой зоны (угловой и рядовой) по ветровой
+            нагрузке и несущей способности профиля, воспроизводящий цепочку «Ветер по СП» →
+            момент → коэффициент использования → минимальная масса; сверен день в день с реальной
+            ведомостью («Благовещенск»). При необходимости можно переключиться на ручной ввод
+            профиля/шага. Цена кронштейнов не подтверждена (открытый вопрос расчётчику), поэтому
+            раздел не входит в общую стоимость проекта — только в справочную массу металла.
           </p>
           <div className="opening-types">
             <WallGirtFields

@@ -1,3 +1,5 @@
+import type { TerrainType } from "./windLoad";
+
 /** Зона обвязки стены под профлист — угловая (у торцов) или рядовая (типовая). */
 export type GirtZoneKind = "corner" | "typical";
 
@@ -47,13 +49,17 @@ export interface GirtZoneResult {
   profileMass_kg: number;
 }
 
-/** Настройка обвязки для одного типа стены (торцевой или продольной), упрощённый режим. */
-export interface WallGirtWallTypeConfig {
+interface WallGirtWallTypeConfigCommon {
   cornerZoneLength_m: number;
   typicalZoneLength_m: number;
   /** Высота расчётной стены, м — для торцевой стены обычно высота конька, для продольной — высота стены. */
   wallHeight_m: number;
   postStep_m: number;
+}
+
+/** Ручной ввод — менеджер сам задаёт профиль и шаг ригелей для обеих зон. */
+export interface WallGirtManualConfig extends WallGirtWallTypeConfigCommon {
+  mode: "manual";
   cornerStepRigel_mm: number;
   typicalStepRigel_mm: number;
   /** Название профиля из каталога (src/calc/wallGirt/catalog.ts), одинарного варианта. */
@@ -61,6 +67,26 @@ export interface WallGirtWallTypeConfig {
   /** Спаренная схема сечения — вес/цена профиля удваиваются (см. pairedGirtProfile). */
   paired: boolean;
 }
+
+/**
+ * Автоподбор — профиль и шаг ригелей для каждой зоны считаются по
+ * ветровой нагрузке и несущей способности (см. selectGirt.ts). Высота
+ * здания/wo/γn приходят из остального проекта, здесь задаётся только то,
+ * что специфично для обвязки: тип местности и необязательные ограничения.
+ */
+export interface WallGirtAutoConfig extends WallGirtWallTypeConfigCommon {
+  mode: "auto";
+  terrain: TerrainType;
+  /** Толщина утеплителя «нашей послойки», мм; 0/не задано — фильтр не применяется. */
+  insulationThickness_mm?: number;
+  minStep_mm?: number;
+  maxStep_mm?: number;
+  minProfileHeight_mm?: number;
+  maxProfileHeight_mm?: number;
+}
+
+/** Настройка обвязки для одного типа стены (торцевой или продольной). */
+export type WallGirtWallTypeConfig = WallGirtManualConfig | WallGirtAutoConfig;
 
 export interface WallGirtInputs {
   endWalls?: WallGirtWallTypeConfig;

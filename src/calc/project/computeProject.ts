@@ -622,11 +622,20 @@ export function computeProject(inputs: ProjectInputs) {
 
   // Обвязка стен под профлист — только когда стены профлистовые (по
   // сэндвич-панели её не считают, см. wallGirt в ProjectInputs) и
-  // менеджер заполнил вход хотя бы для одного типа стены.
+  // менеджер заполнил вход хотя бы для одного типа стены. Автоподбору
+  // нужен контекст всего здания (высота, wo, γn) — без него он не
+  // считает, а не молча берёт что попало.
+  const wallGirtW0Kpa = climate.ok ? climate.value.city.wind.w0Kpa : null;
+  const wallGirtAutoContext =
+    wallGirtW0Kpa === null ? undefined : { w0_kPa: wallGirtW0Kpa, buildingHeight_m: height_m, gammaN };
   const endWallGirt =
-    wallIsProfnastil && wallGirt?.endWalls ? computeWallGirtWallType(wallGirt.endWalls) : null;
+    wallIsProfnastil && wallGirt?.endWalls
+      ? computeWallGirtWallType(wallGirt.endWalls, 2, wallGirtAutoContext)
+      : null;
   const sideWallGirt =
-    wallIsProfnastil && wallGirt?.sideWalls ? computeWallGirtWallType(wallGirt.sideWalls) : null;
+    wallIsProfnastil && wallGirt?.sideWalls
+      ? computeWallGirtWallType(wallGirt.sideWalls, 2, wallGirtAutoContext)
+      : null;
 
   const wallTrim = computeWallTrim(geometry);
   const roofTrim = computeRoofTrim(geometry, { snowGuards });

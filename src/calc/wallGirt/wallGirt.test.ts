@@ -143,6 +143,7 @@ describe("computeWallGirtSection", () => {
 describe("computeWallGirtWallType", () => {
   it("собирает секцию по названию профиля из каталога", () => {
     const section = computeWallGirtWallType({
+      mode: "manual",
       cornerZoneLength_m: 12,
       typicalZoneLength_m: 6,
       wallHeight_m: 3,
@@ -158,6 +159,7 @@ describe("computeWallGirtWallType", () => {
 
   it("возвращает null для неизвестного профиля", () => {
     const section = computeWallGirtWallType({
+      mode: "manual",
       cornerZoneLength_m: 12,
       typicalZoneLength_m: 6,
       wallHeight_m: 3,
@@ -166,6 +168,42 @@ describe("computeWallGirtWallType", () => {
       typicalStepRigel_mm: 1000,
       profileName: "не существует в прайсе",
       paired: false,
+    });
+    expect(section).toBeNull();
+  });
+
+  it("режим «авто» — та же сверка с «Благовещенском», что и в selectGirt.test.ts", () => {
+    const section = computeWallGirtWallType(
+      {
+        mode: "auto",
+        cornerZoneLength_m: 12,
+        typicalZoneLength_m: 12,
+        wallHeight_m: 9.3,
+        postStep_m: 6,
+        terrain: "В",
+        maxStep_mm: 1500,
+        minProfileHeight_mm: 145,
+        maxProfileHeight_mm: 145,
+      },
+      2,
+      { w0_kPa: 0.3, buildingHeight_m: 10.5, gammaN: 0.8 },
+    );
+    expect(section).not.toBeNull();
+    // 2 стены × (448,8288 угловая + 359,1504 рядовая) кг профиля.
+    const cornerItem = section!.items.find((i) => i.name.includes("угловая") && i.name.includes("ПП"))!;
+    const typicalItem = section!.items.find((i) => i.name.includes("рядовая") && i.name.includes("ПП"))!;
+    expect(cornerItem.mass_kg).toBeCloseTo(448.8288 * 2, 3);
+    expect(typicalItem.mass_kg).toBeCloseTo(359.1504 * 2, 3);
+  });
+
+  it("режим «авто» без контекста здания возвращает null, а не гадает", () => {
+    const section = computeWallGirtWallType({
+      mode: "auto",
+      cornerZoneLength_m: 12,
+      typicalZoneLength_m: 12,
+      wallHeight_m: 9.3,
+      postStep_m: 6,
+      terrain: "В",
     });
     expect(section).toBeNull();
   });

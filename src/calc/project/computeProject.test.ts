@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeProject, type ProjectInputs } from "./computeProject";
+import type { WallGirtWallTypeConfig } from "../wallGirt/types";
 
 /**
  * Сквозная сверка с двумя реальными расчётами ИНСИ.
@@ -645,7 +646,8 @@ describe("профлист вместо сэндвич-панели — рань
 
 describe("обвязка стен под профлист — упрощённый режим (калькулятор ограждайки)", () => {
   const base: ProjectInputs = { ...project22318, roofingType: "профлист", wallCladdingMaterial: "профнастил" };
-  const endWalls = {
+  const endWalls: WallGirtWallTypeConfig = {
+    mode: "manual",
     cornerZoneLength_m: 6,
     typicalZoneLength_m: 6,
     wallHeight_m: 7.5,
@@ -655,7 +657,8 @@ describe("обвязка стен под профлист — упрощённы
     profileName: "ПС 145х45х1,5",
     paired: false,
   };
-  const sideWalls = {
+  const sideWalls: WallGirtWallTypeConfig = {
+    mode: "manual",
     cornerZoneLength_m: 12,
     typicalZoneLength_m: 18,
     wallHeight_m: 7,
