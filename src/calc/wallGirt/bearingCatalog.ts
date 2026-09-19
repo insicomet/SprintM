@@ -1,5 +1,5 @@
 import bearingRaw from "../../data/girtBearingCatalog.json";
-import { findGirtProfile, pairedGirtProfile } from "./catalog";
+import { findGirtProfile } from "./catalog";
 import type { GirtProfileOption } from "./types";
 
 /** Одна строка листа «несушки» «Калькулятор ограждайки v1.5.xlsx» (A1:U636). */
@@ -38,9 +38,17 @@ const PROFILE_NAME_RE = /^(ПП|ПС|ТПП|ТПС)\s*(\d+)[xх](\d+)[xх]?([\d,
 /**
  * Профиль по прайсу (вес/цена — GirtProfileOption), соответствующий строке
  * несушки — по семейству/размеру/толщине, без учёта префикса типа сечения
- * (несущая способность на несшитый профиль не зависит от того, как он потом
- * сшивается парой). null — если семейство не из числа обвязочных (например
- * «ПГССигма» — сечение рамы) или размер отсутствует в текущем прайсе.
+ * (цены на сшитые сечения в прайсе нет в принципе). null — если семейство
+ * не из числа обвязочных (например «ПГССигма» — сечение рамы) или размер
+ * отсутствует в текущем прайсе.
+ *
+ * Масса погонного метра берётся из самой строки несушки («Масса 1м
+ * сечения, кг»), а не пересчитывается умножением одинарного профиля на 2:
+ * для схем «][»/«[]» это и даёт ровно ×2 (проверено на всех строках
+ * каталога), но у «[-]» отношение переменное — от ×2,2 до ×2,7 в
+ * зависимости от типоразмера, то есть это не просто спаренный профиль, а
+ * другая (более тяжёлая) сборка. Цена масштабируется тем же
+ * коэффициентом, что и масса — точной цены на сшитые сечения в прайсе нет.
  */
 export function resolvePricedProfile(row: GirtBearingRow): GirtProfileOption | null {
   if (!PRICED_FAMILIES.has(row.вид)) return null;
@@ -54,7 +62,15 @@ export function resolvePricedProfile(row: GirtBearingRow): GirtProfileOption | n
       : `${thicknessRaw ?? row.толщина_мм},0`;
   const single = findGirtProfile(`${family} ${height}х${width}х${thicknessStr}`, false);
   if (!single) return null;
-  return isPairedSection(row) ? pairedGirtProfile(single) : single;
+  if (!isPairedSection(row)) return single;
+
+  const massRatio = row.масса_1м_сечения_кг / row.масса_1м_профиля_кг;
+  return {
+    ...single,
+    name: `${row.тип_сечения}${single.name}`,
+    weightPerMeter_kg: row.масса_1м_сечения_кг,
+    pricePerMeter: single.pricePerMeter != null ? single.pricePerMeter * massRatio : null,
+  };
 }
 
 /** Все строки несущей способности («несушки»), для которых есть цена в прайсе обвязки. */
