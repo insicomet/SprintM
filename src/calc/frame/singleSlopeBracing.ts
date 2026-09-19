@@ -103,8 +103,20 @@ const HORIZ_BRACE_COEFF = 8;
  * вертикальных связей (подтверждено на 4 из 6 объектов; «21851» и
  * «22236» — известные отклонения катета вертикальных связей).
  */
-function defaultBraceLeg_m(span_m: number): number {
+export function defaultBraceLeg_m(span_m: number): number {
   return span_m <= 12 ? span_m / 2 : span_m / 4;
+}
+
+/**
+ * «Высокий узкий» случай — низкая высота не меньше катета связей
+ * (пролёт/2 при пролёте ≤ 12 м). Подтверждено на всех шести сверенных
+ * объектах: не только определяет коэффициент вертикальных связей (см.
+ * ниже), но и второе слагаемое формулы болтов М16 на раму (см.
+ * singleSlopeFrameFasteners.ts) — то есть это не совпадение, а одна и
+ * та же структурная граница, используемая в двух разных узлах.
+ */
+export function isTallSingleSlope(lowHeight_m: number, span_m: number): boolean {
+  return lowHeight_m >= defaultBraceLeg_m(span_m);
 }
 
 /**
@@ -113,7 +125,7 @@ function defaultBraceLeg_m(span_m: number): number {
  * файла — подтверждено на всех шести сверенных объектах без исключений.
  */
 function verticalBraceCoeff(lowHeight_m: number, span_m: number): number {
-  return lowHeight_m >= defaultBraceLeg_m(span_m) ? 8 : 4;
+  return isTallSingleSlope(lowHeight_m, span_m) ? 8 : 4;
 }
 
 export interface SingleSlopeBracingInput {
