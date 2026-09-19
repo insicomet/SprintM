@@ -1,0 +1,2335 @@
+{
+  "generated_by": "COLD_ENCLOSURE audit, source-recovery pass",
+  "source_csv": "/root/.claude/uploads/726a18de-9a86-57ac-9d50-9c356d0f76b4/56537b3b-rt_columns.csv (SHA256 to be recorded in report)",
+  "production_catalog": "src/data/girtBearingCatalog.json",
+  "totals": {
+    "rt_columns_total_rows": 864,
+    "rt_columns_without_studs_true": 632,
+    "rt_columns_without_studs_false": 232,
+    "production_json_rows": 632,
+    "production_json_unique_profile_names": 316,
+    "missing_from_production_count": 232
+  },
+  "missing_rows": [
+    {
+      "source_row": 639,
+      "profile_name": "]ПП 110x45x1 + стойки",
+      "base_profile_name": "]ПП 110x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 28.097160000000002,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 640,
+      "profile_name": "]ПП 110x45x1,2 + стойки",
+      "base_profile_name": "]ПП 110x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 28.097160000000002,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 641,
+      "profile_name": "]ПП 145x45x1 + стойки",
+      "base_profile_name": "]ПП 145x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 642,
+      "profile_name": "]ПП 145x45x1,2 + стойки",
+      "base_profile_name": "]ПП 145x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 643,
+      "profile_name": "]ПП 145x45x1,5 + стойки",
+      "base_profile_name": "]ПП 145x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 644,
+      "profile_name": "]ПП 145x45x2 + стойки",
+      "base_profile_name": "]ПП 145x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 645,
+      "profile_name": "]ПП 145x45x2,5 + стойки",
+      "base_profile_name": "]ПП 145x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 646,
+      "profile_name": "]ПП 150x45x1 + стойки",
+      "base_profile_name": "]ПП 150x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 647,
+      "profile_name": "]ПП 150x45x1,2 + стойки",
+      "base_profile_name": "]ПП 150x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 648,
+      "profile_name": "]ПП 150x45x1,5 + стойки",
+      "base_profile_name": "]ПП 150x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 649,
+      "profile_name": "]ПП 150x45x2 + стойки",
+      "base_profile_name": "]ПП 150x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 650,
+      "profile_name": "]ПП 150x45x2,5 + стойки",
+      "base_profile_name": "]ПП 150x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 651,
+      "profile_name": "]ПП 170x45x1 + стойки",
+      "base_profile_name": "]ПП 170x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 36.833580000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 652,
+      "profile_name": "]ПП 170x45x1,2 + стойки",
+      "base_profile_name": "]ПП 170x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 36.833580000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 653,
+      "profile_name": "]ПП 170x45x1,5 + стойки",
+      "base_profile_name": "]ПП 170x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 36.833580000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 654,
+      "profile_name": "]ПП 170x45x2 + стойки",
+      "base_profile_name": "]ПП 170x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 36.833580000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 655,
+      "profile_name": "]ПП 170x45x2,5 + стойки",
+      "base_profile_name": "]ПП 170x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 656,
+      "profile_name": "]ПП 195x45x1 + стойки",
+      "base_profile_name": "]ПП 195x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 657,
+      "profile_name": "]ПП 195x45x1,2 + стойки",
+      "base_profile_name": "]ПП 195x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 658,
+      "profile_name": "]ПП 195x45x1,5 + стойки",
+      "base_profile_name": "]ПП 195x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 659,
+      "profile_name": "]ПП 195x45x2 + стойки",
+      "base_profile_name": "]ПП 195x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 660,
+      "profile_name": "]ПП 195x45x2,5 + стойки",
+      "base_profile_name": "]ПП 195x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 661,
+      "profile_name": "]ПП 200x45x1 + стойки",
+      "base_profile_name": "]ПП 200x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 662,
+      "profile_name": "]ПП 200x45x1,2 + стойки",
+      "base_profile_name": "]ПП 200x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 663,
+      "profile_name": "]ПП 200x45x1,5 + стойки",
+      "base_profile_name": "]ПП 200x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 664,
+      "profile_name": "]ПП 200x45x2 + стойки",
+      "base_profile_name": "]ПП 200x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 665,
+      "profile_name": "]ПП 200x45x2,5 + стойки",
+      "base_profile_name": "]ПП 200x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 666,
+      "profile_name": "]ПП 220x45x1 + стойки",
+      "base_profile_name": "]ПП 220x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 44.111760000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 667,
+      "profile_name": "]ПП 220x45x1,2 + стойки",
+      "base_profile_name": "]ПП 220x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 44.111760000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 668,
+      "profile_name": "]ПП 220x45x1,5 + стойки",
+      "base_profile_name": "]ПП 220x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 44.111760000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 669,
+      "profile_name": "]ПП 220x45x2 + стойки",
+      "base_profile_name": "]ПП 220x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 44.111760000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 670,
+      "profile_name": "]ПП 220x45x2,5 + стойки",
+      "base_profile_name": "]ПП 220x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 44.111760000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 671,
+      "profile_name": "]ПП 250x65x1,2 + стойки",
+      "base_profile_name": "]ПП 250x65x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 672,
+      "profile_name": "]ПП 250x65x1,5 + стойки",
+      "base_profile_name": "]ПП 250x65x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 673,
+      "profile_name": "]ПП 250x65x2 + стойки",
+      "base_profile_name": "]ПП 250x65x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 674,
+      "profile_name": "]ПП 250x65x2,5 + стойки",
+      "base_profile_name": "]ПП 250x65x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 675,
+      "profile_name": "]ПП 110x45x1 + стойки",
+      "base_profile_name": "]ПП 110x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 28.097160000000002,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 676,
+      "profile_name": "]ПП 110x45x1,2 + стойки",
+      "base_profile_name": "]ПП 110x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 28.097160000000002,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 677,
+      "profile_name": "]ПП 145x45x1 + стойки",
+      "base_profile_name": "]ПП 145x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 678,
+      "profile_name": "]ПП 145x45x1,2 + стойки",
+      "base_profile_name": "]ПП 145x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 679,
+      "profile_name": "]ПП 145x45x1,5 + стойки",
+      "base_profile_name": "]ПП 145x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 680,
+      "profile_name": "]ПП 145x45x2 + стойки",
+      "base_profile_name": "]ПП 145x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 681,
+      "profile_name": "]ПП 145x45x2,5 + стойки",
+      "base_profile_name": "]ПП 145x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 682,
+      "profile_name": "]ПП 150x45x1 + стойки",
+      "base_profile_name": "]ПП 150x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 683,
+      "profile_name": "]ПП 150x45x1,2 + стойки",
+      "base_profile_name": "]ПП 150x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 684,
+      "profile_name": "]ПП 150x45x1,5 + стойки",
+      "base_profile_name": "]ПП 150x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 685,
+      "profile_name": "]ПП 150x45x2 + стойки",
+      "base_profile_name": "]ПП 150x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 686,
+      "profile_name": "]ПП 150x45x2,5 + стойки",
+      "base_profile_name": "]ПП 150x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 687,
+      "profile_name": "]ПП 170x45x1 + стойки",
+      "base_profile_name": "]ПП 170x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 36.833580000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 688,
+      "profile_name": "]ПП 170x45x1,2 + стойки",
+      "base_profile_name": "]ПП 170x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 36.833580000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 689,
+      "profile_name": "]ПП 170x45x1,5 + стойки",
+      "base_profile_name": "]ПП 170x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 36.833580000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 690,
+      "profile_name": "]ПП 170x45x2 + стойки",
+      "base_profile_name": "]ПП 170x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 36.833580000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 691,
+      "profile_name": "]ПП 170x45x2,5 + стойки",
+      "base_profile_name": "]ПП 170x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 692,
+      "profile_name": "]ПП 195x45x1 + стойки",
+      "base_profile_name": "]ПП 195x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 693,
+      "profile_name": "]ПП 195x45x1,2 + стойки",
+      "base_profile_name": "]ПП 195x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 694,
+      "profile_name": "]ПП 195x45x1,5 + стойки",
+      "base_profile_name": "]ПП 195x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 695,
+      "profile_name": "]ПП 195x45x2 + стойки",
+      "base_profile_name": "]ПП 195x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 696,
+      "profile_name": "]ПП 195x45x2,5 + стойки",
+      "base_profile_name": "]ПП 195x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 697,
+      "profile_name": "]ПП 200x45x1 + стойки",
+      "base_profile_name": "]ПП 200x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 698,
+      "profile_name": "]ПП 200x45x1,2 + стойки",
+      "base_profile_name": "]ПП 200x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 699,
+      "profile_name": "]ПП 200x45x1,5 + стойки",
+      "base_profile_name": "]ПП 200x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 700,
+      "profile_name": "]ПП 200x45x2 + стойки",
+      "base_profile_name": "]ПП 200x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 701,
+      "profile_name": "]ПП 200x45x2,5 + стойки",
+      "base_profile_name": "]ПП 200x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 702,
+      "profile_name": "]ПП 220x45x1 + стойки",
+      "base_profile_name": "]ПП 220x45x1",
+      "без_стоек": false,
+      "вес_стойки_кг": 44.111760000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 703,
+      "profile_name": "]ПП 220x45x1,2 + стойки",
+      "base_profile_name": "]ПП 220x45x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 44.111760000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 704,
+      "profile_name": "]ПП 220x45x1,5 + стойки",
+      "base_profile_name": "]ПП 220x45x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 44.111760000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 705,
+      "profile_name": "]ПП 220x45x2 + стойки",
+      "base_profile_name": "]ПП 220x45x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 44.111760000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 706,
+      "profile_name": "]ПП 220x45x2,5 + стойки",
+      "base_profile_name": "]ПП 220x45x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 44.111760000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 707,
+      "profile_name": "]ПП 250x65x1,2 + стойки",
+      "base_profile_name": "]ПП 250x65x1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 708,
+      "profile_name": "]ПП 250x65x1,5 + стойки",
+      "base_profile_name": "]ПП 250x65x1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 709,
+      "profile_name": "]ПП 250x65x2 + стойки",
+      "base_profile_name": "]ПП 250x65x2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 710,
+      "profile_name": "]ПП 250x65x2,5 + стойки",
+      "base_profile_name": "]ПП 250x65x2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 711,
+      "profile_name": "]ПС145х45х1 + стойки",
+      "base_profile_name": "]ПС145х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 712,
+      "profile_name": "]ПС145х45х1,2 + стойки",
+      "base_profile_name": "]ПС145х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 713,
+      "profile_name": "]ПС145х45х1,5 + стойки",
+      "base_profile_name": "]ПС145х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 714,
+      "profile_name": "]ПС145х45х2 + стойки",
+      "base_profile_name": "]ПС145х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 715,
+      "profile_name": "]ПС150х45х1 + стойки",
+      "base_profile_name": "]ПС150х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 716,
+      "profile_name": "]ПС150х45х1,2 + стойки",
+      "base_profile_name": "]ПС150х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 717,
+      "profile_name": "]ПС150х45х1,5 + стойки",
+      "base_profile_name": "]ПС150х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 718,
+      "profile_name": "]ПС150х45х2 + стойки",
+      "base_profile_name": "]ПС150х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 719,
+      "profile_name": "]ПС150х65х1,2 + стойки",
+      "base_profile_name": "]ПС150х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 720,
+      "profile_name": "]ПС150х65х1,5 + стойки",
+      "base_profile_name": "]ПС150х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 721,
+      "profile_name": "]ПС150х65х2 + стойки",
+      "base_profile_name": "]ПС150х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 722,
+      "profile_name": "]ПС195х45х1 + стойки",
+      "base_profile_name": "]ПС195х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 723,
+      "profile_name": "]ПС195х45х1,2 + стойки",
+      "base_profile_name": "]ПС195х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 724,
+      "profile_name": "]ПС195х45х1,5 + стойки",
+      "base_profile_name": "]ПС195х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 725,
+      "profile_name": "]ПС195х45х2 + стойки",
+      "base_profile_name": "]ПС195х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 726,
+      "profile_name": "]ПС200х45х1 + стойки",
+      "base_profile_name": "]ПС200х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 727,
+      "profile_name": "]ПС200х45х1,2 + стойки",
+      "base_profile_name": "]ПС200х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 728,
+      "profile_name": "]ПС200х45х1,5 + стойки",
+      "base_profile_name": "]ПС200х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 729,
+      "profile_name": "]ПС200х45х2 + стойки",
+      "base_profile_name": "]ПС200х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 730,
+      "profile_name": "]ПС200х65х1,2 + стойки",
+      "base_profile_name": "]ПС200х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 731,
+      "profile_name": "]ПС200х65х1,5 + стойки",
+      "base_profile_name": "]ПС200х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 732,
+      "profile_name": "]ПС200х65х2 + стойки",
+      "base_profile_name": "]ПС200х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 733,
+      "profile_name": "]ПС245х65х1,2 + стойки",
+      "base_profile_name": "]ПС245х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 734,
+      "profile_name": "]ПС245х65х1,5 + стойки",
+      "base_profile_name": "]ПС245х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 735,
+      "profile_name": "]ПС245х65х2 + стойки",
+      "base_profile_name": "]ПС245х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 736,
+      "profile_name": "]ПС145х45х1 + стойки",
+      "base_profile_name": "]ПС145х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 737,
+      "profile_name": "]ПС145х45х1,2 + стойки",
+      "base_profile_name": "]ПС145х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 738,
+      "profile_name": "]ПС145х45х1,5 + стойки",
+      "base_profile_name": "]ПС145х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 739,
+      "profile_name": "]ПС145х45х2 + стойки",
+      "base_profile_name": "]ПС145х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 740,
+      "profile_name": "]ПС150х45х1 + стойки",
+      "base_profile_name": "]ПС150х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 741,
+      "profile_name": "]ПС150х45х1,2 + стойки",
+      "base_profile_name": "]ПС150х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 742,
+      "profile_name": "]ПС150х45х1,5 + стойки",
+      "base_profile_name": "]ПС150х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 743,
+      "profile_name": "]ПС150х45х2 + стойки",
+      "base_profile_name": "]ПС150х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 744,
+      "profile_name": "]ПС150х65х1,2 + стойки",
+      "base_profile_name": "]ПС150х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 745,
+      "profile_name": "]ПС150х65х1,5 + стойки",
+      "base_profile_name": "]ПС150х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 746,
+      "profile_name": "]ПС150х65х2 + стойки",
+      "base_profile_name": "]ПС150х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 747,
+      "profile_name": "]ПС195х45х1 + стойки",
+      "base_profile_name": "]ПС195х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 748,
+      "profile_name": "]ПС195х45х1,2 + стойки",
+      "base_profile_name": "]ПС195х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 749,
+      "profile_name": "]ПС195х45х1,5 + стойки",
+      "base_profile_name": "]ПС195х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 750,
+      "profile_name": "]ПС195х45х2 + стойки",
+      "base_profile_name": "]ПС195х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 751,
+      "profile_name": "]ПС200х45х1 + стойки",
+      "base_profile_name": "]ПС200х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 752,
+      "profile_name": "]ПС200х45х1,2 + стойки",
+      "base_profile_name": "]ПС200х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 753,
+      "profile_name": "]ПС200х45х1,5 + стойки",
+      "base_profile_name": "]ПС200х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 754,
+      "profile_name": "]ПС200х45х2 + стойки",
+      "base_profile_name": "]ПС200х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 755,
+      "profile_name": "]ПС200х65х1,2 + стойки",
+      "base_profile_name": "]ПС200х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 756,
+      "profile_name": "]ПС200х65х1,5 + стойки",
+      "base_profile_name": "]ПС200х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 757,
+      "profile_name": "]ПС200х65х2 + стойки",
+      "base_profile_name": "]ПС200х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 758,
+      "profile_name": "]ПС245х65х1,2 + стойки",
+      "base_profile_name": "]ПС245х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 759,
+      "profile_name": "]ПС245х65х1,5 + стойки",
+      "base_profile_name": "]ПС245х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 760,
+      "profile_name": "]ПС245х65х2 + стойки",
+      "base_profile_name": "]ПС245х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 761,
+      "profile_name": "][ПС145х45х1 + стойки",
+      "base_profile_name": "][ПС145х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 762,
+      "profile_name": "][ПС145х45х1,2 + стойки",
+      "base_profile_name": "][ПС145х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 763,
+      "profile_name": "][ПС145х45х1,5 + стойки",
+      "base_profile_name": "][ПС145х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 764,
+      "profile_name": "][ПС145х45х2 + стойки",
+      "base_profile_name": "][ПС145х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 765,
+      "profile_name": "][ПС150х45х1 + стойки",
+      "base_profile_name": "][ПС150х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 766,
+      "profile_name": "][ПС150х45х1,2 + стойки",
+      "base_profile_name": "][ПС150х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 767,
+      "profile_name": "][ПС150х45х1,5 + стойки",
+      "base_profile_name": "][ПС150х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 768,
+      "profile_name": "][ПС150х45х2 + стойки",
+      "base_profile_name": "][ПС150х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 769,
+      "profile_name": "][ПС150х65х1,2 + стойки",
+      "base_profile_name": "][ПС150х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 770,
+      "profile_name": "][ПС150х65х1,5 + стойки",
+      "base_profile_name": "][ПС150х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 771,
+      "profile_name": "][ПС150х65х2 + стойки",
+      "base_profile_name": "][ПС150х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 772,
+      "profile_name": "][ПС195х45х1 + стойки",
+      "base_profile_name": "][ПС195х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 773,
+      "profile_name": "][ПС195х45х1,2 + стойки",
+      "base_profile_name": "][ПС195х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 774,
+      "profile_name": "][ПС195х45х1,5 + стойки",
+      "base_profile_name": "][ПС195х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 775,
+      "profile_name": "][ПС195х45х2 + стойки",
+      "base_profile_name": "][ПС195х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 776,
+      "profile_name": "][ПС200х45х1 + стойки",
+      "base_profile_name": "][ПС200х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 777,
+      "profile_name": "][ПС200х45х1,2 + стойки",
+      "base_profile_name": "][ПС200х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 778,
+      "profile_name": "][ПС200х45х1,5 + стойки",
+      "base_profile_name": "][ПС200х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 779,
+      "profile_name": "][ПС200х45х2 + стойки",
+      "base_profile_name": "][ПС200х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 780,
+      "profile_name": "][ПС200х65х1,2 + стойки",
+      "base_profile_name": "][ПС200х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 781,
+      "profile_name": "][ПС200х65х1,5 + стойки",
+      "base_profile_name": "][ПС200х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 782,
+      "profile_name": "][ПС200х65х2 + стойки",
+      "base_profile_name": "][ПС200х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 783,
+      "profile_name": "][ПС245х65х1,2 + стойки",
+      "base_profile_name": "][ПС245х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 784,
+      "profile_name": "][ПС245х65х1,5 + стойки",
+      "base_profile_name": "][ПС245х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 785,
+      "profile_name": "][ПС245х65х2 + стойки",
+      "base_profile_name": "][ПС245х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 786,
+      "profile_name": "][ПС145х45х1 + стойки",
+      "base_profile_name": "][ПС145х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 787,
+      "profile_name": "][ПС145х45х1,2 + стойки",
+      "base_profile_name": "][ПС145х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 788,
+      "profile_name": "][ПС145х45х1,5 + стойки",
+      "base_profile_name": "][ПС145х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.193560000000005,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 789,
+      "profile_name": "][ПС145х45х2 + стойки",
+      "base_profile_name": "][ПС145х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 790,
+      "profile_name": "][ПС150х45х1 + стойки",
+      "base_profile_name": "][ПС150х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 791,
+      "profile_name": "][ПС150х45х1,2 + стойки",
+      "base_profile_name": "][ПС150х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 792,
+      "profile_name": "][ПС150х45х1,5 + стойки",
+      "base_profile_name": "][ПС150х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 793,
+      "profile_name": "][ПС150х45х2 + стойки",
+      "base_profile_name": "][ПС150х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 794,
+      "profile_name": "][ПС150х65х1,2 + стойки",
+      "base_profile_name": "][ПС150х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 795,
+      "profile_name": "][ПС150х65х1,5 + стойки",
+      "base_profile_name": "][ПС150х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 796,
+      "profile_name": "][ПС150х65х2 + стойки",
+      "base_profile_name": "][ПС150х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 33.920820000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 797,
+      "profile_name": "][ПС195х45х1 + стойки",
+      "base_profile_name": "][ПС195х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 798,
+      "profile_name": "][ПС195х45х1,2 + стойки",
+      "base_profile_name": "][ПС195х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 799,
+      "profile_name": "][ПС195х45х1,5 + стойки",
+      "base_profile_name": "][ПС195х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 800,
+      "profile_name": "][ПС195х45х2 + стойки",
+      "base_profile_name": "][ПС195х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 40.471740000000004,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 801,
+      "profile_name": "][ПС200х45х1 + стойки",
+      "base_profile_name": "][ПС200х45х1",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 802,
+      "profile_name": "][ПС200х45х1,2 + стойки",
+      "base_profile_name": "][ПС200х45х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 803,
+      "profile_name": "][ПС200х45х1,5 + стойки",
+      "base_profile_name": "][ПС200х45х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 804,
+      "profile_name": "][ПС200х45х2 + стойки",
+      "base_profile_name": "][ПС200х45х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 805,
+      "profile_name": "][ПС200х65х1,2 + стойки",
+      "base_profile_name": "][ПС200х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 806,
+      "profile_name": "][ПС200х65х1,5 + стойки",
+      "base_profile_name": "][ПС200х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 807,
+      "profile_name": "][ПС200х65х2 + стойки",
+      "base_profile_name": "][ПС200х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 808,
+      "profile_name": "][ПС245х65х1,2 + стойки",
+      "base_profile_name": "][ПС245х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 809,
+      "profile_name": "][ПС245х65х1,5 + стойки",
+      "base_profile_name": "][ПС245х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 810,
+      "profile_name": "][ПС245х65х2 + стойки",
+      "base_profile_name": "][ПС245х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 811,
+      "profile_name": "]ПГССигма200х65х1,2 + стойки",
+      "base_profile_name": "]ПГССигма200х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 812,
+      "profile_name": "]ПГССигма200х65х1,5 + стойки",
+      "base_profile_name": "]ПГССигма200х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 813,
+      "profile_name": "]ПГССигма200х65х2 + стойки",
+      "base_profile_name": "]ПГССигма200х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 814,
+      "profile_name": "]ПГССигма200х65х2,5 + стойки",
+      "base_profile_name": "]ПГССигма200х65х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 815,
+      "profile_name": "]ПГССигма200х65х3 + стойки",
+      "base_profile_name": "]ПГССигма200х65х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 816,
+      "profile_name": "]ПГССигма245х80х1,2 + стойки",
+      "base_profile_name": "]ПГССигма245х80х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 817,
+      "profile_name": "]ПГССигма245х80х1,5 + стойки",
+      "base_profile_name": "]ПГССигма245х80х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 818,
+      "profile_name": "]ПГССигма245х80х2 + стойки",
+      "base_profile_name": "]ПГССигма245х80х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 819,
+      "profile_name": "]ПГССигма245х80х2,5 + стойки",
+      "base_profile_name": "]ПГССигма245х80х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 820,
+      "profile_name": "]ПГССигма245х80х3 + стойки",
+      "base_profile_name": "]ПГССигма245х80х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 821,
+      "profile_name": "]ПГССигма300х80х1,2 + стойки",
+      "base_profile_name": "]ПГССигма300х80х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 822,
+      "profile_name": "]ПГССигма300х80х1,5 + стойки",
+      "base_profile_name": "]ПГССигма300х80х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 823,
+      "profile_name": "]ПГССигма300х80х2 + стойки",
+      "base_profile_name": "]ПГССигма300х80х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 824,
+      "profile_name": "]ПГССигма300х80х2,5 + стойки",
+      "base_profile_name": "]ПГССигма300х80х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 825,
+      "profile_name": "]ПГССигма300х80х3 + стойки",
+      "base_profile_name": "]ПГССигма300х80х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 826,
+      "profile_name": "]ПГССигма200х65х1,2 + стойки",
+      "base_profile_name": "]ПГССигма200х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 827,
+      "profile_name": "]ПГССигма200х65х1,5 + стойки",
+      "base_profile_name": "]ПГССигма200х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 828,
+      "profile_name": "]ПГССигма200х65х2 + стойки",
+      "base_profile_name": "]ПГССигма200х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 829,
+      "profile_name": "]ПГССигма200х65х2,5 + стойки",
+      "base_profile_name": "]ПГССигма200х65х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 830,
+      "profile_name": "]ПГССигма200х65х3 + стойки",
+      "base_profile_name": "]ПГССигма200х65х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 831,
+      "profile_name": "]ПГССигма245х80х1,2 + стойки",
+      "base_profile_name": "]ПГССигма245х80х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 832,
+      "profile_name": "]ПГССигма245х80х1,5 + стойки",
+      "base_profile_name": "]ПГССигма245х80х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 833,
+      "profile_name": "]ПГССигма245х80х2 + стойки",
+      "base_profile_name": "]ПГССигма245х80х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 834,
+      "profile_name": "]ПГССигма245х80х2,5 + стойки",
+      "base_profile_name": "]ПГССигма245х80х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 835,
+      "profile_name": "]ПГССигма245х80х3 + стойки",
+      "base_profile_name": "]ПГССигма245х80х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 836,
+      "profile_name": "]ПГССигма300х80х1,2 + стойки",
+      "base_profile_name": "]ПГССигма300х80х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 837,
+      "profile_name": "]ПГССигма300х80х1,5 + стойки",
+      "base_profile_name": "]ПГССигма300х80х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 838,
+      "profile_name": "]ПГССигма300х80х2 + стойки",
+      "base_profile_name": "]ПГССигма300х80х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 839,
+      "profile_name": "]ПГССигма300х80х2,5 + стойки",
+      "base_profile_name": "]ПГССигма300х80х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 840,
+      "profile_name": "]ПГССигма300х80х3 + стойки",
+      "base_profile_name": "]ПГССигма300х80х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 841,
+      "profile_name": "][ПГССигма200х65х1,2 + стойки",
+      "base_profile_name": "][ПГССигма200х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 842,
+      "profile_name": "][ПГССигма200х65х1,5 + стойки",
+      "base_profile_name": "][ПГССигма200х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 843,
+      "profile_name": "][ПГССигма200х65х2 + стойки",
+      "base_profile_name": "][ПГССигма200х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 844,
+      "profile_name": "][ПГССигма200х65х2,5 + стойки",
+      "base_profile_name": "][ПГССигма200х65х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 845,
+      "profile_name": "][ПГССигма200х65х3 + стойки",
+      "base_profile_name": "][ПГССигма200х65х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 846,
+      "profile_name": "][ПГССигма245х80х1,2 + стойки",
+      "base_profile_name": "][ПГССигма245х80х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 847,
+      "profile_name": "][ПГССигма245х80х1,5 + стойки",
+      "base_profile_name": "][ПГССигма245х80х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 848,
+      "profile_name": "][ПГССигма245х80х2 + стойки",
+      "base_profile_name": "][ПГССигма245х80х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 849,
+      "profile_name": "][ПГССигма245х80х2,5 + стойки",
+      "base_profile_name": "][ПГССигма245х80х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 850,
+      "profile_name": "][ПГССигма245х80х3 + стойки",
+      "base_profile_name": "][ПГССигма245х80х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 851,
+      "profile_name": "][ПГССигма300х80х1,2 + стойки",
+      "base_profile_name": "][ПГССигма300х80х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 852,
+      "profile_name": "][ПГССигма300х80х1,5 + стойки",
+      "base_profile_name": "][ПГССигма300х80х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 853,
+      "profile_name": "][ПГССигма300х80х2 + стойки",
+      "base_profile_name": "][ПГССигма300х80х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 854,
+      "profile_name": "][ПГССигма300х80х2,5 + стойки",
+      "base_profile_name": "][ПГССигма300х80х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 855,
+      "profile_name": "][ПГССигма300х80х3 + стойки",
+      "base_profile_name": "][ПГССигма300х80х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 856,
+      "profile_name": "][ПГССигма200х65х1,2 + стойки",
+      "base_profile_name": "][ПГССигма200х65х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 857,
+      "profile_name": "][ПГССигма200х65х1,5 + стойки",
+      "base_profile_name": "][ПГССигма200х65х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 858,
+      "profile_name": "][ПГССигма200х65х2 + стойки",
+      "base_profile_name": "][ПГССигма200х65х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 859,
+      "profile_name": "][ПГССигма200х65х2,5 + стойки",
+      "base_profile_name": "][ПГССигма200х65х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 860,
+      "profile_name": "][ПГССигма200х65х3 + стойки",
+      "base_profile_name": "][ПГССигма200х65х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 41.200860000000006,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 861,
+      "profile_name": "][ПГССигма245х80х1,2 + стойки",
+      "base_profile_name": "][ПГССигма245х80х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 862,
+      "profile_name": "][ПГССигма245х80х1,5 + стойки",
+      "base_profile_name": "][ПГССигма245х80х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 863,
+      "profile_name": "][ПГССигма245х80х2 + стойки",
+      "base_profile_name": "][ПГССигма245х80х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 864,
+      "profile_name": "][ПГССигма245х80х2,5 + стойки",
+      "base_profile_name": "][ПГССигма245х80х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 865,
+      "profile_name": "][ПГССигма245х80х3 + стойки",
+      "base_profile_name": "][ПГССигма245х80х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 65.10744000000001,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 866,
+      "profile_name": "][ПГССигма300х80х1,2 + стойки",
+      "base_profile_name": "][ПГССигма300х80х1,2",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 867,
+      "profile_name": "][ПГССигма300х80х1,5 + стойки",
+      "base_profile_name": "][ПГССигма300х80х1,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 868,
+      "profile_name": "][ПГССигма300х80х2 + стойки",
+      "base_profile_name": "][ПГССигма300х80х2",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 869,
+      "profile_name": "][ПГССигма300х80х2,5 + стойки",
+      "base_profile_name": "][ПГССигма300х80х2,5",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    },
+    {
+      "source_row": 870,
+      "profile_name": "][ПГССигма300х80х3 + стойки",
+      "base_profile_name": "][ПГССигма300х80х3",
+      "без_стоек": false,
+      "вес_стойки_кг": 88.41324,
+      "base_profile_present_in_json": true,
+      "base_profile_json_variants": 2,
+      "note": "limit moment / masса 1м профиля / масса 1м сечения / масса узловых сборок NOT available locally for this row -- rt_columns.csv only captured columns V/R/T (profile name, 'Без стоек', 'Вес стойки'). Full A:U row data for source rows 639-870 was never extracted in this environment. Do not assume these equal the base profile's own values."
+    }
+  ]
+}
