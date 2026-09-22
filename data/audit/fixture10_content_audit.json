@@ -1,0 +1,1426 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedFrom": "commit d8efbdc, FIRST_GOLDEN_FIXTURES",
+  "productionCodeChanged": false,
+  "method": "Real xlsx binaries downloaded from Drive, decoded, SHA-256 hashed, parsed with SheetJS (xlsx npm package) for cell values and formulas. Comparison run against src/calc/geometry/frameGeometry.ts computeFrameCount (read-only, not executed via the live UI).",
+  "fixtures": [
+    {
+      "project": "21484",
+      "drive": {
+        "fileId": "1RWTkShdwPMzBldH7fi1UaAcyNG7kBt2h",
+        "title": "21484.xlsx",
+        "sizeBytes": 278606,
+        "sha256": "e6e0ccee54d0c8bb64fc60efbe12f731045fedfc37ea8e1ae7ba29df829e46a3",
+        "status": "PROVEN"
+      },
+      "hangarType": {
+        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка C12='окрашенный профлист')",
+        "frameOnly": false,
+        "status": "PROVEN",
+        "evidenceCell": "12м!C12 (or 18!C12)"
+      },
+      "geometry": {
+        "span_m": {
+          "value": 20,
+          "cell": "C8",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "length_m": {
+          "value": 90,
+          "cell": "C9",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "height_m": {
+          "value": 7,
+          "cell": "C10",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "framePitch_m": {
+          "value": 3.92,
+          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "externalCladding": {
+          "value": "окрашенный профлист",
+          "cell": "C12 (label at B12 'наружная обшивка :')",
+          "status": "PROVEN"
+        },
+        "internalCladding": {
+          "value": "нет",
+          "cell": "C13 (label at B13 'внутренняя обшивка :')",
+          "status": "PROVEN"
+        },
+        "tzNumber": {
+          "value": "21484/2",
+          "cell": "G5",
+          "status": "PROVEN"
+        },
+        "city": {
+          "value": "Курган",
+          "cell": "B6",
+          "status": "PROVEN"
+        },
+        "seismic": {
+          "value": null,
+          "cell": "E6",
+          "status": "OBSERVED_ABSENT"
+        },
+        "snowWindZone": {
+          "value": "3/2",
+          "cell": "C5/D5",
+          "status": "PROVEN"
+        },
+        "responsibilityLevel": {
+          "value": 2,
+          "cell": "G8",
+          "status": "PROVEN"
+        },
+        "fireResistanceClass": {
+          "value": 3,
+          "cell": "G9",
+          "status": "PROVEN"
+        },
+        "roofSlope_deg": {
+          "value": 15,
+          "cell": "J14",
+          "formula": "15*3.14/180",
+          "status": "PROVEN",
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+        }
+      },
+      "sheetNames": [
+        "12м",
+        "15",
+        "18",
+        "21",
+        "1ск"
+      ],
+      "liveSheet": {
+        "value": "12м",
+        "status": "PROVEN",
+        "note": "sheet tab NAME does not reliably indicate span; only the sheet containing the literal TZ number in G5 is live, others are stale template copies"
+      },
+      "wallGirtSelectionResult": {
+        "status": "UNSUPPORTED",
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+      },
+      "postsBranch": {
+        "value": "NOT_FOUND",
+        "status": "UNSUPPORTED",
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+      },
+      "openings": {
+        "windows": {
+          "count": 0,
+          "status": "PROVEN",
+          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
+        },
+        "doors": {
+          "count": 4,
+          "width_m": 1,
+          "height_m": 2,
+          "status": "PROVEN",
+          "cell": "row with label 'двери'"
+        },
+        "gates": {
+          "count": 2,
+          "width_m": 5,
+          "height_m": 5,
+          "status": "PROVEN",
+          "cell": "row with label 'ворота'"
+        },
+        "skylight": null,
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+      },
+      "frameCountComparison": {
+        "xlsxValue": 24,
+        "xlsxCell": "I17",
+        "xlsxFormula": "CEILING(C9/C11+1,1)",
+        "appValue": 24,
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "result": "MATCH",
+        "status": "PROVEN"
+      }
+    },
+    {
+      "project": "21501",
+      "drive": {
+        "fileId": "1_pJRu3-5yZZeSyuT7uav7a5k-G05jXOE",
+        "title": "21501.xlsx",
+        "sizeBytes": 279704,
+        "sha256": "3567089a3688686287513723c8de67710b544ac613c041e150762f4b5a6766ff",
+        "status": "PROVEN"
+      },
+      "hangarType": {
+        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка C12='СП')",
+        "frameOnly": false,
+        "status": "PROVEN",
+        "evidenceCell": "12м!C12 (or 18!C12)"
+      },
+      "geometry": {
+        "span_m": {
+          "value": 20,
+          "cell": "C8",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "length_m": {
+          "value": 90,
+          "cell": "C9",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "height_m": {
+          "value": 7,
+          "cell": "C10",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "framePitch_m": {
+          "value": 3.5,
+          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "externalCladding": {
+          "value": "СП",
+          "cell": "C12 (label at B12 'наружная обшивка :')",
+          "status": "PROVEN"
+        },
+        "internalCladding": {
+          "value": "нет",
+          "cell": "C13 (label at B13 'внутренняя обшивка :')",
+          "status": "PROVEN"
+        },
+        "tzNumber": {
+          "value": "21501/2",
+          "cell": "G5",
+          "status": "PROVEN"
+        },
+        "city": {
+          "value": "Курган",
+          "cell": "B6",
+          "status": "PROVEN"
+        },
+        "seismic": {
+          "value": null,
+          "cell": "E6",
+          "status": "OBSERVED_ABSENT"
+        },
+        "snowWindZone": {
+          "value": "3/2",
+          "cell": "C5/D5",
+          "status": "PROVEN"
+        },
+        "responsibilityLevel": {
+          "value": 2,
+          "cell": "G8",
+          "status": "PROVEN"
+        },
+        "fireResistanceClass": {
+          "value": 3,
+          "cell": "G9",
+          "status": "PROVEN"
+        },
+        "roofSlope_deg": {
+          "value": 15,
+          "cell": "J14",
+          "formula": "15*3.14/180",
+          "status": "PROVEN",
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+        }
+      },
+      "sheetNames": [
+        "12м",
+        "15",
+        "18",
+        "21",
+        "1ск"
+      ],
+      "liveSheet": {
+        "value": "12м",
+        "status": "PROVEN",
+        "note": "sheet tab NAME does not reliably indicate span; only the sheet containing the literal TZ number in G5 is live, others are stale template copies"
+      },
+      "wallGirtSelectionResult": {
+        "status": "UNSUPPORTED",
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+      },
+      "postsBranch": {
+        "value": "NOT_FOUND",
+        "status": "UNSUPPORTED",
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+      },
+      "openings": {
+        "windows": {
+          "count": 0,
+          "status": "PROVEN",
+          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
+        },
+        "doors": {
+          "count": 4,
+          "width_m": 1,
+          "height_m": 2,
+          "status": "PROVEN",
+          "cell": "row with label 'двери'"
+        },
+        "gates": {
+          "count": 2,
+          "width_m": 5,
+          "height_m": 5,
+          "status": "PROVEN",
+          "cell": "row with label 'ворота'"
+        },
+        "skylight": null,
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+      },
+      "frameCountComparison": {
+        "xlsxValue": 27,
+        "xlsxCell": "I17",
+        "xlsxFormula": "CEILING(C9/C11+1,1)",
+        "appValue": 27,
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "result": "MATCH",
+        "status": "PROVEN"
+      }
+    },
+    {
+      "project": "21627",
+      "drive": {
+        "fileId": "1AnNg-Xepiv4IQPIeZSVSHnUC1yKgJwSX",
+        "title": "21627.xlsx",
+        "sizeBytes": 282521,
+        "sha256": "fb2dae169a2442dcbc9fcfb3801a39dbd59c333da526cdc9df8ac3b97a16ad95",
+        "status": "PROVEN"
+      },
+      "hangarType": {
+        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка C12='СП')",
+        "frameOnly": true,
+        "status": "PROVEN",
+        "evidenceCell": "12м!C12 (or 18!C12)"
+      },
+      "geometry": {
+        "span_m": {
+          "value": 18,
+          "cell": "C8",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "length_m": {
+          "value": 46,
+          "cell": "C9",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "height_m": {
+          "value": 7,
+          "cell": "C10",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "framePitch_m": {
+          "value": 3.4,
+          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "externalCladding": {
+          "value": "СП",
+          "cell": "C12 (label at B12 'наружная обшивка :')",
+          "status": "PROVEN"
+        },
+        "internalCladding": {
+          "value": "нет",
+          "cell": "C13 (label at B13 'внутренняя обшивка :')",
+          "status": "PROVEN"
+        },
+        "tzNumber": {
+          "value": "21627",
+          "cell": "G5",
+          "status": "PROVEN"
+        },
+        "city": {
+          "value": "Ирбит",
+          "cell": "B6",
+          "status": "PROVEN"
+        },
+        "seismic": {
+          "value": null,
+          "cell": "E6",
+          "status": "OBSERVED_ABSENT"
+        },
+        "snowWindZone": {
+          "value": "4/1",
+          "cell": "C5/D5",
+          "status": "PROVEN"
+        },
+        "responsibilityLevel": {
+          "value": 2,
+          "cell": "G8",
+          "status": "PROVEN"
+        },
+        "fireResistanceClass": {
+          "value": 5,
+          "cell": "G9",
+          "status": "PROVEN"
+        },
+        "roofSlope_deg": {
+          "value": 15,
+          "cell": "J14",
+          "formula": "15*3.14/180",
+          "status": "PROVEN",
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+        }
+      },
+      "sheetNames": [
+        "12м",
+        "15",
+        "18",
+        "21",
+        "1ск"
+      ],
+      "liveSheet": {
+        "value": "12м",
+        "status": "PROVEN",
+        "note": "sheet tab NAME does not reliably indicate span; only the sheet containing the literal TZ number in G5 is live, others are stale template copies"
+      },
+      "wallGirtSelectionResult": {
+        "status": "UNSUPPORTED",
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+      },
+      "postsBranch": {
+        "value": "NOT_FOUND",
+        "status": "UNSUPPORTED",
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+      },
+      "openings": {
+        "windows": {
+          "count": 0,
+          "status": "PROVEN",
+          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
+        },
+        "doors": {
+          "count": 3,
+          "width_m": 2,
+          "height_m": 2,
+          "status": "PROVEN",
+          "cell": "row with label 'двери'"
+        },
+        "gates": {
+          "count": 3,
+          "width_m": 4,
+          "height_m": 4.5,
+          "status": "PROVEN",
+          "cell": "row with label 'ворота'"
+        },
+        "skylight": null,
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+      },
+      "frameCountComparison": {
+        "xlsxValue": 15,
+        "xlsxCell": "I17",
+        "xlsxFormula": "CEILING(C9/C11+1,1)",
+        "appValue": 15,
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "result": "MATCH",
+        "status": "PROVEN"
+      }
+    },
+    {
+      "project": "21628",
+      "drive": {
+        "fileId": "1R54tLYIy5wz1jdURmRKmaPYgtajXb68G",
+        "title": "21628.xlsx",
+        "sizeBytes": 283142,
+        "sha256": "5322a553acdab24d01e51c2c7226cbbfae44ec0b6655412497c44d7cebd9bdc8",
+        "status": "PROVEN"
+      },
+      "hangarType": {
+        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка C12='СП')",
+        "frameOnly": false,
+        "status": "PROVEN",
+        "evidenceCell": "12м!C12 (or 18!C12)"
+      },
+      "geometry": {
+        "span_m": {
+          "value": 18,
+          "cell": "C8",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "length_m": {
+          "value": 46,
+          "cell": "C9",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "height_m": {
+          "value": 7,
+          "cell": "C10",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "framePitch_m": {
+          "value": 3.4,
+          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "externalCladding": {
+          "value": "СП",
+          "cell": "C12 (label at B12 'наружная обшивка :')",
+          "status": "PROVEN"
+        },
+        "internalCladding": {
+          "value": "нет",
+          "cell": "C13 (label at B13 'внутренняя обшивка :')",
+          "status": "PROVEN"
+        },
+        "tzNumber": {
+          "value": "21628",
+          "cell": "G5",
+          "status": "PROVEN"
+        },
+        "city": {
+          "value": "Ирбит",
+          "cell": "B6",
+          "status": "PROVEN"
+        },
+        "seismic": {
+          "value": null,
+          "cell": "E6",
+          "status": "OBSERVED_ABSENT"
+        },
+        "snowWindZone": {
+          "value": "4/1",
+          "cell": "C5/D5",
+          "status": "PROVEN"
+        },
+        "responsibilityLevel": {
+          "value": 2,
+          "cell": "G8",
+          "status": "PROVEN"
+        },
+        "fireResistanceClass": {
+          "value": 5,
+          "cell": "G9",
+          "status": "PROVEN"
+        },
+        "roofSlope_deg": {
+          "value": 15,
+          "cell": "J14",
+          "formula": "15*3.14/180",
+          "status": "PROVEN",
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+        }
+      },
+      "sheetNames": [
+        "12м",
+        "15",
+        "18",
+        "21",
+        "1ск"
+      ],
+      "liveSheet": {
+        "value": "12м",
+        "status": "PROVEN",
+        "note": "sheet tab NAME does not reliably indicate span; only the sheet containing the literal TZ number in G5 is live, others are stale template copies"
+      },
+      "wallGirtSelectionResult": {
+        "status": "UNSUPPORTED",
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+      },
+      "postsBranch": {
+        "value": "NOT_FOUND",
+        "status": "UNSUPPORTED",
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+      },
+      "openings": {
+        "windows": {
+          "count": 0,
+          "status": "PROVEN",
+          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
+        },
+        "doors": {
+          "count": 3,
+          "width_m": 2,
+          "height_m": 2,
+          "status": "PROVEN",
+          "cell": "row with label 'двери'"
+        },
+        "gates": {
+          "count": 3,
+          "width_m": 4,
+          "height_m": 4.5,
+          "status": "PROVEN",
+          "cell": "row with label 'ворота'"
+        },
+        "skylight": null,
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+      },
+      "frameCountComparison": {
+        "xlsxValue": 15,
+        "xlsxCell": "I17",
+        "xlsxFormula": "CEILING(C9/C11+1,1)",
+        "appValue": 15,
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "result": "MATCH",
+        "status": "PROVEN"
+      }
+    },
+    {
+      "project": "21629",
+      "drive": {
+        "fileId": "1zlxCkq2HYUWTbVKBhe4icyRsHPL2BwYJ",
+        "title": "21629.xlsx",
+        "sizeBytes": 281860,
+        "sha256": "f91061f8fcb18913d80bf983e79d27b55be9190de593ccc112538fe0d4464e3d",
+        "status": "PROVEN"
+      },
+      "hangarType": {
+        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка C12='окрашенный профлист')",
+        "frameOnly": false,
+        "status": "PROVEN",
+        "evidenceCell": "12м!C12 (or 18!C12)"
+      },
+      "geometry": {
+        "span_m": {
+          "value": 18,
+          "cell": "C8",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "length_m": {
+          "value": 46,
+          "cell": "C9",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "height_m": {
+          "value": 7,
+          "cell": "C10",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "framePitch_m": {
+          "value": 3.4,
+          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "externalCladding": {
+          "value": "окрашенный профлист",
+          "cell": "C12 (label at B12 'наружная обшивка :')",
+          "status": "PROVEN"
+        },
+        "internalCladding": {
+          "value": "нет",
+          "cell": "C13 (label at B13 'внутренняя обшивка :')",
+          "status": "PROVEN"
+        },
+        "tzNumber": {
+          "value": "21629",
+          "cell": "G5",
+          "status": "PROVEN"
+        },
+        "city": {
+          "value": "Ирбит",
+          "cell": "B6",
+          "status": "PROVEN"
+        },
+        "seismic": {
+          "value": null,
+          "cell": "E6",
+          "status": "OBSERVED_ABSENT"
+        },
+        "snowWindZone": {
+          "value": "4/1",
+          "cell": "C5/D5",
+          "status": "PROVEN"
+        },
+        "responsibilityLevel": {
+          "value": 2,
+          "cell": "G8",
+          "status": "PROVEN"
+        },
+        "fireResistanceClass": {
+          "value": 5,
+          "cell": "G9",
+          "status": "PROVEN"
+        },
+        "roofSlope_deg": {
+          "value": 15,
+          "cell": "J14",
+          "formula": "15*3.14/180",
+          "status": "PROVEN",
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+        }
+      },
+      "sheetNames": [
+        "12м",
+        "15",
+        "18",
+        "21",
+        "1ск"
+      ],
+      "liveSheet": {
+        "value": "12м",
+        "status": "PROVEN",
+        "note": "sheet tab NAME does not reliably indicate span; only the sheet containing the literal TZ number in G5 is live, others are stale template copies"
+      },
+      "wallGirtSelectionResult": {
+        "status": "UNSUPPORTED",
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+      },
+      "postsBranch": {
+        "value": "NOT_FOUND",
+        "status": "UNSUPPORTED",
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+      },
+      "openings": {
+        "windows": {
+          "count": 0,
+          "status": "PROVEN",
+          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
+        },
+        "doors": {
+          "count": 3,
+          "width_m": 2,
+          "height_m": 2,
+          "status": "PROVEN",
+          "cell": "row with label 'двери'"
+        },
+        "gates": {
+          "count": 3,
+          "width_m": 4,
+          "height_m": 4.5,
+          "status": "PROVEN",
+          "cell": "row with label 'ворота'"
+        },
+        "skylight": null,
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+      },
+      "frameCountComparison": {
+        "xlsxValue": 15,
+        "xlsxCell": "I17",
+        "xlsxFormula": "CEILING(C9/C11+1,1)",
+        "appValue": 15,
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "result": "MATCH",
+        "status": "PROVEN"
+      }
+    },
+    {
+      "project": "21639",
+      "drive": {
+        "fileId": "1E2Tm6XIzWVX2uYTcNda5GAiFJ7JSEcEy",
+        "title": "21639.xlsx",
+        "sizeBytes": 284270,
+        "sha256": "5cf4215308a91e2765300ddf0e05b69070126ee240c211cdd748e43f8608fccc",
+        "status": "PROVEN"
+      },
+      "hangarType": {
+        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка C12='СП')",
+        "frameOnly": false,
+        "status": "PROVEN",
+        "evidenceCell": "12м!C12 (or 18!C12)"
+      },
+      "geometry": {
+        "span_m": {
+          "value": 18,
+          "cell": "C8",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "length_m": {
+          "value": 30,
+          "cell": "C9",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "height_m": {
+          "value": 6,
+          "cell": "C10",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "framePitch_m": {
+          "value": 5,
+          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "externalCladding": {
+          "value": "СП",
+          "cell": "C12 (label at B12 'наружная обшивка :')",
+          "status": "PROVEN"
+        },
+        "internalCladding": {
+          "value": "нет",
+          "cell": "C13 (label at B13 'внутренняя обшивка :')",
+          "status": "PROVEN"
+        },
+        "tzNumber": {
+          "value": "21639",
+          "cell": "G5",
+          "status": "PROVEN"
+        },
+        "city": {
+          "value": "Иркутск",
+          "cell": "B6",
+          "status": "PROVEN"
+        },
+        "seismic": {
+          "value": "8Б",
+          "cell": "E6",
+          "status": "PROVEN"
+        },
+        "snowWindZone": {
+          "value": "2/3",
+          "cell": "C5/D5",
+          "status": "PROVEN"
+        },
+        "responsibilityLevel": {
+          "value": 2,
+          "cell": "G8",
+          "status": "PROVEN"
+        },
+        "fireResistanceClass": {
+          "value": 4,
+          "cell": "G9",
+          "status": "PROVEN"
+        },
+        "roofSlope_deg": {
+          "value": 15,
+          "cell": "J14",
+          "formula": "15*3.14/180",
+          "status": "PROVEN",
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+        }
+      },
+      "sheetNames": [
+        "12м",
+        "15",
+        "18",
+        "21",
+        "1ск"
+      ],
+      "liveSheet": {
+        "value": "12м",
+        "status": "PROVEN",
+        "note": "sheet tab NAME does not reliably indicate span; only the sheet containing the literal TZ number in G5 is live, others are stale template copies"
+      },
+      "wallGirtSelectionResult": {
+        "status": "UNSUPPORTED",
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+      },
+      "postsBranch": {
+        "value": "NOT_FOUND",
+        "status": "UNSUPPORTED",
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+      },
+      "openings": {
+        "windows": {
+          "count": 0,
+          "status": "PROVEN",
+          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
+        },
+        "doors": {
+          "count": 0,
+          "status": "PROVEN"
+        },
+        "gates": {
+          "count": 1,
+          "width_m": 4,
+          "height_m": 4,
+          "status": "PROVEN",
+          "cell": "row with label 'ворота'"
+        },
+        "skylight": null,
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+      },
+      "frameCountComparison": {
+        "xlsxValue": 7,
+        "xlsxCell": "I17",
+        "xlsxFormula": "CEILING(C9/C11+1,1)",
+        "appValue": 7,
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "result": "MATCH",
+        "status": "PROVEN"
+      }
+    },
+    {
+      "project": "21640",
+      "drive": {
+        "fileId": "1-2xeMMg_3JpLR7wikwM6x-ND-qoZOTNM",
+        "title": "21640.xlsx",
+        "sizeBytes": 282893,
+        "sha256": "4705a40dd3d1a6698937c793460aec25243652fc44bfac7db55f780dad6f519b",
+        "status": "PROVEN"
+      },
+      "hangarType": {
+        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка C12='окрашенный профлист')",
+        "frameOnly": false,
+        "status": "PROVEN",
+        "evidenceCell": "12м!C12 (or 18!C12)"
+      },
+      "geometry": {
+        "span_m": {
+          "value": 18,
+          "cell": "C8",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "length_m": {
+          "value": 30,
+          "cell": "C9",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "height_m": {
+          "value": 6,
+          "cell": "C10",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "framePitch_m": {
+          "value": 5,
+          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "externalCladding": {
+          "value": "окрашенный профлист",
+          "cell": "C12 (label at B12 'наружная обшивка :')",
+          "status": "PROVEN"
+        },
+        "internalCladding": {
+          "value": "нет",
+          "cell": "C13 (label at B13 'внутренняя обшивка :')",
+          "status": "PROVEN"
+        },
+        "tzNumber": {
+          "value": "21640",
+          "cell": "G5",
+          "status": "PROVEN"
+        },
+        "city": {
+          "value": "Иркутск",
+          "cell": "B6",
+          "status": "PROVEN"
+        },
+        "seismic": {
+          "value": "8Б",
+          "cell": "E6",
+          "status": "PROVEN"
+        },
+        "snowWindZone": {
+          "value": "2/3",
+          "cell": "C5/D5",
+          "status": "PROVEN"
+        },
+        "responsibilityLevel": {
+          "value": 2,
+          "cell": "G8",
+          "status": "PROVEN"
+        },
+        "fireResistanceClass": {
+          "value": 4,
+          "cell": "G9",
+          "status": "PROVEN"
+        },
+        "roofSlope_deg": {
+          "value": 15,
+          "cell": "J14",
+          "formula": "15*3.14/180",
+          "status": "PROVEN",
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+        }
+      },
+      "sheetNames": [
+        "12м",
+        "15",
+        "18",
+        "21",
+        "1ск"
+      ],
+      "liveSheet": {
+        "value": "12м",
+        "status": "PROVEN",
+        "note": "sheet tab NAME does not reliably indicate span; only the sheet containing the literal TZ number in G5 is live, others are stale template copies"
+      },
+      "wallGirtSelectionResult": {
+        "status": "UNSUPPORTED",
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+      },
+      "postsBranch": {
+        "value": "NOT_FOUND",
+        "status": "UNSUPPORTED",
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+      },
+      "openings": {
+        "windows": {
+          "count": 0,
+          "status": "PROVEN",
+          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
+        },
+        "doors": {
+          "count": 0,
+          "status": "PROVEN"
+        },
+        "gates": {
+          "count": 1,
+          "width_m": 4,
+          "height_m": 4,
+          "status": "PROVEN",
+          "cell": "row with label 'ворота'"
+        },
+        "skylight": null,
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+      },
+      "frameCountComparison": {
+        "xlsxValue": 7,
+        "xlsxCell": "I17",
+        "xlsxFormula": "CEILING(C9/C11+1,1)",
+        "appValue": 7,
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "result": "MATCH",
+        "status": "PROVEN"
+      }
+    },
+    {
+      "project": "21873",
+      "drive": {
+        "fileId": "1ZDhT5W6jORQr80zOZZtruf5somhSm2f2",
+        "title": "21873.xlsx",
+        "sizeBytes": 276011,
+        "sha256": "e51e2d67b13ac10d9973e4b6b0245ea100841db8e079017eafdeb576e97380b3",
+        "status": "PROVEN"
+      },
+      "hangarType": {
+        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка C12='окрашенный профлист')",
+        "frameOnly": false,
+        "status": "PROVEN",
+        "evidenceCell": "12м!C12 (or 18!C12)"
+      },
+      "geometry": {
+        "span_m": {
+          "value": 20,
+          "cell": "C8",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "length_m": {
+          "value": 50,
+          "cell": "C9",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "height_m": {
+          "value": 7,
+          "cell": "C10",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "framePitch_m": {
+          "value": 5,
+          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "externalCladding": {
+          "value": "окрашенный профлист",
+          "cell": "C12 (label at B12 'наружная обшивка :')",
+          "status": "PROVEN"
+        },
+        "internalCladding": {
+          "value": "нет",
+          "cell": "C13 (label at B13 'внутренняя обшивка :')",
+          "status": "PROVEN"
+        },
+        "tzNumber": {
+          "value": "21873",
+          "cell": "G5",
+          "status": "PROVEN"
+        },
+        "city": {
+          "value": "Каргалейка",
+          "cell": "B6",
+          "status": "PROVEN"
+        },
+        "seismic": {
+          "value": null,
+          "cell": "E6",
+          "status": "OBSERVED_ABSENT"
+        },
+        "snowWindZone": {
+          "value": "3/2",
+          "cell": "C5/D5",
+          "status": "PROVEN"
+        },
+        "responsibilityLevel": {
+          "value": 3,
+          "cell": "G8",
+          "status": "PROVEN"
+        },
+        "fireResistanceClass": {
+          "value": 5,
+          "cell": "G9",
+          "status": "PROVEN"
+        },
+        "roofSlope_deg": {
+          "value": 15,
+          "cell": "J14",
+          "formula": "15*3.14/180",
+          "status": "PROVEN",
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+        }
+      },
+      "sheetNames": [
+        "12м",
+        "15",
+        "18",
+        "21",
+        "1ск"
+      ],
+      "liveSheet": {
+        "value": "18",
+        "status": "PROVEN",
+        "note": "sheet tab NAME does not reliably indicate span; only the sheet containing the literal TZ number in G5 is live, others are stale template copies"
+      },
+      "wallGirtSelectionResult": {
+        "status": "UNSUPPORTED",
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+      },
+      "postsBranch": {
+        "value": "NOT_FOUND",
+        "status": "UNSUPPORTED",
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+      },
+      "openings": {
+        "windows": {
+          "count": 0,
+          "status": "PROVEN",
+          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
+        },
+        "doors": {
+          "count": 0,
+          "status": "PROVEN"
+        },
+        "gates": {
+          "count": 2,
+          "width_m": 4.5,
+          "height_m": 4.5,
+          "status": "PROVEN",
+          "cell": "row with label 'ворота'"
+        },
+        "skylight": null,
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+      },
+      "frameCountComparison": {
+        "xlsxValue": 11,
+        "xlsxCell": "I17",
+        "xlsxFormula": "CEILING(C9/C11+1,1)",
+        "appValue": 11,
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "result": "MATCH",
+        "status": "PROVEN"
+      }
+    },
+    {
+      "project": "21892",
+      "drive": {
+        "fileId": "1NEFK2oW-4F-gDT2iR544-qNbu_nLnQYu",
+        "title": "21892 (СПРИНТ).xlsx",
+        "sizeBytes": 278191,
+        "sha256": "64178f7a8e6fccc9d5193eb77f282d4868b3a3cea32fcb0de77dcbe3f30552d7",
+        "status": "PROVEN"
+      },
+      "hangarType": {
+        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка C12='окрашенный профлист')",
+        "frameOnly": false,
+        "status": "PROVEN",
+        "evidenceCell": "12м!C12 (or 18!C12)"
+      },
+      "geometry": {
+        "span_m": {
+          "value": 15,
+          "cell": "C8",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "length_m": {
+          "value": 66,
+          "cell": "C9",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "height_m": {
+          "value": 6,
+          "cell": "C10",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "framePitch_m": {
+          "value": 4,
+          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "externalCladding": {
+          "value": "окрашенный профлист",
+          "cell": "C12 (label at B12 'наружная обшивка :')",
+          "status": "PROVEN"
+        },
+        "internalCladding": {
+          "value": "нет",
+          "cell": "C13 (label at B13 'внутренняя обшивка :')",
+          "status": "PROVEN"
+        },
+        "tzNumber": {
+          "value": "21892/1",
+          "cell": "G5",
+          "status": "PROVEN"
+        },
+        "city": {
+          "value": "Уфа",
+          "cell": "B6",
+          "status": "PROVEN"
+        },
+        "seismic": {
+          "value": null,
+          "cell": "E6",
+          "status": "OBSERVED_ABSENT"
+        },
+        "snowWindZone": {
+          "value": "5/2",
+          "cell": "C5/D5",
+          "status": "PROVEN"
+        },
+        "responsibilityLevel": {
+          "value": 2,
+          "cell": "G8",
+          "status": "PROVEN"
+        },
+        "fireResistanceClass": {
+          "value": 4,
+          "cell": "G9",
+          "status": "PROVEN"
+        },
+        "roofSlope_deg": {
+          "value": 15,
+          "cell": "J14",
+          "formula": "15*3.14/180",
+          "status": "PROVEN",
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+        }
+      },
+      "sheetNames": [
+        "12м",
+        "15",
+        "18",
+        "21",
+        "1ск"
+      ],
+      "liveSheet": {
+        "value": "12м",
+        "status": "PROVEN",
+        "note": "sheet tab NAME does not reliably indicate span; only the sheet containing the literal TZ number in G5 is live, others are stale template copies"
+      },
+      "wallGirtSelectionResult": {
+        "status": "UNSUPPORTED",
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+      },
+      "postsBranch": {
+        "value": "NOT_FOUND",
+        "status": "UNSUPPORTED",
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+      },
+      "openings": {
+        "windows": {
+          "count": 0,
+          "status": "PROVEN",
+          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
+        },
+        "doors": {
+          "count": 0,
+          "status": "PROVEN"
+        },
+        "gates": {
+          "count": 2,
+          "width_m": 4.5,
+          "height_m": 4.5,
+          "status": "PROVEN",
+          "cell": "row with label 'ворота'"
+        },
+        "skylight": null,
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+      },
+      "frameCountComparison": {
+        "xlsxValue": 18,
+        "xlsxCell": "I17",
+        "xlsxFormula": "CEILING(C9/C11+1,1)",
+        "appValue": 18,
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "result": "MATCH",
+        "status": "PROVEN"
+      }
+    },
+    {
+      "project": "21998",
+      "drive": {
+        "fileId": "1RujgCRbj0eoUMFE-Rcu2-PF2pr9CBd3Y",
+        "title": "21998.xlsx",
+        "sizeBytes": 276625,
+        "sha256": "b6fdbcf7dd60c249262bd58b0ec538244f3c036e319f9a8d6fd9a62d8ea80b48",
+        "status": "PROVEN"
+      },
+      "hangarType": {
+        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка C12='СП')",
+        "frameOnly": false,
+        "status": "PROVEN",
+        "evidenceCell": "12м!C12 (or 18!C12)"
+      },
+      "geometry": {
+        "span_m": {
+          "value": 18,
+          "cell": "C8",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "length_m": {
+          "value": 81,
+          "cell": "C9",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "height_m": {
+          "value": 8,
+          "cell": "C10",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "framePitch_m": {
+          "value": 6,
+          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "formula": null,
+          "status": "PROVEN"
+        },
+        "externalCladding": {
+          "value": "СП",
+          "cell": "C12 (label at B12 'наружная обшивка :')",
+          "status": "PROVEN"
+        },
+        "internalCladding": {
+          "value": "нет",
+          "cell": "C13 (label at B13 'внутренняя обшивка :')",
+          "status": "PROVEN"
+        },
+        "tzNumber": {
+          "value": "21998",
+          "cell": "G5",
+          "status": "PROVEN"
+        },
+        "city": {
+          "value": "Челябинск",
+          "cell": "B6",
+          "status": "PROVEN"
+        },
+        "seismic": {
+          "value": null,
+          "cell": "E6",
+          "status": "OBSERVED_ABSENT"
+        },
+        "snowWindZone": {
+          "value": "3/2",
+          "cell": "C5/D5",
+          "status": "PROVEN"
+        },
+        "responsibilityLevel": {
+          "value": 2,
+          "cell": "G8",
+          "status": "PROVEN"
+        },
+        "fireResistanceClass": {
+          "value": 4,
+          "cell": "G9",
+          "status": "PROVEN"
+        },
+        "roofSlope_deg": {
+          "value": 15,
+          "cell": "J14",
+          "formula": "15*3.14/180",
+          "status": "PROVEN",
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+        }
+      },
+      "sheetNames": [
+        "12м",
+        "15",
+        "18",
+        "21",
+        "1ск"
+      ],
+      "liveSheet": {
+        "value": "18",
+        "status": "PROVEN",
+        "note": "sheet tab NAME does not reliably indicate span; only the sheet containing the literal TZ number in G5 is live, others are stale template copies"
+      },
+      "wallGirtSelectionResult": {
+        "status": "UNSUPPORTED",
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+      },
+      "postsBranch": {
+        "value": "NOT_FOUND",
+        "status": "UNSUPPORTED",
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+      },
+      "openings": {
+        "windows": {
+          "count": 0,
+          "status": "PROVEN",
+          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
+        },
+        "doors": {
+          "count": 1,
+          "width_m": 1,
+          "height_m": 2.1,
+          "status": "PROVEN",
+          "cell": "row with label 'двери'"
+        },
+        "gates": {
+          "count": 1,
+          "width_m": 4.1,
+          "height_m": 4.5,
+          "status": "PROVEN",
+          "cell": "row with label 'ворота'"
+        },
+        "skylight": "зенит.фонарь 3х1,3(h), PROVEN in B7",
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+      },
+      "frameCountComparison": {
+        "xlsxValue": 15,
+        "xlsxCell": "I17",
+        "xlsxFormula": "CEILING(C9/C11+1,1)",
+        "appValue": 15,
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "result": "MATCH",
+        "status": "PROVEN"
+      }
+    }
+  ]
+}
