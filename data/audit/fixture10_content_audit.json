@@ -1,8 +1,20 @@
 {
-  "schemaVersion": "1.0.0",
-  "generatedFrom": "commit d8efbdc, FIRST_GOLDEN_FIXTURES",
+  "schemaVersion": "1.1.0",
+  "generatedFrom": "commit a737dd5, corrected per CLAUDE-MANAGER precision-fix request",
   "productionCodeChanged": false,
   "method": "Real xlsx binaries downloaded from Drive, decoded, SHA-256 hashed, parsed with SheetJS (xlsx npm package) for cell values and formulas. Comparison run against src/calc/geometry/frameGeometry.ts computeFrameCount (read-only, not executed via the live UI).",
+  "uniqueLengthFramePitchPairs": {
+    "count": 7,
+    "pairs": [
+      "90|3.92",
+      "90|3.5",
+      "46|3.4",
+      "30|5",
+      "50|5",
+      "66|4",
+      "81|6"
+    ]
+  },
   "fixtures": [
     {
       "project": "21484",
@@ -14,82 +26,98 @@
         "status": "PROVEN"
       },
       "hangarType": {
-        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка C12='окрашенный профлист')",
+        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка = 'окрашенный профлист')",
         "frameOnly": false,
         "status": "PROVEN",
-        "evidenceCell": "12м!C12 (or 18!C12)"
+        "evidenceCell": "12м!C12",
+        "scopeNote": "SP='sandwich panel'/AX='profnastil' cladding-code correlation is PROVEN for these 10 files only (10/10 match against known enclosure tags). Not declared a universal rule for all 160 corpus projects without checking a larger sample.",
+        "transferability": "CONTEXT_ONLY"
       },
       "geometry": {
         "span_m": {
           "value": 20,
-          "cell": "C8",
+          "cell": "12м!C8",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "length_m": {
           "value": 90,
-          "cell": "C9",
+          "cell": "12м!C9",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "height_m": {
           "value": 7,
-          "cell": "C10",
+          "cell": "12м!C10",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "framePitch_m": {
           "value": 3.92,
-          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "cell": "12м!C11 (label at 12м!A11 'шаг рам, м :')",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT",
+          "note": "uniform pitch assumed; axis positions and non-uniform bay spacing were NOT verified — see frameCountComparison.axisPositionsVerified"
         },
         "externalCladding": {
           "value": "окрашенный профлист",
-          "cell": "C12 (label at B12 'наружная обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C12 (label at 12м!B12 'наружная обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "internalCladding": {
           "value": "нет",
-          "cell": "C13 (label at B13 'внутренняя обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C13 (label at 12м!B13 'внутренняя обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "tzNumber": {
           "value": "21484/2",
-          "cell": "G5",
-          "status": "PROVEN"
+          "cell": "12м!G5",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "city": {
           "value": "Курган",
-          "cell": "B6",
-          "status": "PROVEN"
+          "cell": "12м!B6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "seismic": {
           "value": null,
-          "cell": "E6",
-          "status": "OBSERVED_ABSENT"
+          "cell": "12м!E6",
+          "status": "OBSERVED_ABSENT",
+          "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
         },
         "snowWindZone": {
           "value": "3/2",
-          "cell": "C5/D5",
-          "status": "PROVEN"
+          "cell": "12м!C5/D5",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "responsibilityLevel": {
           "value": 2,
-          "cell": "G8",
-          "status": "PROVEN"
+          "cell": "12м!G8",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "fireResistanceClass": {
           "value": 3,
-          "cell": "G9",
-          "status": "PROVEN"
+          "cell": "12м!G9",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "roofSlope_deg": {
           "value": 15,
-          "cell": "J14",
+          "cell": "12м!J14",
           "formula": "15*3.14/180",
           "status": "PROVEN",
-          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         }
       },
       "sheetNames": [
@@ -106,45 +134,111 @@
       },
       "wallGirtSelectionResult": {
         "status": "UNSUPPORTED",
-        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
-        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "12м!B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "postsBranch": {
         "value": "NOT_FOUND",
         "status": "UNSUPPORTED",
-        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range). This is evidence of absence in these 10 documents only — NOT proof that a 'без стоек/со стойками' branch does not exist elsewhere in the real toolchain.",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "openings": {
-        "windows": {
-          "count": 0,
-          "status": "PROVEN",
-          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
-        },
-        "doors": {
-          "count": 4,
-          "width_m": 1,
-          "height_m": 2,
-          "status": "PROVEN",
-          "cell": "row with label 'двери'"
-        },
-        "gates": {
-          "count": 2,
-          "width_m": 5,
-          "height_m": 5,
-          "status": "PROVEN",
-          "cell": "row with label 'ворота'"
-        },
+        "windows": [
+          {
+            "row": 160,
+            "count": {
+              "value": 0,
+              "cell": "L160",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 3,
+              "cell": "J160",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K160",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M160",
+              "formula": "J160*K160*L160",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "doors": [
+          {
+            "row": 161,
+            "count": {
+              "value": 4,
+              "cell": "L161",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J161",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2,
+              "cell": "K161",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 8,
+              "cell": "M161",
+              "formula": "J161*K161*L161",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "gates": [
+          {
+            "row": 162,
+            "count": {
+              "value": 2,
+              "cell": "L162",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 5,
+              "cell": "J162",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 5,
+              "cell": "K162",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 50,
+              "cell": "M162",
+              "formula": "J162*K162*L162",
+              "status": "PROVEN"
+            }
+          }
+        ],
         "skylight": null,
-        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file.",
+        "transferability": "SAFE_AS_REGRESSION_INPUT for count/width/height cells; NOT_TRANSFERABLE_AS_CALC_RULE for price cells (external reference, uncomputable here)"
       },
       "frameCountComparison": {
         "xlsxValue": 24,
-        "xlsxCell": "I17",
+        "xlsxCell": "12м!I17",
         "xlsxFormula": "CEILING(C9/C11+1,1)",
         "appValue": 24,
-        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1",
+        "widenedBays": [],
+        "widenedBaysNote": "This comparison used widenedBays=[] (no gate-widened bays) for all 10 fixtures — computeFrameCount's other branch (widened bays present) was not exercised or verified against any real file.",
         "result": "MATCH",
-        "status": "PROVEN"
+        "status": "PROVEN",
+        "provenScope": "Only the SCALAR frame COUNT was proven to match. Axis positions (where each frame actually sits along the building length) and behavior under non-uniform/irregular bay spacing were NOT checked — the xlsx formula and the app function could still place frames differently while agreeing on total count.",
+        "axisPositionsVerified": false
       }
     },
     {
@@ -157,82 +251,98 @@
         "status": "PROVEN"
       },
       "hangarType": {
-        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка C12='СП')",
+        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка = 'СП')",
         "frameOnly": false,
         "status": "PROVEN",
-        "evidenceCell": "12м!C12 (or 18!C12)"
+        "evidenceCell": "12м!C12",
+        "scopeNote": "SP='sandwich panel'/AX='profnastil' cladding-code correlation is PROVEN for these 10 files only (10/10 match against known enclosure tags). Not declared a universal rule for all 160 corpus projects without checking a larger sample.",
+        "transferability": "CONTEXT_ONLY"
       },
       "geometry": {
         "span_m": {
           "value": 20,
-          "cell": "C8",
+          "cell": "12м!C8",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "length_m": {
           "value": 90,
-          "cell": "C9",
+          "cell": "12м!C9",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "height_m": {
           "value": 7,
-          "cell": "C10",
+          "cell": "12м!C10",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "framePitch_m": {
           "value": 3.5,
-          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "cell": "12м!C11 (label at 12м!A11 'шаг рам, м :')",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT",
+          "note": "uniform pitch assumed; axis positions and non-uniform bay spacing were NOT verified — see frameCountComparison.axisPositionsVerified"
         },
         "externalCladding": {
           "value": "СП",
-          "cell": "C12 (label at B12 'наружная обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C12 (label at 12м!B12 'наружная обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "internalCladding": {
           "value": "нет",
-          "cell": "C13 (label at B13 'внутренняя обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C13 (label at 12м!B13 'внутренняя обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "tzNumber": {
           "value": "21501/2",
-          "cell": "G5",
-          "status": "PROVEN"
+          "cell": "12м!G5",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "city": {
           "value": "Курган",
-          "cell": "B6",
-          "status": "PROVEN"
+          "cell": "12м!B6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "seismic": {
           "value": null,
-          "cell": "E6",
-          "status": "OBSERVED_ABSENT"
+          "cell": "12м!E6",
+          "status": "OBSERVED_ABSENT",
+          "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
         },
         "snowWindZone": {
           "value": "3/2",
-          "cell": "C5/D5",
-          "status": "PROVEN"
+          "cell": "12м!C5/D5",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "responsibilityLevel": {
           "value": 2,
-          "cell": "G8",
-          "status": "PROVEN"
+          "cell": "12м!G8",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "fireResistanceClass": {
           "value": 3,
-          "cell": "G9",
-          "status": "PROVEN"
+          "cell": "12м!G9",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "roofSlope_deg": {
           "value": 15,
-          "cell": "J14",
+          "cell": "12м!J14",
           "formula": "15*3.14/180",
           "status": "PROVEN",
-          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         }
       },
       "sheetNames": [
@@ -249,45 +359,111 @@
       },
       "wallGirtSelectionResult": {
         "status": "UNSUPPORTED",
-        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
-        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "12м!B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "postsBranch": {
         "value": "NOT_FOUND",
         "status": "UNSUPPORTED",
-        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range). This is evidence of absence in these 10 documents only — NOT proof that a 'без стоек/со стойками' branch does not exist elsewhere in the real toolchain.",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "openings": {
-        "windows": {
-          "count": 0,
-          "status": "PROVEN",
-          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
-        },
-        "doors": {
-          "count": 4,
-          "width_m": 1,
-          "height_m": 2,
-          "status": "PROVEN",
-          "cell": "row with label 'двери'"
-        },
-        "gates": {
-          "count": 2,
-          "width_m": 5,
-          "height_m": 5,
-          "status": "PROVEN",
-          "cell": "row with label 'ворота'"
-        },
+        "windows": [
+          {
+            "row": 160,
+            "count": {
+              "value": 0,
+              "cell": "L160",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 3,
+              "cell": "J160",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K160",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M160",
+              "formula": "J160*K160*L160",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "doors": [
+          {
+            "row": 161,
+            "count": {
+              "value": 4,
+              "cell": "L161",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J161",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2,
+              "cell": "K161",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 8,
+              "cell": "M161",
+              "formula": "J161*K161*L161",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "gates": [
+          {
+            "row": 162,
+            "count": {
+              "value": 2,
+              "cell": "L162",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 5,
+              "cell": "J162",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 5,
+              "cell": "K162",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 50,
+              "cell": "M162",
+              "formula": "J162*K162*L162",
+              "status": "PROVEN"
+            }
+          }
+        ],
         "skylight": null,
-        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file.",
+        "transferability": "SAFE_AS_REGRESSION_INPUT for count/width/height cells; NOT_TRANSFERABLE_AS_CALC_RULE for price cells (external reference, uncomputable here)"
       },
       "frameCountComparison": {
         "xlsxValue": 27,
-        "xlsxCell": "I17",
+        "xlsxCell": "12м!I17",
         "xlsxFormula": "CEILING(C9/C11+1,1)",
         "appValue": 27,
-        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1",
+        "widenedBays": [],
+        "widenedBaysNote": "This comparison used widenedBays=[] (no gate-widened bays) for all 10 fixtures — computeFrameCount's other branch (widened bays present) was not exercised or verified against any real file.",
         "result": "MATCH",
-        "status": "PROVEN"
+        "status": "PROVEN",
+        "provenScope": "Only the SCALAR frame COUNT was proven to match. Axis positions (where each frame actually sits along the building length) and behavior under non-uniform/irregular bay spacing were NOT checked — the xlsx formula and the app function could still place frames differently while agreeing on total count.",
+        "axisPositionsVerified": false
       }
     },
     {
@@ -300,82 +476,98 @@
         "status": "PROVEN"
       },
       "hangarType": {
-        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка C12='СП')",
+        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка = 'СП')",
         "frameOnly": true,
         "status": "PROVEN",
-        "evidenceCell": "12м!C12 (or 18!C12)"
+        "evidenceCell": "12м!C12",
+        "scopeNote": "SP='sandwich panel'/AX='profnastil' cladding-code correlation is PROVEN for these 10 files only (10/10 match against known enclosure tags). Not declared a universal rule for all 160 corpus projects without checking a larger sample.",
+        "transferability": "CONTEXT_ONLY"
       },
       "geometry": {
         "span_m": {
           "value": 18,
-          "cell": "C8",
+          "cell": "12м!C8",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "length_m": {
           "value": 46,
-          "cell": "C9",
+          "cell": "12м!C9",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "height_m": {
           "value": 7,
-          "cell": "C10",
+          "cell": "12м!C10",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "framePitch_m": {
           "value": 3.4,
-          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "cell": "12м!C11 (label at 12м!A11 'шаг рам, м :')",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT",
+          "note": "uniform pitch assumed; axis positions and non-uniform bay spacing were NOT verified — see frameCountComparison.axisPositionsVerified"
         },
         "externalCladding": {
           "value": "СП",
-          "cell": "C12 (label at B12 'наружная обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C12 (label at 12м!B12 'наружная обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "internalCladding": {
           "value": "нет",
-          "cell": "C13 (label at B13 'внутренняя обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C13 (label at 12м!B13 'внутренняя обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "tzNumber": {
           "value": "21627",
-          "cell": "G5",
-          "status": "PROVEN"
+          "cell": "12м!G5",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "city": {
           "value": "Ирбит",
-          "cell": "B6",
-          "status": "PROVEN"
+          "cell": "12м!B6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "seismic": {
           "value": null,
-          "cell": "E6",
-          "status": "OBSERVED_ABSENT"
+          "cell": "12м!E6",
+          "status": "OBSERVED_ABSENT",
+          "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
         },
         "snowWindZone": {
           "value": "4/1",
-          "cell": "C5/D5",
-          "status": "PROVEN"
+          "cell": "12м!C5/D5",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "responsibilityLevel": {
           "value": 2,
-          "cell": "G8",
-          "status": "PROVEN"
+          "cell": "12м!G8",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "fireResistanceClass": {
           "value": 5,
-          "cell": "G9",
-          "status": "PROVEN"
+          "cell": "12м!G9",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "roofSlope_deg": {
           "value": 15,
-          "cell": "J14",
+          "cell": "12м!J14",
           "formula": "15*3.14/180",
           "status": "PROVEN",
-          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         }
       },
       "sheetNames": [
@@ -392,45 +584,135 @@
       },
       "wallGirtSelectionResult": {
         "status": "UNSUPPORTED",
-        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
-        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "12м!B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "postsBranch": {
         "value": "NOT_FOUND",
         "status": "UNSUPPORTED",
-        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range). This is evidence of absence in these 10 documents only — NOT proof that a 'без стоек/со стойками' branch does not exist elsewhere in the real toolchain.",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "openings": {
-        "windows": {
-          "count": 0,
-          "status": "PROVEN",
-          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
-        },
-        "doors": {
-          "count": 3,
-          "width_m": 2,
-          "height_m": 2,
-          "status": "PROVEN",
-          "cell": "row with label 'двери'"
-        },
-        "gates": {
-          "count": 3,
-          "width_m": 4,
-          "height_m": 4.5,
-          "status": "PROVEN",
-          "cell": "row with label 'ворота'"
-        },
+        "windows": [
+          {
+            "row": 160,
+            "count": {
+              "value": 0,
+              "cell": "L160",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 50,
+              "cell": "J160",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K160",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M160",
+              "formula": "J160*K160*L160",
+              "status": "PROVEN"
+            }
+          },
+          {
+            "row": 161,
+            "count": {
+              "value": 0,
+              "cell": "L161",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J161",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2,
+              "cell": "K161",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M161",
+              "formula": "J161*K161*L161",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "doors": [
+          {
+            "row": 162,
+            "count": {
+              "value": 3,
+              "cell": "L162",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 2,
+              "cell": "J162",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2,
+              "cell": "K162",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 12,
+              "cell": "M162",
+              "formula": "J162*K162*L162",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "gates": [
+          {
+            "row": 163,
+            "count": {
+              "value": 3,
+              "cell": "L163",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 4,
+              "cell": "J163",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 4.5,
+              "cell": "K163",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 54,
+              "cell": "M163",
+              "formula": "J163*K163*L163",
+              "status": "PROVEN"
+            }
+          }
+        ],
         "skylight": null,
-        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file.",
+        "transferability": "SAFE_AS_REGRESSION_INPUT for count/width/height cells; NOT_TRANSFERABLE_AS_CALC_RULE for price cells (external reference, uncomputable here)"
       },
       "frameCountComparison": {
         "xlsxValue": 15,
-        "xlsxCell": "I17",
+        "xlsxCell": "12м!I17",
         "xlsxFormula": "CEILING(C9/C11+1,1)",
         "appValue": 15,
-        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1",
+        "widenedBays": [],
+        "widenedBaysNote": "This comparison used widenedBays=[] (no gate-widened bays) for all 10 fixtures — computeFrameCount's other branch (widened bays present) was not exercised or verified against any real file.",
         "result": "MATCH",
-        "status": "PROVEN"
+        "status": "PROVEN",
+        "provenScope": "Only the SCALAR frame COUNT was proven to match. Axis positions (where each frame actually sits along the building length) and behavior under non-uniform/irregular bay spacing were NOT checked — the xlsx formula and the app function could still place frames differently while agreeing on total count.",
+        "axisPositionsVerified": false
       }
     },
     {
@@ -443,82 +725,98 @@
         "status": "PROVEN"
       },
       "hangarType": {
-        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка C12='СП')",
+        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка = 'СП')",
         "frameOnly": false,
         "status": "PROVEN",
-        "evidenceCell": "12м!C12 (or 18!C12)"
+        "evidenceCell": "12м!C12",
+        "scopeNote": "SP='sandwich panel'/AX='profnastil' cladding-code correlation is PROVEN for these 10 files only (10/10 match against known enclosure tags). Not declared a universal rule for all 160 corpus projects without checking a larger sample.",
+        "transferability": "CONTEXT_ONLY"
       },
       "geometry": {
         "span_m": {
           "value": 18,
-          "cell": "C8",
+          "cell": "12м!C8",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "length_m": {
           "value": 46,
-          "cell": "C9",
+          "cell": "12м!C9",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "height_m": {
           "value": 7,
-          "cell": "C10",
+          "cell": "12м!C10",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "framePitch_m": {
           "value": 3.4,
-          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "cell": "12м!C11 (label at 12м!A11 'шаг рам, м :')",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT",
+          "note": "uniform pitch assumed; axis positions and non-uniform bay spacing were NOT verified — see frameCountComparison.axisPositionsVerified"
         },
         "externalCladding": {
           "value": "СП",
-          "cell": "C12 (label at B12 'наружная обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C12 (label at 12м!B12 'наружная обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "internalCladding": {
           "value": "нет",
-          "cell": "C13 (label at B13 'внутренняя обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C13 (label at 12м!B13 'внутренняя обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "tzNumber": {
           "value": "21628",
-          "cell": "G5",
-          "status": "PROVEN"
+          "cell": "12м!G5",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "city": {
           "value": "Ирбит",
-          "cell": "B6",
-          "status": "PROVEN"
+          "cell": "12м!B6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "seismic": {
           "value": null,
-          "cell": "E6",
-          "status": "OBSERVED_ABSENT"
+          "cell": "12м!E6",
+          "status": "OBSERVED_ABSENT",
+          "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
         },
         "snowWindZone": {
           "value": "4/1",
-          "cell": "C5/D5",
-          "status": "PROVEN"
+          "cell": "12м!C5/D5",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "responsibilityLevel": {
           "value": 2,
-          "cell": "G8",
-          "status": "PROVEN"
+          "cell": "12м!G8",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "fireResistanceClass": {
           "value": 5,
-          "cell": "G9",
-          "status": "PROVEN"
+          "cell": "12м!G9",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "roofSlope_deg": {
           "value": 15,
-          "cell": "J14",
+          "cell": "12м!J14",
           "formula": "15*3.14/180",
           "status": "PROVEN",
-          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         }
       },
       "sheetNames": [
@@ -535,45 +833,135 @@
       },
       "wallGirtSelectionResult": {
         "status": "UNSUPPORTED",
-        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
-        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "12м!B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "postsBranch": {
         "value": "NOT_FOUND",
         "status": "UNSUPPORTED",
-        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range). This is evidence of absence in these 10 documents only — NOT proof that a 'без стоек/со стойками' branch does not exist elsewhere in the real toolchain.",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "openings": {
-        "windows": {
-          "count": 0,
-          "status": "PROVEN",
-          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
-        },
-        "doors": {
-          "count": 3,
-          "width_m": 2,
-          "height_m": 2,
-          "status": "PROVEN",
-          "cell": "row with label 'двери'"
-        },
-        "gates": {
-          "count": 3,
-          "width_m": 4,
-          "height_m": 4.5,
-          "status": "PROVEN",
-          "cell": "row with label 'ворота'"
-        },
+        "windows": [
+          {
+            "row": 160,
+            "count": {
+              "value": 0,
+              "cell": "L160",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 50,
+              "cell": "J160",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K160",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M160",
+              "formula": "J160*K160*L160",
+              "status": "PROVEN"
+            }
+          },
+          {
+            "row": 161,
+            "count": {
+              "value": 0,
+              "cell": "L161",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J161",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2,
+              "cell": "K161",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M161",
+              "formula": "J161*K161*L161",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "doors": [
+          {
+            "row": 162,
+            "count": {
+              "value": 3,
+              "cell": "L162",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 2,
+              "cell": "J162",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2,
+              "cell": "K162",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 12,
+              "cell": "M162",
+              "formula": "J162*K162*L162",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "gates": [
+          {
+            "row": 163,
+            "count": {
+              "value": 3,
+              "cell": "L163",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 4,
+              "cell": "J163",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 4.5,
+              "cell": "K163",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 54,
+              "cell": "M163",
+              "formula": "J163*K163*L163",
+              "status": "PROVEN"
+            }
+          }
+        ],
         "skylight": null,
-        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file.",
+        "transferability": "SAFE_AS_REGRESSION_INPUT for count/width/height cells; NOT_TRANSFERABLE_AS_CALC_RULE for price cells (external reference, uncomputable here)"
       },
       "frameCountComparison": {
         "xlsxValue": 15,
-        "xlsxCell": "I17",
+        "xlsxCell": "12м!I17",
         "xlsxFormula": "CEILING(C9/C11+1,1)",
         "appValue": 15,
-        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1",
+        "widenedBays": [],
+        "widenedBaysNote": "This comparison used widenedBays=[] (no gate-widened bays) for all 10 fixtures — computeFrameCount's other branch (widened bays present) was not exercised or verified against any real file.",
         "result": "MATCH",
-        "status": "PROVEN"
+        "status": "PROVEN",
+        "provenScope": "Only the SCALAR frame COUNT was proven to match. Axis positions (where each frame actually sits along the building length) and behavior under non-uniform/irregular bay spacing were NOT checked — the xlsx formula and the app function could still place frames differently while agreeing on total count.",
+        "axisPositionsVerified": false
       }
     },
     {
@@ -586,82 +974,98 @@
         "status": "PROVEN"
       },
       "hangarType": {
-        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка C12='окрашенный профлист')",
+        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка = 'окрашенный профлист')",
         "frameOnly": false,
         "status": "PROVEN",
-        "evidenceCell": "12м!C12 (or 18!C12)"
+        "evidenceCell": "12м!C12",
+        "scopeNote": "SP='sandwich panel'/AX='profnastil' cladding-code correlation is PROVEN for these 10 files only (10/10 match against known enclosure tags). Not declared a universal rule for all 160 corpus projects without checking a larger sample.",
+        "transferability": "CONTEXT_ONLY"
       },
       "geometry": {
         "span_m": {
           "value": 18,
-          "cell": "C8",
+          "cell": "12м!C8",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "length_m": {
           "value": 46,
-          "cell": "C9",
+          "cell": "12м!C9",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "height_m": {
           "value": 7,
-          "cell": "C10",
+          "cell": "12м!C10",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "framePitch_m": {
           "value": 3.4,
-          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "cell": "12м!C11 (label at 12м!A11 'шаг рам, м :')",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT",
+          "note": "uniform pitch assumed; axis positions and non-uniform bay spacing were NOT verified — see frameCountComparison.axisPositionsVerified"
         },
         "externalCladding": {
           "value": "окрашенный профлист",
-          "cell": "C12 (label at B12 'наружная обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C12 (label at 12м!B12 'наружная обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "internalCladding": {
           "value": "нет",
-          "cell": "C13 (label at B13 'внутренняя обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C13 (label at 12м!B13 'внутренняя обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "tzNumber": {
           "value": "21629",
-          "cell": "G5",
-          "status": "PROVEN"
+          "cell": "12м!G5",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "city": {
           "value": "Ирбит",
-          "cell": "B6",
-          "status": "PROVEN"
+          "cell": "12м!B6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "seismic": {
           "value": null,
-          "cell": "E6",
-          "status": "OBSERVED_ABSENT"
+          "cell": "12м!E6",
+          "status": "OBSERVED_ABSENT",
+          "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
         },
         "snowWindZone": {
           "value": "4/1",
-          "cell": "C5/D5",
-          "status": "PROVEN"
+          "cell": "12м!C5/D5",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "responsibilityLevel": {
           "value": 2,
-          "cell": "G8",
-          "status": "PROVEN"
+          "cell": "12м!G8",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "fireResistanceClass": {
           "value": 5,
-          "cell": "G9",
-          "status": "PROVEN"
+          "cell": "12м!G9",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "roofSlope_deg": {
           "value": 15,
-          "cell": "J14",
+          "cell": "12м!J14",
           "formula": "15*3.14/180",
           "status": "PROVEN",
-          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         }
       },
       "sheetNames": [
@@ -678,45 +1082,135 @@
       },
       "wallGirtSelectionResult": {
         "status": "UNSUPPORTED",
-        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
-        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "12м!B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "postsBranch": {
         "value": "NOT_FOUND",
         "status": "UNSUPPORTED",
-        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range). This is evidence of absence in these 10 documents only — NOT proof that a 'без стоек/со стойками' branch does not exist elsewhere in the real toolchain.",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "openings": {
-        "windows": {
-          "count": 0,
-          "status": "PROVEN",
-          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
-        },
-        "doors": {
-          "count": 3,
-          "width_m": 2,
-          "height_m": 2,
-          "status": "PROVEN",
-          "cell": "row with label 'двери'"
-        },
-        "gates": {
-          "count": 3,
-          "width_m": 4,
-          "height_m": 4.5,
-          "status": "PROVEN",
-          "cell": "row with label 'ворота'"
-        },
+        "windows": [
+          {
+            "row": 160,
+            "count": {
+              "value": 0,
+              "cell": "L160",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 50,
+              "cell": "J160",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K160",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M160",
+              "formula": "J160*K160*L160",
+              "status": "PROVEN"
+            }
+          },
+          {
+            "row": 161,
+            "count": {
+              "value": 0,
+              "cell": "L161",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J161",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2,
+              "cell": "K161",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M161",
+              "formula": "J161*K161*L161",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "doors": [
+          {
+            "row": 162,
+            "count": {
+              "value": 3,
+              "cell": "L162",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 2,
+              "cell": "J162",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2,
+              "cell": "K162",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 12,
+              "cell": "M162",
+              "formula": "J162*K162*L162",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "gates": [
+          {
+            "row": 163,
+            "count": {
+              "value": 3,
+              "cell": "L163",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 4,
+              "cell": "J163",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 4.5,
+              "cell": "K163",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 54,
+              "cell": "M163",
+              "formula": "J163*K163*L163",
+              "status": "PROVEN"
+            }
+          }
+        ],
         "skylight": null,
-        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file.",
+        "transferability": "SAFE_AS_REGRESSION_INPUT for count/width/height cells; NOT_TRANSFERABLE_AS_CALC_RULE for price cells (external reference, uncomputable here)"
       },
       "frameCountComparison": {
         "xlsxValue": 15,
-        "xlsxCell": "I17",
+        "xlsxCell": "12м!I17",
         "xlsxFormula": "CEILING(C9/C11+1,1)",
         "appValue": 15,
-        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1",
+        "widenedBays": [],
+        "widenedBaysNote": "This comparison used widenedBays=[] (no gate-widened bays) for all 10 fixtures — computeFrameCount's other branch (widened bays present) was not exercised or verified against any real file.",
         "result": "MATCH",
-        "status": "PROVEN"
+        "status": "PROVEN",
+        "provenScope": "Only the SCALAR frame COUNT was proven to match. Axis positions (where each frame actually sits along the building length) and behavior under non-uniform/irregular bay spacing were NOT checked — the xlsx formula and the app function could still place frames differently while agreeing on total count.",
+        "axisPositionsVerified": false
       }
     },
     {
@@ -729,82 +1223,98 @@
         "status": "PROVEN"
       },
       "hangarType": {
-        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка C12='СП')",
+        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка = 'СП')",
         "frameOnly": false,
         "status": "PROVEN",
-        "evidenceCell": "12м!C12 (or 18!C12)"
+        "evidenceCell": "12м!C12",
+        "scopeNote": "SP='sandwich panel'/AX='profnastil' cladding-code correlation is PROVEN for these 10 files only (10/10 match against known enclosure tags). Not declared a universal rule for all 160 corpus projects without checking a larger sample.",
+        "transferability": "CONTEXT_ONLY"
       },
       "geometry": {
         "span_m": {
           "value": 18,
-          "cell": "C8",
+          "cell": "12м!C8",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "length_m": {
           "value": 30,
-          "cell": "C9",
+          "cell": "12м!C9",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "height_m": {
           "value": 6,
-          "cell": "C10",
+          "cell": "12м!C10",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "framePitch_m": {
           "value": 5,
-          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "cell": "12м!C11 (label at 12м!A11 'шаг рам, м :')",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT",
+          "note": "uniform pitch assumed; axis positions and non-uniform bay spacing were NOT verified — see frameCountComparison.axisPositionsVerified"
         },
         "externalCladding": {
           "value": "СП",
-          "cell": "C12 (label at B12 'наружная обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C12 (label at 12м!B12 'наружная обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "internalCladding": {
           "value": "нет",
-          "cell": "C13 (label at B13 'внутренняя обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C13 (label at 12м!B13 'внутренняя обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "tzNumber": {
           "value": "21639",
-          "cell": "G5",
-          "status": "PROVEN"
+          "cell": "12м!G5",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "city": {
           "value": "Иркутск",
-          "cell": "B6",
-          "status": "PROVEN"
+          "cell": "12м!B6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "seismic": {
           "value": "8Б",
-          "cell": "E6",
-          "status": "PROVEN"
+          "cell": "12м!E6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "snowWindZone": {
           "value": "2/3",
-          "cell": "C5/D5",
-          "status": "PROVEN"
+          "cell": "12м!C5/D5",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "responsibilityLevel": {
           "value": 2,
-          "cell": "G8",
-          "status": "PROVEN"
+          "cell": "12м!G8",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "fireResistanceClass": {
           "value": 4,
-          "cell": "G9",
-          "status": "PROVEN"
+          "cell": "12м!G9",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "roofSlope_deg": {
           "value": 15,
-          "cell": "J14",
+          "cell": "12м!J14",
           "formula": "15*3.14/180",
           "status": "PROVEN",
-          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         }
       },
       "sheetNames": [
@@ -821,42 +1331,135 @@
       },
       "wallGirtSelectionResult": {
         "status": "UNSUPPORTED",
-        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
-        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "12м!B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "postsBranch": {
         "value": "NOT_FOUND",
         "status": "UNSUPPORTED",
-        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range). This is evidence of absence in these 10 documents only — NOT proof that a 'без стоек/со стойками' branch does not exist elsewhere in the real toolchain.",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "openings": {
-        "windows": {
-          "count": 0,
-          "status": "PROVEN",
-          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
-        },
-        "doors": {
-          "count": 0,
-          "status": "PROVEN"
-        },
-        "gates": {
-          "count": 1,
-          "width_m": 4,
-          "height_m": 4,
-          "status": "PROVEN",
-          "cell": "row with label 'ворота'"
-        },
+        "windows": [
+          {
+            "row": 160,
+            "count": {
+              "value": 0,
+              "cell": "L160",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 50,
+              "cell": "J160",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K160",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M160",
+              "formula": "J160*K160*L160",
+              "status": "PROVEN"
+            }
+          },
+          {
+            "row": 161,
+            "count": {
+              "value": 0,
+              "cell": "L161",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J161",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2,
+              "cell": "K161",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M161",
+              "formula": "J161*K161*L161",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "doors": [
+          {
+            "row": 162,
+            "count": {
+              "value": 0,
+              "cell": "L162",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J162",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2.1,
+              "cell": "K162",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M162",
+              "formula": "J162*K162*L162",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "gates": [
+          {
+            "row": 163,
+            "count": {
+              "value": 1,
+              "cell": "L163",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 4,
+              "cell": "J163",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 4,
+              "cell": "K163",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 16,
+              "cell": "M163",
+              "formula": "J163*K163*L163",
+              "status": "PROVEN"
+            }
+          }
+        ],
         "skylight": null,
-        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file.",
+        "transferability": "SAFE_AS_REGRESSION_INPUT for count/width/height cells; NOT_TRANSFERABLE_AS_CALC_RULE for price cells (external reference, uncomputable here)"
       },
       "frameCountComparison": {
         "xlsxValue": 7,
-        "xlsxCell": "I17",
+        "xlsxCell": "12м!I17",
         "xlsxFormula": "CEILING(C9/C11+1,1)",
         "appValue": 7,
-        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1",
+        "widenedBays": [],
+        "widenedBaysNote": "This comparison used widenedBays=[] (no gate-widened bays) for all 10 fixtures — computeFrameCount's other branch (widened bays present) was not exercised or verified against any real file.",
         "result": "MATCH",
-        "status": "PROVEN"
+        "status": "PROVEN",
+        "provenScope": "Only the SCALAR frame COUNT was proven to match. Axis positions (where each frame actually sits along the building length) and behavior under non-uniform/irregular bay spacing were NOT checked — the xlsx formula and the app function could still place frames differently while agreeing on total count.",
+        "axisPositionsVerified": false
       }
     },
     {
@@ -869,82 +1472,98 @@
         "status": "PROVEN"
       },
       "hangarType": {
-        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка C12='окрашенный профлист')",
+        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка = 'окрашенный профлист')",
         "frameOnly": false,
         "status": "PROVEN",
-        "evidenceCell": "12м!C12 (or 18!C12)"
+        "evidenceCell": "12м!C12",
+        "scopeNote": "SP='sandwich panel'/AX='profnastil' cladding-code correlation is PROVEN for these 10 files only (10/10 match against known enclosure tags). Not declared a universal rule for all 160 corpus projects without checking a larger sample.",
+        "transferability": "CONTEXT_ONLY"
       },
       "geometry": {
         "span_m": {
           "value": 18,
-          "cell": "C8",
+          "cell": "12м!C8",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "length_m": {
           "value": 30,
-          "cell": "C9",
+          "cell": "12м!C9",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "height_m": {
           "value": 6,
-          "cell": "C10",
+          "cell": "12м!C10",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "framePitch_m": {
           "value": 5,
-          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "cell": "12м!C11 (label at 12м!A11 'шаг рам, м :')",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT",
+          "note": "uniform pitch assumed; axis positions and non-uniform bay spacing were NOT verified — see frameCountComparison.axisPositionsVerified"
         },
         "externalCladding": {
           "value": "окрашенный профлист",
-          "cell": "C12 (label at B12 'наружная обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C12 (label at 12м!B12 'наружная обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "internalCladding": {
           "value": "нет",
-          "cell": "C13 (label at B13 'внутренняя обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C13 (label at 12м!B13 'внутренняя обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "tzNumber": {
           "value": "21640",
-          "cell": "G5",
-          "status": "PROVEN"
+          "cell": "12м!G5",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "city": {
           "value": "Иркутск",
-          "cell": "B6",
-          "status": "PROVEN"
+          "cell": "12м!B6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "seismic": {
           "value": "8Б",
-          "cell": "E6",
-          "status": "PROVEN"
+          "cell": "12м!E6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "snowWindZone": {
           "value": "2/3",
-          "cell": "C5/D5",
-          "status": "PROVEN"
+          "cell": "12м!C5/D5",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "responsibilityLevel": {
           "value": 2,
-          "cell": "G8",
-          "status": "PROVEN"
+          "cell": "12м!G8",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "fireResistanceClass": {
           "value": 4,
-          "cell": "G9",
-          "status": "PROVEN"
+          "cell": "12м!G9",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "roofSlope_deg": {
           "value": 15,
-          "cell": "J14",
+          "cell": "12м!J14",
           "formula": "15*3.14/180",
           "status": "PROVEN",
-          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         }
       },
       "sheetNames": [
@@ -961,42 +1580,135 @@
       },
       "wallGirtSelectionResult": {
         "status": "UNSUPPORTED",
-        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
-        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "12м!B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "postsBranch": {
         "value": "NOT_FOUND",
         "status": "UNSUPPORTED",
-        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range). This is evidence of absence in these 10 documents only — NOT proof that a 'без стоек/со стойками' branch does not exist elsewhere in the real toolchain.",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "openings": {
-        "windows": {
-          "count": 0,
-          "status": "PROVEN",
-          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
-        },
-        "doors": {
-          "count": 0,
-          "status": "PROVEN"
-        },
-        "gates": {
-          "count": 1,
-          "width_m": 4,
-          "height_m": 4,
-          "status": "PROVEN",
-          "cell": "row with label 'ворота'"
-        },
+        "windows": [
+          {
+            "row": 160,
+            "count": {
+              "value": 0,
+              "cell": "L160",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 50,
+              "cell": "J160",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K160",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M160",
+              "formula": "J160*K160*L160",
+              "status": "PROVEN"
+            }
+          },
+          {
+            "row": 161,
+            "count": {
+              "value": 0,
+              "cell": "L161",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J161",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2,
+              "cell": "K161",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M161",
+              "formula": "J161*K161*L161",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "doors": [
+          {
+            "row": 162,
+            "count": {
+              "value": 0,
+              "cell": "L162",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J162",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2.1,
+              "cell": "K162",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M162",
+              "formula": "J162*K162*L162",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "gates": [
+          {
+            "row": 163,
+            "count": {
+              "value": 1,
+              "cell": "L163",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 4,
+              "cell": "J163",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 4,
+              "cell": "K163",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 16,
+              "cell": "M163",
+              "formula": "J163*K163*L163",
+              "status": "PROVEN"
+            }
+          }
+        ],
         "skylight": null,
-        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file.",
+        "transferability": "SAFE_AS_REGRESSION_INPUT for count/width/height cells; NOT_TRANSFERABLE_AS_CALC_RULE for price cells (external reference, uncomputable here)"
       },
       "frameCountComparison": {
         "xlsxValue": 7,
-        "xlsxCell": "I17",
+        "xlsxCell": "12м!I17",
         "xlsxFormula": "CEILING(C9/C11+1,1)",
         "appValue": 7,
-        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1",
+        "widenedBays": [],
+        "widenedBaysNote": "This comparison used widenedBays=[] (no gate-widened bays) for all 10 fixtures — computeFrameCount's other branch (widened bays present) was not exercised or verified against any real file.",
         "result": "MATCH",
-        "status": "PROVEN"
+        "status": "PROVEN",
+        "provenScope": "Only the SCALAR frame COUNT was proven to match. Axis positions (where each frame actually sits along the building length) and behavior under non-uniform/irregular bay spacing were NOT checked — the xlsx formula and the app function could still place frames differently while agreeing on total count.",
+        "axisPositionsVerified": false
       }
     },
     {
@@ -1009,82 +1721,98 @@
         "status": "PROVEN"
       },
       "hangarType": {
-        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка C12='окрашенный профлист')",
+        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка = 'окрашенный профлист')",
         "frameOnly": false,
         "status": "PROVEN",
-        "evidenceCell": "12м!C12 (or 18!C12)"
+        "evidenceCell": "18!C12",
+        "scopeNote": "SP='sandwich panel'/AX='profnastil' cladding-code correlation is PROVEN for these 10 files only (10/10 match against known enclosure tags). Not declared a universal rule for all 160 corpus projects without checking a larger sample.",
+        "transferability": "CONTEXT_ONLY"
       },
       "geometry": {
         "span_m": {
           "value": 20,
-          "cell": "C8",
+          "cell": "18!C8",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "length_m": {
           "value": 50,
-          "cell": "C9",
+          "cell": "18!C9",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "height_m": {
           "value": 7,
-          "cell": "C10",
+          "cell": "18!C10",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "framePitch_m": {
           "value": 5,
-          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "cell": "18!C11 (label at 18!A11 'шаг рам, м :')",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT",
+          "note": "uniform pitch assumed; axis positions and non-uniform bay spacing were NOT verified — see frameCountComparison.axisPositionsVerified"
         },
         "externalCladding": {
           "value": "окрашенный профлист",
-          "cell": "C12 (label at B12 'наружная обшивка :')",
-          "status": "PROVEN"
+          "cell": "18!C12 (label at 18!B12 'наружная обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "internalCladding": {
           "value": "нет",
-          "cell": "C13 (label at B13 'внутренняя обшивка :')",
-          "status": "PROVEN"
+          "cell": "18!C13 (label at 18!B13 'внутренняя обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "tzNumber": {
           "value": "21873",
-          "cell": "G5",
-          "status": "PROVEN"
+          "cell": "18!G5",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "city": {
           "value": "Каргалейка",
-          "cell": "B6",
-          "status": "PROVEN"
+          "cell": "18!B6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "seismic": {
           "value": null,
-          "cell": "E6",
-          "status": "OBSERVED_ABSENT"
+          "cell": "18!E6",
+          "status": "OBSERVED_ABSENT",
+          "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
         },
         "snowWindZone": {
           "value": "3/2",
-          "cell": "C5/D5",
-          "status": "PROVEN"
+          "cell": "18!C5/D5",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "responsibilityLevel": {
           "value": 3,
-          "cell": "G8",
-          "status": "PROVEN"
+          "cell": "18!G8",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "fireResistanceClass": {
           "value": 5,
-          "cell": "G9",
-          "status": "PROVEN"
+          "cell": "18!G9",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "roofSlope_deg": {
           "value": 15,
-          "cell": "J14",
+          "cell": "18!J14",
           "formula": "15*3.14/180",
           "status": "PROVEN",
-          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         }
       },
       "sheetNames": [
@@ -1101,42 +1829,111 @@
       },
       "wallGirtSelectionResult": {
         "status": "UNSUPPORTED",
-        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
-        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "18!B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "postsBranch": {
         "value": "NOT_FOUND",
         "status": "UNSUPPORTED",
-        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range). This is evidence of absence in these 10 documents only — NOT proof that a 'без стоек/со стойками' branch does not exist elsewhere in the real toolchain.",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "openings": {
-        "windows": {
-          "count": 0,
-          "status": "PROVEN",
-          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
-        },
-        "doors": {
-          "count": 0,
-          "status": "PROVEN"
-        },
-        "gates": {
-          "count": 2,
-          "width_m": 4.5,
-          "height_m": 4.5,
-          "status": "PROVEN",
-          "cell": "row with label 'ворота'"
-        },
+        "windows": [
+          {
+            "row": 154,
+            "count": {
+              "value": 0,
+              "cell": "L154",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 4,
+              "cell": "J154",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K154",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M154",
+              "formula": "L154*K154*J154",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "doors": [
+          {
+            "row": 155,
+            "count": {
+              "value": 0,
+              "cell": "L155",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 2.1,
+              "cell": "J155",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K155",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M155",
+              "formula": "L155*K155*J155",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "gates": [
+          {
+            "row": 156,
+            "count": {
+              "value": 2,
+              "cell": "L156",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 4.5,
+              "cell": "J156",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 4.5,
+              "cell": "K156",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 40.5,
+              "cell": "M156",
+              "formula": "L156*K156*J156",
+              "status": "PROVEN"
+            }
+          }
+        ],
         "skylight": null,
-        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file.",
+        "transferability": "SAFE_AS_REGRESSION_INPUT for count/width/height cells; NOT_TRANSFERABLE_AS_CALC_RULE for price cells (external reference, uncomputable here)"
       },
       "frameCountComparison": {
         "xlsxValue": 11,
-        "xlsxCell": "I17",
+        "xlsxCell": "18!I17",
         "xlsxFormula": "CEILING(C9/C11+1,1)",
         "appValue": 11,
-        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1",
+        "widenedBays": [],
+        "widenedBaysNote": "This comparison used widenedBays=[] (no gate-widened bays) for all 10 fixtures — computeFrameCount's other branch (widened bays present) was not exercised or verified against any real file.",
         "result": "MATCH",
-        "status": "PROVEN"
+        "status": "PROVEN",
+        "provenScope": "Only the SCALAR frame COUNT was proven to match. Axis positions (where each frame actually sits along the building length) and behavior under non-uniform/irregular bay spacing were NOT checked — the xlsx formula and the app function could still place frames differently while agreeing on total count.",
+        "axisPositionsVerified": false
       }
     },
     {
@@ -1149,82 +1946,98 @@
         "status": "PROVEN"
       },
       "hangarType": {
-        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка C12='окрашенный профлист')",
+        "value": "Спринт-М / каркас под профнастил, окрашенный (наружная обшивка = 'окрашенный профлист')",
         "frameOnly": false,
         "status": "PROVEN",
-        "evidenceCell": "12м!C12 (or 18!C12)"
+        "evidenceCell": "12м!C12",
+        "scopeNote": "SP='sandwich panel'/AX='profnastil' cladding-code correlation is PROVEN for these 10 files only (10/10 match against known enclosure tags). Not declared a universal rule for all 160 corpus projects without checking a larger sample.",
+        "transferability": "CONTEXT_ONLY"
       },
       "geometry": {
         "span_m": {
           "value": 15,
-          "cell": "C8",
+          "cell": "12м!C8",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "length_m": {
           "value": 66,
-          "cell": "C9",
+          "cell": "12м!C9",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "height_m": {
           "value": 6,
-          "cell": "C10",
+          "cell": "12м!C10",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "framePitch_m": {
           "value": 4,
-          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "cell": "12м!C11 (label at 12м!A11 'шаг рам, м :')",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT",
+          "note": "uniform pitch assumed; axis positions and non-uniform bay spacing were NOT verified — see frameCountComparison.axisPositionsVerified"
         },
         "externalCladding": {
           "value": "окрашенный профлист",
-          "cell": "C12 (label at B12 'наружная обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C12 (label at 12м!B12 'наружная обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "internalCladding": {
           "value": "нет",
-          "cell": "C13 (label at B13 'внутренняя обшивка :')",
-          "status": "PROVEN"
+          "cell": "12м!C13 (label at 12м!B13 'внутренняя обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "tzNumber": {
           "value": "21892/1",
-          "cell": "G5",
-          "status": "PROVEN"
+          "cell": "12м!G5",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "city": {
           "value": "Уфа",
-          "cell": "B6",
-          "status": "PROVEN"
+          "cell": "12м!B6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "seismic": {
           "value": null,
-          "cell": "E6",
-          "status": "OBSERVED_ABSENT"
+          "cell": "12м!E6",
+          "status": "OBSERVED_ABSENT",
+          "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
         },
         "snowWindZone": {
           "value": "5/2",
-          "cell": "C5/D5",
-          "status": "PROVEN"
+          "cell": "12м!C5/D5",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "responsibilityLevel": {
           "value": 2,
-          "cell": "G8",
-          "status": "PROVEN"
+          "cell": "12м!G8",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "fireResistanceClass": {
           "value": 4,
-          "cell": "G9",
-          "status": "PROVEN"
+          "cell": "12м!G9",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "roofSlope_deg": {
           "value": 15,
-          "cell": "J14",
+          "cell": "12м!J14",
           "formula": "15*3.14/180",
           "status": "PROVEN",
-          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         }
       },
       "sheetNames": [
@@ -1241,42 +2054,111 @@
       },
       "wallGirtSelectionResult": {
         "status": "UNSUPPORTED",
-        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
-        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "12м!B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "postsBranch": {
         "value": "NOT_FOUND",
         "status": "UNSUPPORTED",
-        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range). This is evidence of absence in these 10 documents only — NOT proof that a 'без стоек/со стойками' branch does not exist elsewhere in the real toolchain.",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "openings": {
-        "windows": {
-          "count": 0,
-          "status": "PROVEN",
-          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
-        },
-        "doors": {
-          "count": 0,
-          "status": "PROVEN"
-        },
-        "gates": {
-          "count": 2,
-          "width_m": 4.5,
-          "height_m": 4.5,
-          "status": "PROVEN",
-          "cell": "row with label 'ворота'"
-        },
+        "windows": [
+          {
+            "row": 161,
+            "count": {
+              "value": 0,
+              "cell": "L161",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 34,
+              "cell": "J161",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K161",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M161",
+              "formula": "J161*K161*L161",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "doors": [
+          {
+            "row": 162,
+            "count": {
+              "value": 0,
+              "cell": "L162",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J162",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2.1,
+              "cell": "K162",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M162",
+              "formula": "J162*K162*L162",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "gates": [
+          {
+            "row": 163,
+            "count": {
+              "value": 2,
+              "cell": "L163",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 4.5,
+              "cell": "J163",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 4.5,
+              "cell": "K163",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 40.5,
+              "cell": "M163",
+              "formula": "J163*K163*L163",
+              "status": "PROVEN"
+            }
+          }
+        ],
         "skylight": null,
-        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file.",
+        "transferability": "SAFE_AS_REGRESSION_INPUT for count/width/height cells; NOT_TRANSFERABLE_AS_CALC_RULE for price cells (external reference, uncomputable here)"
       },
       "frameCountComparison": {
         "xlsxValue": 18,
-        "xlsxCell": "I17",
+        "xlsxCell": "12м!I17",
         "xlsxFormula": "CEILING(C9/C11+1,1)",
         "appValue": 18,
-        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1",
+        "widenedBays": [],
+        "widenedBaysNote": "This comparison used widenedBays=[] (no gate-widened bays) for all 10 fixtures — computeFrameCount's other branch (widened bays present) was not exercised or verified against any real file.",
         "result": "MATCH",
-        "status": "PROVEN"
+        "status": "PROVEN",
+        "provenScope": "Only the SCALAR frame COUNT was proven to match. Axis positions (where each frame actually sits along the building length) and behavior under non-uniform/irregular bay spacing were NOT checked — the xlsx formula and the app function could still place frames differently while agreeing on total count.",
+        "axisPositionsVerified": false
       }
     },
     {
@@ -1289,82 +2171,98 @@
         "status": "PROVEN"
       },
       "hangarType": {
-        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка C12='СП')",
+        "value": "Спринт-М / каркас с сэндвич-панелями (наружная обшивка = 'СП')",
         "frameOnly": false,
         "status": "PROVEN",
-        "evidenceCell": "12м!C12 (or 18!C12)"
+        "evidenceCell": "18!C12",
+        "scopeNote": "SP='sandwich panel'/AX='profnastil' cladding-code correlation is PROVEN for these 10 files only (10/10 match against known enclosure tags). Not declared a universal rule for all 160 corpus projects without checking a larger sample.",
+        "transferability": "CONTEXT_ONLY"
       },
       "geometry": {
         "span_m": {
           "value": 18,
-          "cell": "C8",
+          "cell": "18!C8",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "length_m": {
           "value": 81,
-          "cell": "C9",
+          "cell": "18!C9",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "height_m": {
           "value": 8,
-          "cell": "C10",
+          "cell": "18!C10",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "framePitch_m": {
           "value": 6,
-          "cell": "C11 (label at A11 'шаг рам, м :')",
+          "cell": "18!C11 (label at 18!A11 'шаг рам, м :')",
           "formula": null,
-          "status": "PROVEN"
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT",
+          "note": "uniform pitch assumed; axis positions and non-uniform bay spacing were NOT verified — see frameCountComparison.axisPositionsVerified"
         },
         "externalCladding": {
           "value": "СП",
-          "cell": "C12 (label at B12 'наружная обшивка :')",
-          "status": "PROVEN"
+          "cell": "18!C12 (label at 18!B12 'наружная обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "internalCladding": {
           "value": "нет",
-          "cell": "C13 (label at B13 'внутренняя обшивка :')",
-          "status": "PROVEN"
+          "cell": "18!C13 (label at 18!B13 'внутренняя обшивка :')",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "tzNumber": {
           "value": "21998",
-          "cell": "G5",
-          "status": "PROVEN"
+          "cell": "18!G5",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "city": {
           "value": "Челябинск",
-          "cell": "B6",
-          "status": "PROVEN"
+          "cell": "18!B6",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "seismic": {
           "value": null,
-          "cell": "E6",
-          "status": "OBSERVED_ABSENT"
+          "cell": "18!E6",
+          "status": "OBSERVED_ABSENT",
+          "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
         },
         "snowWindZone": {
           "value": "3/2",
-          "cell": "C5/D5",
-          "status": "PROVEN"
+          "cell": "18!C5/D5",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "responsibilityLevel": {
           "value": 2,
-          "cell": "G8",
-          "status": "PROVEN"
+          "cell": "18!G8",
+          "status": "PROVEN",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         },
         "fireResistanceClass": {
           "value": 4,
-          "cell": "G9",
-          "status": "PROVEN"
+          "cell": "18!G9",
+          "status": "PROVEN",
+          "transferability": "CONTEXT_ONLY"
         },
         "roofSlope_deg": {
           "value": 15,
-          "cell": "J14",
+          "cell": "18!J14",
           "formula": "15*3.14/180",
           "status": "PROVEN",
-          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures"
+          "note": "matches app default roofSlopeDeg=15 in src/calc/geometry test fixtures",
+          "transferability": "SAFE_AS_REGRESSION_INPUT"
         }
       },
       "sheetNames": [
@@ -1381,45 +2279,111 @@
       },
       "wallGirtSelectionResult": {
         "status": "UNSUPPORTED",
-        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes, e.g. row 34-39) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
-        "bracketsRow": "B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2"
+        "reason": "This workbook is the MAIN project frame/BOM calculator, not 'Калькулятор ограждайки v1.5.xlsx'. It has no wind-pressure-driven auto-selection, no aerodynamic coefficient, no k(ze) table — none of the inputs src/calc/wallGirt/windLoad.ts implements appear anywhere in this sheet. Instead it computes wall material as a flat, enclosure-conditional quantity formula (profile family ПП/ПС at various sizes) plus a single 'Кронштейны' (brackets) row with linear-meter and mass formulas summing zone perimeters. No single 'selected profile + шаг ригелей + число рядов' output exists in the form our wallGirt.ts model produces.",
+        "bracketsRow": "18!B37/B38/B41 depending on file (label 'Кронштейны'), formula pattern: linear_m = mass_kg/0.75*0.2, mass_kg = sum of zone-perimeter terms * 2",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "postsBranch": {
         "value": "NOT_FOUND",
         "status": "UNSUPPORTED",
-        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range)."
+        "note": "No cell anywhere in the live sheet contains the substring 'стойк' (searched full A1:AI range). This is evidence of absence in these 10 documents only — NOT proof that a 'без стоек/со стойками' branch does not exist elsewhere in the real toolchain.",
+        "transferability": "NOT_TRANSFERABLE_AS_CALC_RULE"
       },
       "openings": {
-        "windows": {
-          "count": 0,
-          "status": "PROVEN",
-          "cell": "row with label 'окна' under 'ОКНА/ВОРОТА/ДВЕРИ'"
-        },
-        "doors": {
-          "count": 1,
-          "width_m": 1,
-          "height_m": 2.1,
-          "status": "PROVEN",
-          "cell": "row with label 'двери'"
-        },
-        "gates": {
-          "count": 1,
-          "width_m": 4.1,
-          "height_m": 4.5,
-          "status": "PROVEN",
-          "cell": "row with label 'ворота'"
-        },
+        "windows": [
+          {
+            "row": 154,
+            "count": {
+              "value": 0,
+              "cell": "L154",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 81,
+              "cell": "J154",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 1,
+              "cell": "K154",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 0,
+              "cell": "M154",
+              "formula": "L154*K154*J154",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "doors": [
+          {
+            "row": 155,
+            "count": {
+              "value": 1,
+              "cell": "L155",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 1,
+              "cell": "J155",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 2.1,
+              "cell": "K155",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 2.1,
+              "cell": "M155",
+              "formula": "L155*K155*J155",
+              "status": "PROVEN"
+            }
+          }
+        ],
+        "gates": [
+          {
+            "row": 156,
+            "count": {
+              "value": 1,
+              "cell": "L156",
+              "status": "PROVEN"
+            },
+            "width_m": {
+              "value": 4.1,
+              "cell": "J156",
+              "status": "PROVEN"
+            },
+            "height_m": {
+              "value": 4.5,
+              "cell": "K156",
+              "status": "PROVEN"
+            },
+            "area_m2": {
+              "value": 18.45,
+              "cell": "M156",
+              "formula": "L156*K156*J156",
+              "status": "PROVEN"
+            }
+          }
+        ],
         "skylight": "зенит.фонарь 3х1,3(h), PROVEN in B7",
-        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file."
+        "note": "Unit price cells for openings reference an external closed workbook (e.g. '[7]Перекупные '!$F$65) — cached values only, price formula NOT independently re-derivable without that external file.",
+        "transferability": "SAFE_AS_REGRESSION_INPUT for count/width/height cells; NOT_TRANSFERABLE_AS_CALC_RULE for price cells (external reference, uncomputable here)"
       },
       "frameCountComparison": {
         "xlsxValue": 15,
-        "xlsxCell": "I17",
+        "xlsxCell": "18!I17",
         "xlsxFormula": "CEILING(C9/C11+1,1)",
         "appValue": 15,
-        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1, with widenedBays=[] here",
+        "appFunction": "computeFrameCount (src/calc/geometry/frameGeometry.ts:25) = Math.ceil(length_m/framePitch_m) + widenedBays.length + 1",
+        "widenedBays": [],
+        "widenedBaysNote": "This comparison used widenedBays=[] (no gate-widened bays) for all 10 fixtures — computeFrameCount's other branch (widened bays present) was not exercised or verified against any real file.",
         "result": "MATCH",
-        "status": "PROVEN"
+        "status": "PROVEN",
+        "provenScope": "Only the SCALAR frame COUNT was proven to match. Axis positions (where each frame actually sits along the building length) and behavior under non-uniform/irregular bay spacing were NOT checked — the xlsx formula and the app function could still place frames differently while agreeing on total count.",
+        "axisPositionsVerified": false
       }
     }
   ]

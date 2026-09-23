@@ -56,19 +56,30 @@ not found, or does not apply to this document.
 `data/audit/fixture10_content_audit.json`, independently re-verified with
 `sha256sum` against the decoded local files.)
 
-**Note on hangar type (Task item 2) — PROVEN, and a correction to prior
-rounds' assumption:** every fixture's `наружная обшивка :` field (label at
-`B12`, value at `C12`) is either the literal string `"окрашенный
-профлист"` (painted profiled sheet — cold/uninsulated) or the literal
-string `"СП"`. Checking this against each fixture's already-known
-enclosure tag (from the folder-title census) shows **100% correlation,
-10/10**: `АХ`-tagged fixtures always have `C12 = "окрашенный профлист"`,
-`СП`-tagged fixtures always have `C12 = "СП"` literally. This proves — not
-infers — that in this workbook's own vocabulary, **`СП` = сэндвич-панель
-(sandwich-panel wall cladding)**, not a project-variant label; `АХ`
-corresponds to painted profnastil cladding (cold enclosure). This is
-consistent with, and now directly confirms, the enclosure taxonomy used
-throughout the earlier corpus census.
+**Note on hangar type (Task item 2) — PROVEN for these 10 files, exact
+cell per fixture:** every fixture's `наружная обшивка :` field (label at
+`<liveSheet>!B12`, value at `<liveSheet>!C12` — live sheet differs per
+file, see §2 table) is either the literal string `"окрашенный профлист"`
+(painted profiled sheet — cold/uninsulated) or the literal string `"СП"`.
+Exact evidence cells:
+
+| Project | Evidence cell |
+|---|---|
+| 21640, 21639, 21629, 21628, 21627, 21484, 21501, 21892 | `12м!C12` |
+| 21873, 21998 | `18!C12` |
+
+Checking this value against each fixture's already-known enclosure tag
+(from the folder-title census) shows **100% correlation, 10/10**:
+`АХ`-tagged fixtures always have `C12 = "окрашенный профлист"`,
+`СП`-tagged fixtures always have `C12 = "СП"` literally.
+
+**Scope of this claim, stated precisely:** this is proven **for these 10
+files only**. It is **not** declared a universal rule for the full
+160-project corpus — that would need checking a materially larger sample.
+What can be said: in this workbook's own vocabulary, at least in these 10
+cases, `СП` reads as сэндвич-панель (sandwich-panel wall cladding) and
+`АХ` corresponds to painted profnastil cladding — an **observed
+correlation in this sample**, not an established universal mapping.
 
 ## 2. Geometry, ТЗ, and B11/B12/B13-analog cells (PROVEN)
 
@@ -90,7 +101,9 @@ holding the literal ТЗ number is real.
 | 21873 | 18 | 20 | 50 | 7 | 5 | окрашенный профлист | нет | Каргалейка | 21873 |
 | 21998 | 18 | 18 | 81 | 8 | 6 | СП | нет | Челябинск | 21998 |
 
-**B11/B12/B13 analogs (exactly as asked):**
+**B11/B12/B13 analogs (exactly as asked).** All addresses below are on
+each fixture's own live sheet (`12м` for 8/10 fixtures, `18` for 21873 and
+21998 — see the table in §2) — i.e. read `C11` as `<liveSheet>!C11`, etc.:
 - `A11`="шаг рам, м :" / value at **C11** — this is the closest analog to
   "B11": it directly drives wall length/height dependent quantities
   downstream (e.g. `Фс11, Фс14` bracket count `= I17*(C8+2*C10)/0.6`).
@@ -167,6 +180,31 @@ section with live count/width/height cells:
 | 21873 | 0 | 0 | 2 × 4.5×4.5 |
 | 21998 | 0 | 1 × 1×2.1 | 1 × 4.1×4.5 |
 
+**Exact cell addresses (count / width / height / area-formula), per Task
+item 2 — no "row with label" phrasing.** Column layout is `J`=ширина
+(width), `K`=высота (height), `L`=кол-во (count), `M`=площадь м² (area,
+formula `=J*K*L`, or `=L*K*J` in 21873/21998 — same operands, different
+argument order, both confirmed algebraically equivalent). All addresses
+are on each fixture's own live sheet (see §2 table).
+
+| Project | Окна row | Окна cells (J/K/L/M) | Двери row | Двери cells | Ворота row | Ворота cells |
+|---|---|---|---|---|---|---|
+| 21640 | 160, 161 | J160=50,K160=1,L160=0,M160=0(f=J160\*K160\*L160); J161=1,K161=2,L161=0,M161=0 | 162 | J162=1,K162=2.1,L162=0,M162=0 | 163 | J163=4,K163=4,L163=1,M163=16(f=J163\*K163\*L163) |
+| 21639 | 160, 161 | (identical to 21640) | 162 | (identical to 21640) | 163 | (identical to 21640) |
+| 21629 | 160, 161 | J160=50,K160=1,L160=0; J161=1,K161=2,L161=0 | 162 | J162=2,K162=2,L162=3,M162=12 | 163 | J163=4,K163=4.5,L163=3,M163=54 |
+| 21628 | 160, 161 | (identical to 21629) | 162 | (identical to 21629) | 163 | (identical to 21629) |
+| 21627 | 160, 161 | (identical to 21629) | 162 | (identical to 21629) | 163 | (identical to 21629) |
+| 21484 | 160 | J160=3,K160=1,L160=0 | 161 | J161=1,K161=2,L161=4,M161=8 | 162 | J162=5,K162=5,L162=2,M162=50 |
+| 21501 | 160 | (identical to 21484) | 161 | (identical to 21484) | 162 | (identical to 21484) |
+| 21892 | 161 | J161=34,K161=1,L161=0 | 162 | J162=1,K162=2.1,L162=0 | 163 | J163=4.5,K163=4.5,L163=2,M163=40.5 |
+| 21873 | 154 | J154=4,K154=1,L154=0 | 155 | J155=2.1,K155=1,L155=0 | 156 | J156=4.5,K156=4.5,L156=2,M156=40.5(f=L156\*K156\*J156) |
+| 21998 | 154 | J154=81,K154=1,L154=0 | 155 | J155=1,K155=2.1,L155=1,M155=2.1(f=L155\*K155\*J155) | 156 | J156=4.1,K156=4.5,L156=1,M156=18.45 |
+
+(Independently re-extracted programmatically from the saved xlsx parses
+for this correction pass — not retyped from memory — to avoid the kind of
+transcription error caught and fixed in the frame-count table during the
+original audit.)
+
 **Windows (окна) are 0 in all 10** — this specific fixture set gives no
 window-framing evidence, but **gates are present and nonzero in all 10,
 doors in 4 of 10.** 21998's object description cell (`B7`) additionally
@@ -199,13 +237,34 @@ architecture mismatch in §3: **frame count**.
 | 21873 | 11 | 11 | **MATCH** |
 | 21998 | 15 | 15 | **MATCH** |
 
-**10/10 PROVEN match.** `computeFrameCount = Math.ceil(length_m /
-framePitch_m) + widenedBays.length + 1` is mathematically identical to
-`CEILING(length/step + 1, 1)` when the ceiling modulus is 1 (which it is
-here) — not a coincidence, a real algebraic equivalence, confirmed against
-5 different real span/length/step combinations. This function was called
-directly and read-only; the live UI/build was not modified or driven
-through a browser this round.
+**10/10 PROVEN match — for the scalar count only, scope stated precisely
+below.** `computeFrameCount = Math.ceil(length_m / framePitch_m) +
+widenedBays.length + 1` is mathematically identical to `CEILING(length/step
++ 1, 1)` when the ceiling modulus is 1 (which it is here) — not a
+coincidence, a real algebraic equivalence.
+
+**Corrected geometry-diversity count (Task item 5):** the original version
+of this report claimed "5 different real span/length/step combinations."
+That was wrong — rechecked programmatically: across the 10 fixtures there
+are **7 unique (length, framePitch) pairs**, not 5:
+`(30,5)`, `(46,3.4)`, `(90,3.92)`, `(90,3.5)`, `(66,4)`, `(50,5)`,
+`(81,6)`. (21640/21639 share `(30,5)`; 21629/21628/21627 share `(46,3.4)`;
+the other 5 fixtures are each unique — hence 7 distinct pairs, not 5.)
+
+**Explicit scope limits on this match, stated precisely (Task item 4):**
+- `widenedBays = []` for all 10 fixtures in this comparison — none of
+  these 10 real objects exercises `computeFrameCount`'s
+  gate-widened-bay branch (`widenedBays.length` term), so that branch of
+  the app function remains **unverified** against any real file.
+- **Only the total frame COUNT was proven to match.** The **positions of
+  the frame axes** along the building length, and behavior under
+  **non-uniform/irregular bay spacing**, were **not checked** — the xlsx
+  formula and the app function could in principle place individual frames
+  differently while still agreeing on the total count. Do not read this
+  match as proof that axis layout is correct, only that the count is.
+
+This function was called directly and read-only; the live UI/build was
+not modified or driven through a browser this round.
 
 No other numeric output was cross-checked this round — the wall/girt
 section is not comparable (§3), and column/beam/bracing selection would
@@ -218,12 +277,31 @@ references this file doesn't carry, which is `UNKNOWN`, not attempted.
 |---|---|---|---|
 | Frame count | `CEILING(length/step+1,1)`, 10/10 real values | `computeFrameCount` | **MATCH** (PROVEN) |
 | Roof slope | 15° (`J14` formula) | default `roofSlopeDeg: 15` | **MATCH** (PROVEN, concept-level) |
-| Enclosure semantics | `C12` = "СП" or "окрашенный профлист" | code treats "СП"/"АХ" as enclosure tags from titles | **MATCH** (PROVEN — clarifies СП = sandwich panel) |
+| Enclosure semantics | `C12` = "СП" or "окрашенный профлист" | code treats "СП"/"АХ" as enclosure tags from titles | **MATCH** (PROVEN for these 10 files; observed correlation, not asserted as a universal rule — see §1) |
 | Wall girt profile selection | Flat enclosure-conditional BOM, no wind-load auto-selection | `selectGirtProfile` (wind-load-driven, zone/profile-by-moment-capacity) | **NOT COMPARABLE** — different source calculators (UNSUPPORTED) |
 | "без стоек/со стойками" branch | Not present in any of 10 files | Present as an open question in earlier Cold Enclosure audit | **UNSUPPORTED** — absent from this document type |
 | Openings (окна/ворота/двери) | Real, populated, PROVEN | UI has gates/doors/windows fields (per Phase 8/9 UI audit) | Not cross-checked this round (would need opening-framing code, not yet built) |
 
-## 7. Data potentially useful to a separate "Codex" project
+## 7. Transferability (Task item 6)
+
+Every quantitative field in `data/audit/fixture10_content_audit.json` now
+carries a `transferability` tag, one of:
+
+- `SAFE_AS_REGRESSION_INPUT` — a raw geometry/loading input (span, length,
+  height, frame pitch, snow/wind zone, responsibility level, opening
+  count/width/height cells) safe to feed into a regression test as-is.
+- `CONTEXT_ONLY` — real and PROVEN, but descriptive rather than a calc
+  input (city, ТЗ number, fire class, cladding label text, seismic label
+  text, hangar-type classification itself).
+- `NOT_TRANSFERABLE_AS_CALC_RULE` — do not encode as a rule anywhere: the
+  wall-girt selection result (different calculator, §3), the
+  "без стоек/со стойками" branch (not found, §3), and any cell whose value
+  depends on the unresolved external workbook references (§4/§5).
+
+This tagging is mechanical and per-field — see the JSON for the exact tag
+on every field, not restated field-by-field here.
+
+## 8. Data potentially useful to a separate "Codex" project
 
 Flagging, not transferring — this needs independent verification before
 any other project consumes it:
@@ -233,9 +311,11 @@ any other project consumes it:
    responsibility level, fire class, enclosure type, real door/gate
    counts+dimensions) — a ready-made regression seed set once wall-girt
    comparability is resolved.
-2. The **`СП` = сэндвич-панель / `АХ` = окрашенный профлист (profnastil)**
-   cladding-code clarification (§1) — resolves ambiguity that's been
-   carried as an assumption through several earlier audit rounds.
+2. The **`СП` reads as сэндвич-панель / `АХ` as окрашенный профлист
+   (profnastil)** cladding-code correlation, observed 10/10 in this sample
+   (§1) — a useful lead, but **not yet a confirmed universal rule**; needs
+   checking against a larger sample before any other project treats it as
+   established.
 3. The **frame-count formula equivalence proof** (§5) — first real,
    multi-object, content-level validation of any part of `computeProject`
    against production source files (previously only the single
@@ -256,12 +336,23 @@ any other project consumes it:
 ```
 FIXTURES_OPENED                    = 10/10
 GEOMETRY_PROVEN                    = 10/10
-HANGAR_TYPE_PROVEN                 = 10/10 (via C12, cross-validated against corpus enclosure tags)
-FRAME_COUNT_MATCH                  = 10/10 PROVEN
+HANGAR_TYPE_PROVEN                 = 10/10 (via <liveSheet>!C12, exact cell per fixture in §1 table;
+                                              correlation PROVEN for these 10 files only, not asserted
+                                              as a universal corpus-wide rule)
+UNIQUE_LENGTH_FRAMEPITCH_PAIRS     = 7 (corrected from an earlier, wrong "5" claim — see §5)
+FRAME_COUNT_MATCH                  = 10/10 PROVEN (scalar count only; widenedBays=[] in all 10;
+                                              axis positions and non-uniform bay spacing NOT verified)
 WALL_GIRT_COMPARISON               = UNSUPPORTED (different source calculators, not a pass/fail)
 POSTS_BRANCH_EVIDENCE              = NOT_FOUND in any of 10 (UNSUPPORTED)
-OPENINGS_PROVEN                    = 10/10 (windows=0 in all 10; gates nonzero in all 10; doors nonzero in 4/10)
+OPENINGS_PROVEN                    = 10/10, exact J/K/L/M cell addresses per fixture in §4
+                                              (windows=0 in all 10; gates nonzero in all 10; doors nonzero in 4/10)
 EXTERNAL_FORMULA_REFS_UNRESOLVED   = YES (elementary catalog prices not self-contained in these files)
+TRANSFERABILITY_TAGGED             = YES (every quantitative field in the JSON, §7)
 PRODUCTION_CODE_CHANGED            = NO
 FILES_CHANGED_THIS_ROUND           = data/audit/CONTENT_LEVEL_FIXTURE_AUDIT.md, data/audit/fixture10_content_audit.json
+CORRECTIONS_APPLIED_THIS_PASS      = exact <liveSheet>!C12 evidence cells (was a generic "12м!C12 (or 18!C12)");
+                                              exact openings J/K/L/M cell addresses (was "row with label X");
+                                              SP/AX claim rescoped to "these 10 files" (was stated as a general rule);
+                                              frameCount match rescoped to count-only, widenedBays=[] disclosed;
+                                              unique length/framePitch pairs corrected from 5 to 7 (verified programmatically)
 ```
