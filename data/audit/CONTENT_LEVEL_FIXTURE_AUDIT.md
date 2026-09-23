@@ -165,20 +165,30 @@ evidence, only that it's absent from these 10 specific fixtures.
 anywhere in the 160-project corpus.** That claim was based on a
 **filename-level** search only. At the content level, every one of these
 10 fixtures has a real, populated `ОКНА/ВОРОТА/ДВЕРИ` (windows/gates/doors)
-section with live count/width/height cells:
+section with live count/width/height cells.
 
-| Project | Окна (count) | Двери (count × w×h, m) | Ворота (count × w×h, m) |
+**Active vs. inactive rows (corrected data model).** Each opening row has
+`count`, `width`, `height`, `area`. When `count = 0`, the `width`/`height`
+cells still hold a **leftover template value** from the source workbook —
+these are not real dimensions, just numbers sitting in an unused row.
+**Dimensions from rows where count=0 are retained only as raw template
+evidence and must not be interpreted as real openings.** The table below
+marks each cell `—` when the row is inactive (`count=0`); the row's raw
+template width/height is preserved verbatim, with its own status, in
+`fixture10_content_audit.json` for provenance only.
+
+| Project | Окна (active? count×w×h) | Двери (active? count×w×h) | Ворота (active? count×w×h) |
 |---|---|---|---|
-| 21640 | 0 | 0 | 1 × 4×4 |
-| 21639 | 0 | 0 | 1 × 4×4 |
-| 21629 | 0 | 3 × 2×2 | 3 × 4×4.5 |
-| 21628 | 0 | 3 × 2×2 | 3 × 4×4.5 |
-| 21627 | 0 | 3 × 2×2 | 3 × 4×4.5 |
-| 21484 | 0 | 4 × 1×2 | 2 × 5×5 |
-| 21501 | 0 | 4 × 1×2 | 2 × 5×5 |
-| 21892 | 0 | 0 | 2 × 4.5×4.5 |
-| 21873 | 0 | 0 | 2 × 4.5×4.5 |
-| 21998 | 0 | 1 × 1×2.1 | 1 × 4.1×4.5 |
+| 21640 | inactive (—) | inactive (—) | **active** 1 × 4×4 |
+| 21639 | inactive (—) | inactive (—) | **active** 1 × 4×4 |
+| 21629 | inactive (—) | **active** 3 × 2×2 | **active** 3 × 4×4.5 |
+| 21628 | inactive (—) | **active** 3 × 2×2 | **active** 3 × 4×4.5 |
+| 21627 | inactive (—) | **active** 3 × 2×2 | **active** 3 × 4×4.5 |
+| 21484 | inactive (—) | **active** 4 × 1×2 | **active** 2 × 5×5 |
+| 21501 | inactive (—) | **active** 4 × 1×2 | **active** 2 × 5×5 |
+| 21892 | inactive (—) | inactive (—) | **active** 2 × 4.5×4.5 |
+| 21873 | inactive (—) | inactive (—) | **active** 2 × 4.5×4.5 |
+| 21998 | inactive (—) | **active** 1 × 1×2.1 | **active** 1 × 4.1×4.5 |
 
 **Exact cell addresses (count / width / height / area-formula), per Task
 item 2 — no "row with label" phrasing.** Column layout is `J`=ширина
@@ -205,12 +215,22 @@ for this correction pass — not retyped from memory — to avoid the kind of
 transcription error caught and fixed in the frame-count table during the
 original audit.)
 
-**Windows (окна) are 0 in all 10** — this specific fixture set gives no
-window-framing evidence, but **gates are present and nonzero in all 10,
-doors in 4 of 10.** 21998's object description cell (`B7`) additionally
-reads *"Ангар (нов.конструктив) с зенит.фонарем (3х1,3(h))"* — PROVEN
-confirmation of a real skylight with real dimensions, not just a title
-hint.
+**Windows (окна) are 0 (inactive) in all 10** — this specific fixture set
+gives no active window-framing evidence (the nonzero width/height values
+sitting in those rows — including 50, 34, and 81 m — are template
+placeholders, not real window sizes; see the `active` correction above).
+**Gates are active in all 10 fixtures. Doors are active in 6 of 10**
+(21629, 21628, 21627, 21484, 21501, 21998) — **this corrects an earlier
+version of this report, which miscounted doors as active in 4 of 10.**
+21998's object description cell (`B7`) additionally reads *"Ангар
+(нов.конструктив) с зенит.фонарем (3х1,3(h))"* — PROVEN confirmation of a
+real skylight with real dimensions, not just a title hint.
+
+**Position on the wall is not recorded for any active opening.** These 10
+files give count, width, height, and area per opening type — never an
+offset from a corner or axis, never which of the building's walls it sits
+on. Do not assume centered placement or infer wall assignment from
+anything in this audit.
 
 Unit-price cells for openings reference an **external, closed** linked
 workbook (`'[N]Перекупные '!$F$65` etc., N differs per file — these are
@@ -345,14 +365,25 @@ FRAME_COUNT_MATCH                  = 10/10 PROVEN (scalar count only; widenedBay
 WALL_GIRT_COMPARISON               = UNSUPPORTED (different source calculators, not a pass/fail)
 POSTS_BRANCH_EVIDENCE              = NOT_FOUND in any of 10 (UNSUPPORTED)
 OPENINGS_PROVEN                    = 10/10, exact J/K/L/M cell addresses per fixture in §4
-                                              (windows=0 in all 10; gates nonzero in all 10; doors nonzero in 4/10)
+ACTIVE_WINDOW_ROWS                 = 0/15  (all 15 window rows across 10 fixtures have count=0)
+ACTIVE_DOOR_ROWS                   = 6/10  (21629, 21628, 21627, 21484, 21501, 21998)
+ACTIVE_GATE_ROWS                   = 10/10 (every fixture)
+INACTIVE_ROWS_WITH_TEMPLATE_DIMS   = 19    (15 window rows + 4 door rows, all count=0 but width/height
+                                              nonzero — verified programmatically against the saved
+                                              xlsx parses, not by hand)
 EXTERNAL_FORMULA_REFS_UNRESOLVED   = YES (elementary catalog prices not self-contained in these files)
-TRANSFERABILITY_TAGGED             = YES (every quantitative field in the JSON, §7)
+TRANSFERABILITY_TAGGED             = YES (every quantitative field in the JSON, §7; opening rows now
+                                              also carry `active` + per-field status/transferability)
 PRODUCTION_CODE_CHANGED            = NO
 FILES_CHANGED_THIS_ROUND           = data/audit/CONTENT_LEVEL_FIXTURE_AUDIT.md, data/audit/fixture10_content_audit.json
 CORRECTIONS_APPLIED_THIS_PASS      = exact <liveSheet>!C12 evidence cells (was a generic "12м!C12 (or 18!C12)");
                                               exact openings J/K/L/M cell addresses (was "row with label X");
                                               SP/AX claim rescoped to "these 10 files" (was stated as a general rule);
                                               frameCount match rescoped to count-only, widenedBays=[] disclosed;
-                                              unique length/framePitch pairs corrected from 5 to 7 (verified programmatically)
+                                              unique length/framePitch pairs corrected from 5 to 7 (verified programmatically);
+                                              opening rows now carry `active` (count>0); inactive rows'
+                                              width/height/area reclassified INACTIVE_TEMPLATE_VALUE /
+                                              CONTEXT_ONLY (was incorrectly SAFE_AS_REGRESSION_INPUT);
+                                              doors-active count corrected from a wrongly-stated 4/10 to the
+                                              actual 6/10 (caught while computing this pass's stats)
 ```

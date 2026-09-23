@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "1.1.0",
-  "generatedFrom": "commit a737dd5, corrected per CLAUDE-MANAGER precision-fix request",
+  "schemaVersion": "1.2.0",
+  "generatedFrom": "commit af4cbc1, corrected per CLAUDE-MANAGER FIX INACTIVE OPENING VALUES request",
   "productionCodeChanged": false,
   "method": "Real xlsx binaries downloaded from Drive, decoded, SHA-256 hashed, parsed with SheetJS (xlsx npm package) for cell values and formulas. Comparison run against src/calc/geometry/frameGeometry.ts computeFrameCount (read-only, not executed via the live UI).",
   "uniqueLengthFramePitchPairs": {
@@ -151,24 +151,32 @@
             "count": {
               "value": 0,
               "cell": "L160",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 3,
               "cell": "J160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M160",
               "formula": "J160*K160*L160",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "doors": [
@@ -177,24 +185,30 @@
             "count": {
               "value": 4,
               "cell": "L161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 2,
               "cell": "K161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 8,
               "cell": "M161",
               "formula": "J161*K161*L161",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "gates": [
@@ -203,24 +217,30 @@
             "count": {
               "value": 2,
               "cell": "L162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 5,
               "cell": "J162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 5,
               "cell": "K162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 50,
               "cell": "M162",
               "formula": "J162*K162*L162",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "skylight": null,
@@ -376,24 +396,32 @@
             "count": {
               "value": 0,
               "cell": "L160",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 3,
               "cell": "J160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M160",
               "formula": "J160*K160*L160",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "doors": [
@@ -402,24 +430,30 @@
             "count": {
               "value": 4,
               "cell": "L161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 2,
               "cell": "K161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 8,
               "cell": "M161",
               "formula": "J161*K161*L161",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "gates": [
@@ -428,24 +462,30 @@
             "count": {
               "value": 2,
               "cell": "L162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 5,
               "cell": "J162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 5,
               "cell": "K162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 50,
               "cell": "M162",
               "formula": "J162*K162*L162",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "skylight": null,
@@ -601,48 +641,64 @@
             "count": {
               "value": 0,
               "cell": "L160",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 50,
               "cell": "J160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M160",
               "formula": "J160*K160*L160",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           },
           {
             "row": 161,
             "count": {
               "value": 0,
               "cell": "L161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 2,
               "cell": "K161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M161",
               "formula": "J161*K161*L161",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "doors": [
@@ -651,24 +707,30 @@
             "count": {
               "value": 3,
               "cell": "L162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 2,
               "cell": "J162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 2,
               "cell": "K162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 12,
               "cell": "M162",
               "formula": "J162*K162*L162",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "gates": [
@@ -677,24 +739,30 @@
             "count": {
               "value": 3,
               "cell": "L163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 4,
               "cell": "J163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 4.5,
               "cell": "K163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 54,
               "cell": "M163",
               "formula": "J163*K163*L163",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "skylight": null,
@@ -850,48 +918,64 @@
             "count": {
               "value": 0,
               "cell": "L160",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 50,
               "cell": "J160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M160",
               "formula": "J160*K160*L160",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           },
           {
             "row": 161,
             "count": {
               "value": 0,
               "cell": "L161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 2,
               "cell": "K161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M161",
               "formula": "J161*K161*L161",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "doors": [
@@ -900,24 +984,30 @@
             "count": {
               "value": 3,
               "cell": "L162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 2,
               "cell": "J162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 2,
               "cell": "K162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 12,
               "cell": "M162",
               "formula": "J162*K162*L162",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "gates": [
@@ -926,24 +1016,30 @@
             "count": {
               "value": 3,
               "cell": "L163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 4,
               "cell": "J163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 4.5,
               "cell": "K163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 54,
               "cell": "M163",
               "formula": "J163*K163*L163",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "skylight": null,
@@ -1099,48 +1195,64 @@
             "count": {
               "value": 0,
               "cell": "L160",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 50,
               "cell": "J160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M160",
               "formula": "J160*K160*L160",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           },
           {
             "row": 161,
             "count": {
               "value": 0,
               "cell": "L161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 2,
               "cell": "K161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M161",
               "formula": "J161*K161*L161",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "doors": [
@@ -1149,24 +1261,30 @@
             "count": {
               "value": 3,
               "cell": "L162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 2,
               "cell": "J162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 2,
               "cell": "K162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 12,
               "cell": "M162",
               "formula": "J162*K162*L162",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "gates": [
@@ -1175,24 +1293,30 @@
             "count": {
               "value": 3,
               "cell": "L163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 4,
               "cell": "J163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 4.5,
               "cell": "K163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 54,
               "cell": "M163",
               "formula": "J163*K163*L163",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "skylight": null,
@@ -1348,48 +1472,64 @@
             "count": {
               "value": 0,
               "cell": "L160",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 50,
               "cell": "J160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M160",
               "formula": "J160*K160*L160",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           },
           {
             "row": 161,
             "count": {
               "value": 0,
               "cell": "L161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 2,
               "cell": "K161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M161",
               "formula": "J161*K161*L161",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "doors": [
@@ -1398,24 +1538,32 @@
             "count": {
               "value": 0,
               "cell": "L162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J162",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 2.1,
               "cell": "K162",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M162",
               "formula": "J162*K162*L162",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "gates": [
@@ -1424,24 +1572,30 @@
             "count": {
               "value": 1,
               "cell": "L163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 4,
               "cell": "J163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 4,
               "cell": "K163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 16,
               "cell": "M163",
               "formula": "J163*K163*L163",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "skylight": null,
@@ -1597,48 +1751,64 @@
             "count": {
               "value": 0,
               "cell": "L160",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 50,
               "cell": "J160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K160",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M160",
               "formula": "J160*K160*L160",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           },
           {
             "row": 161,
             "count": {
               "value": 0,
               "cell": "L161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 2,
               "cell": "K161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M161",
               "formula": "J161*K161*L161",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "doors": [
@@ -1647,24 +1817,32 @@
             "count": {
               "value": 0,
               "cell": "L162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J162",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 2.1,
               "cell": "K162",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M162",
               "formula": "J162*K162*L162",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "gates": [
@@ -1673,24 +1851,30 @@
             "count": {
               "value": 1,
               "cell": "L163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 4,
               "cell": "J163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 4,
               "cell": "K163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 16,
               "cell": "M163",
               "formula": "J163*K163*L163",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "skylight": null,
@@ -1846,24 +2030,32 @@
             "count": {
               "value": 0,
               "cell": "L154",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 4,
               "cell": "J154",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K154",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M154",
               "formula": "L154*K154*J154",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "doors": [
@@ -1872,24 +2064,32 @@
             "count": {
               "value": 0,
               "cell": "L155",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 2.1,
               "cell": "J155",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K155",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M155",
               "formula": "L155*K155*J155",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "gates": [
@@ -1898,24 +2098,30 @@
             "count": {
               "value": 2,
               "cell": "L156",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 4.5,
               "cell": "J156",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 4.5,
               "cell": "K156",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 40.5,
               "cell": "M156",
               "formula": "L156*K156*J156",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "skylight": null,
@@ -2071,24 +2277,32 @@
             "count": {
               "value": 0,
               "cell": "L161",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 34,
               "cell": "J161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K161",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M161",
               "formula": "J161*K161*L161",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "doors": [
@@ -2097,24 +2311,32 @@
             "count": {
               "value": 0,
               "cell": "L162",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J162",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 2.1,
               "cell": "K162",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M162",
               "formula": "J162*K162*L162",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "gates": [
@@ -2123,24 +2345,30 @@
             "count": {
               "value": 2,
               "cell": "L163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 4.5,
               "cell": "J163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 4.5,
               "cell": "K163",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 40.5,
               "cell": "M163",
               "formula": "J163*K163*L163",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "skylight": null,
@@ -2296,24 +2524,32 @@
             "count": {
               "value": 0,
               "cell": "L154",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 81,
               "cell": "J154",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "height_m": {
               "value": 1,
               "cell": "K154",
-              "status": "PROVEN"
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
             },
             "area_m2": {
               "value": 0,
               "cell": "M154",
               "formula": "L154*K154*J154",
-              "status": "PROVEN"
-            }
+              "status": "INACTIVE_TEMPLATE_VALUE",
+              "transferability": "CONTEXT_ONLY",
+              "note": "count=0 for this row — width/height/area are template placeholders left over in the source cell, NOT a real opening's dimensions. Must not be passed into a normalized fixture as real geometry."
+            },
+            "active": false
           }
         ],
         "doors": [
@@ -2322,24 +2558,30 @@
             "count": {
               "value": 1,
               "cell": "L155",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 1,
               "cell": "J155",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 2.1,
               "cell": "K155",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 2.1,
               "cell": "M155",
               "formula": "L155*K155*J155",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "gates": [
@@ -2348,24 +2590,30 @@
             "count": {
               "value": 1,
               "cell": "L156",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "width_m": {
               "value": 4.1,
               "cell": "J156",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "height_m": {
               "value": 4.5,
               "cell": "K156",
-              "status": "PROVEN"
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
             },
             "area_m2": {
               "value": 18.45,
               "cell": "M156",
               "formula": "L156*K156*J156",
-              "status": "PROVEN"
-            }
+              "status": "PROVEN",
+              "transferability": "SAFE_AS_REGRESSION_INPUT"
+            },
+            "active": true,
+            "positionOnWallNote": "Opening position along the wall (offset from corner/axis) is NOT recorded in this workbook — only count, width, height, and area. Do not assume centered or any specific placement."
           }
         ],
         "skylight": "зенит.фонарь 3х1,3(h), PROVEN in B7",
@@ -2386,5 +2634,12 @@
         "axisPositionsVerified": false
       }
     }
-  ]
+  ],
+  "openingActivitySummary": {
+    "activeWindowRows": 0,
+    "activeDoorRows": 6,
+    "activeGateRows": 10,
+    "inactiveRowsWithNonzeroTemplateDimensions": 19,
+    "note": "Dimensions from rows where count=0 are retained only as raw template evidence and must not be interpreted as real openings."
+  }
 }
